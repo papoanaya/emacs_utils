@@ -11,9 +11,8 @@ required.
 - muse-mm.el : Muse mode for groff Memorandum Macros (-mm).  Even though
   muse already has a groff mode, that mode  uses the MOM and WWW macros. This
   combination seems to be geared to literature. The MM macros are 
-  catered for professional communications. These may be rough around the
-  edges but they work good enough for me. I worked with these macros
-  for many years, I am quite familiar with those.
+  catered for professional communications. This MUSE driver  may be
+  rough around the edges but it works good enough for me.
 - mantislib.el : Copy of jira2.el library for the Mantis bug tracking
   system.  It is still in development, but getting there. These can be 
   used in combination of other tools for access data from Mantis tickets. 
