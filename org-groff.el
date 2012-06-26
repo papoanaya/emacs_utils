@@ -1920,8 +1920,8 @@ The conversion is made depending of STRING-BEFORE and STRING-AFTER."
 							 (org-trim elem)) "|")))
                    lines))
 
+            (setq first-line (car lines))
             (when insert
-			  (setq first-line (car lines))
               (insert (org-export-groff-protect-string
                        (concat
 					   (if org-export-groff-tables-centered 
