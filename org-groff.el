@@ -1951,7 +1951,7 @@ The conversion is made depending of STRING-BEFORE and STRING-AFTER."
 										  )
 									)  linea))
 
-						(format "\n.TE" tabular-env)
+						(format ".TE" tabular-env)
 						))
                       "\n\n"))))))))
 
