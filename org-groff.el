@@ -1924,8 +1924,6 @@ The conversion is made depending of STRING-BEFORE and STRING-AFTER."
 			  (setq first-line (car lines))
               (insert (org-export-groff-protect-string
                        (concat
-                        (if  org-export-groff-tables-centered 
-                            ".DS C\n")
 						(concat ".TS\n"
 								"box,center;\n" )
 						(format "%s.\n"
@@ -1945,13 +1943,12 @@ The conversion is made depending of STRING-BEFORE and STRING-AFTER."
 											 )
 										   (setq linea (concat linea "\n"))
 										   )
-										  ((eq line-item "hline") (setq linea (concat linea "_\n")))
+										  ((eql line-item 'hline) (setq linea (concat linea "_\n")))
 										  )
 									)  linea))
 
 						(format "\n.TE" tabular-env)
-						(if org-export-groff-tables-centered
-							"\n.DE\n" "\n")))
+						))
                       "\n\n"))))))))
 
 (defun org-export-groff-convert-table.el-table ()
