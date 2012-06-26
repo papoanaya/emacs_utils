@@ -1915,25 +1915,29 @@ The conversion is made depending of STRING-BEFORE and STRING-AFTER."
                   (mapcar
                    (lambda(elem)
                      (or (and (string-match "[ \t]*|-+" elem) 'hline)
-                         (org-split-string
-						  (progn (set-text-properties 0 (length elem) nil elem)
-								 (org-trim elem)) "|")))
+					 (org-split-string
+					  (progn (set-text-properties 0 (length elem) nil elem)
+							 (org-trim elem)) "|")))
                    lines))
 
             (when insert
 			  (setq first-line (car lines))
               (insert (org-export-groff-protect-string
                        (concat
-						(concat ".TS\n"
-								"box,center;\n" )
-						(format "%s.\n"
-								(let ((linea ""))
-								  (dotimes (i (length first-line))
-									(setq linea (concat linea "cb" " "))
-									)
-								  (setq linea (concat linea "\n"))
-								  (dotimes (i (length first-line))
-									(setq linea (concat linea "c" " ")))  linea ))
+					   (if org-export-groff-tables-centered 
+						   (concat ".TS\n"
+								   "box,center;\n" )
+						 (concat ".TS\n"
+								 "box;\n" ))
+	
+					   (format "%s.\n"
+							   (let ((linea ""))
+								 (dotimes (i (length first-line))
+								   (setq linea (concat linea "cb" " "))
+								   )
+								 (setq linea (concat linea "\n"))
+								 (dotimes (i (length first-line))
+								   (setq linea (concat linea "c" " ")))  linea ))
 						(format "%s"
 								(let ((linea ""))
 								  (dolist (line-item lines)
