@@ -21,8 +21,8 @@ required.
   done. 
 - org-groff.el : Org Export for groff using groff's Memorandum
   Macros. Another work in progress but it exports the basic outlines,
-  todo  and date markers (SCHEDULED: DEADLINE:). 
-  No table or graph support as of yet, but the objective is to be
+  todo, rudimentary table export and date markers (SCHEDULED: DEADLINE:). 
+  No graph support as of yet, but the objective is to be
   able to use TBL and PIC to support those.  It is based on
   the LaTeX export code.  There is still a lot of the latex code
   there that needs to be cleaned up. It will be done  as soon as I find
