@@ -49,7 +49,7 @@
 (require 'org)
 (require 'org-exp)
 (require 'org-macs)
-(require 'org-beamer)
+;;(require 'org-beamer)
 
 ;;; Variables:
 (defvar org-export-groff-class nil)
