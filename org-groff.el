@@ -1643,7 +1643,7 @@ See the `org-export-groff.el' code for a complete conversion table."
 					((equal (match-string 2) "...")
 					 (replace-match
 					  (concat (match-string 1)
-							  (org-export-groff-protect-string "\\ldots{}")) t t))
+							  (org-export-groff-protect-string "...")) t t))
 					((equal (match-string 2) "~")
 					 (cond ((equal (match-string 1) "\\") nil)
 						   ((eq 'org-link (get-text-property 0 'face (match-string 2)))
