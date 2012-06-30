@@ -1723,7 +1723,15 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
   "Transcode a PARAGRAPH element from Org to Groff.
 CONTENTS is the contents of the paragraph, as a string.  INFO is
 the plist used as a communication channel."
-  (concat ".P\n" contents))
+  (setq parent (plist-get (nth 1 paragraph) :parent))
+  (when parent
+	(if (and (eq (car parent) 'item)
+			 (plist-get (nth 1 parent) :bullet ) ) 
+		  (concat "" contents)
+	  (concat "\n.P" contents)
+	  )
+  )
+)
 
 
 ;;;; Plain List
