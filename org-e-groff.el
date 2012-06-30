@@ -1,4 +1,4 @@
-;;; org-e-groff.el --- GRoff Back-End For Org Export Engine
+1;2000;0c;;; org-e-groff.el --- GRoff Back-End For Org Export Engine
 
 ;; Copyright (C) 2011-2012  Free Software Foundation, Inc.
 
@@ -442,7 +442,7 @@ order to reproduce the default set-up:
   :type 'string)
 
 (defcustom org-e-groff-inline-image-rules
-  '(("file" . "\\.\\(pdf\\|jpeg\\|jpg\\|png\\|ps\\|eps\\)\\'"))
+  '(("file" . "\\.\\(pdf\\|ps\\|eps\\)\\'"))
   "Rules characterizing image files that can be inlined into Groff.
 
 A rule consists in an association whose key is the type of link
@@ -1621,7 +1621,7 @@ used as a communication channel."
     (setq attr (cond (t (or org-e-groff-image-default-option ""))))
     ;; Return proper string, depending on DISPOSITION.
     (case disposition
-      (t (format ".PSPIC" path)))))
+      (t (format ".PSPIC \"%s\"" path)))))
 
 (defun org-e-groff-link (link desc info)
   "Transcode a LINK object from Org to Groff.
