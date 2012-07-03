@@ -1,4 +1,4 @@
-1;2000;0c;;; org-e-groff.el --- GRoff Back-End For Org Export Engine
+ ;;; org-e-groff.el --- GRoff Back-End For Org Export Engine
 
 ;; Copyright (C) 2011-2012  Free Software Foundation, Inc.
 
@@ -41,6 +41,7 @@
 
 (defvar org-export-groff-default-packages-alist)
 (defvar org-export-groff-packages-alist)
+
 
 (declare-function org-element-property "org-element" (property element))
 (declare-function org-element-normalize-string "org-element" (s))
@@ -405,7 +406,7 @@ order to reproduce the default set-up:
 
 ;;;; Footnotes
 
-(defcustom org-e-groff-footnote-separator ".FC\n%s\n.FE"
+(defcustom org-e-groff-footnote-separator "\\*F"
   "Text used to separate footnotes."
   :group 'org-export-e-groff
   :type 'string)
@@ -485,7 +486,7 @@ default we use here encompasses both."
   "When non-nil, display tables in a formal \"booktabs\" style.
 This option assumes that the \"booktabs\" package is properly
 loaded in the header of the document.  This value can be ignored
-locally with \"booktabs=yes\" and \"booktabs=no\" Groff
+locally with \"booktabs :yes\" and \"booktabs :no\" Groff
 attributes."
   :group 'org-export-e-groff
   :type 'boolean)
@@ -706,19 +707,11 @@ with:
 		   (string :tag "Minted language"))))
 
 (defcustom org-e-groff-minted-options nil
-  "Association list of options for the groff minted package.
-
-These options are supplied within square brackets in
-\\begin{minted} environments.  Each element of the alist should
-be a list containing two strings: the name of the option, and the
-value.  For example,
+  "Association list of options for the minted package.
+  Minted is not supported in groff.
 
   \(setq org-e-groff-minted-options
     '\((\"bgcolor\" \"bg\") \(\"frame\" \"lines\")))
-
-will result in src blocks being exported with
-
-\\begin{minted}[bgcolor=bg,frame=lines]{<LANG>}
 
 as the start of the minted environment. Note that the same
 options will be applied to blocks of all languages."
@@ -906,7 +899,7 @@ nil."
   (mapconcat (lambda (pair)
 			   (concat (first pair)
 					   (when (> (length (second pair)) 0)
-						 (concat "=" (second pair)))))
+						 (concat " :" (second pair)))))
 			 options
 			 ","))
 
@@ -967,53 +960,10 @@ See `org-e-groff-text-markup-alist' for details."
      (t (format fmt text)))))
 
 
-;; TODO
-
-(defun org-e-groff--delayed-footnotes-definitions (element info)
-  "Return footnotes definitions in ELEMENT as a string.
-
-INFO is a plist used as a communication channel.
-
-Footnotes definitions are returned within \"\\footnotetxt{}\"
-commands.
-
-This functions is used within constructs that don't support
-\"\\footnote{}\" command (i.e. an item's tag).  In that case,
-\"\\footnotemark\" is used within the construct and this function
-outside of it."
-  (mapconcat
-   (lambda (ref)
-     (format
-      ".FS\n%s\n.FE"
- ;;     (org-export-get-footnote-number ref info)
-      (org-trim
-       (org-export-data
-		(org-export-get-footnote-definition ref info) info))))
-   ;; Find every footnote reference in ELEMENT.
-   (let* (all-refs
-		  search-refs					; For byte-compiler.
-		  (search-refs
-		   (function
-			(lambda (data)
-			  ;; Return a list of all footnote references never seen
-			  ;; before in DATA.
-			  (org-element-map
-			   data 'footnote-reference
-			   (lambda (ref)
-				 (when (org-export-footnote-first-reference-p ref info)
-				   (push ref all-refs)
-				   (when (eq (org-element-property :type ref) 'standard)
-					 (funcall search-refs
-							  (org-export-get-footnote-definition ref info)))))
-			   info)
-			  (reverse all-refs)))))
-     (funcall search-refs element))
-   ""))
-
 
 
 ;;; Template
-;;; TODO
+
 (defun org-e-groff-template (contents info)
   "Return complete document string after Groff conversion.
 CONTENTS is the transcoded contents string.  INFO is a plist
@@ -1211,63 +1161,35 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 ;;
 ;; Footnote Definitions are ignored.
 
-
-;;;; Footnote Reference
-;;
-;; Footnote reference export is handled by
-;; `org-e-groff-footnote-reference'.
-;;
-;; Internally, `org-e-groff--get-footnote-counter' is used to restore
-;; the value of the Groff "footnote" counter after a jump due to
-;; a reference to an already defined footnote.  It is only needed in
-;; item tags since the optional argument to \footnotemark is not
-;; allowed there.
-
-(defun org-e-groff--get-footnote-counter (footnote-reference info)
-  "Return \"footnote\" counter before FOOTNOTE-REFERENCE is encountered.
-INFO is a plist used as a communication channel."
-  ;; Find original counter value by counting number of footnote
-  ;; references appearing for the first time before the current
-  ;; footnote reference.
-  (let* ((label (org-element-property :label footnote-reference))
-		 seen-refs
-		 search-ref						; For byte-compiler.
-		 (search-ref
-		  (function
-		   (lambda (data)
-			 ;; Search footnote references through DATA, filling
-			 ;; SEEN-REFS along the way.
-			 (org-element-map
-			  data 'footnote-reference
-			  (lambda (fn)
-				(let ((fn-lbl (org-element-property :label fn)))
-				  (cond
-				   ;; Anonymous footnote match: return number.
-				   ((equal fn footnote-reference) (length seen-refs))
-				   ;; Anonymous footnote: it's always a new one.
-				   ;; Also, be sure to return nil from the `cond' so
-				   ;; `first-match' doesn't get us out of the loop.
-				   ((not fn-lbl) (push 'inline seen-refs) nil)
-				   ;; Label not seen so far: add it so SEEN-REFS.
-				   ;;
-				   ;; Also search for subsequent references in
-				   ;; footnote definition so numbering follows reading
-				   ;; logic.  Note that we don't have to care about
-				   ;; inline definitions, since `org-element-map'
-				   ;; already traverse them at the right time.
-				   ((not (member fn-lbl seen-refs))
-					(push fn-lbl seen-refs)
-					(funcall search-ref
-							 (org-export-get-footnote-definition fn info))))))
-			  ;; Don't enter footnote definitions since it will happen
-			  ;; when their first reference is found.
-			  info 'first-match 'footnote-definition)))))
-    (funcall search-ref (plist-get info :parse-tree))))
-
 ;; 
 ;; Footnotes are handled automatically in GROFF. Although
 ;; manual references can be added, not really required.
 ;; 
+
+(defun org-e-groff-footnote-reference (footnote-reference contents info)
+
+;; Changing from info to footnote-reference
+  (let ((definitions (org-export-collect-footnote-definitions
+					  (plist-get info :parse-tree) info)) )
+		;; Insert full links right inside the footnote definition
+		;; as they have no chance to be inserted later.   
+	(when definitions
+	  (concat
+	   (mapconcat
+		(lambda (ref)
+		  (let ((id (format "%s" (car ref )) )
+				(ref-id  (format "%s" (plist-get (nth 1 footnote-reference) :label )))) 
+			;; Distinguish between inline definitions and
+			;; full-fledged definitions.
+			(org-trim
+			 (let ((def (nth 2 ref)))
+			   (if (string= id ref-id)
+				   (concat "\\*F\n.FS\n" (org-export-data def info) ".FE")
+				 ""
+				 )
+			   ))))
+		definitions "\n"))))
+  )
 
 ;;;; Headline
 
@@ -1621,7 +1543,7 @@ used as a communication channel."
     (setq attr (cond (t (or org-e-groff-image-default-option ""))))
     ;; Return proper string, depending on DISPOSITION.
     (case disposition
-      (t (format ".PSPIC \"%s\"" path)))))
+      (t (format "\n.PSPIC \"%s\" " path)))))
 
 (defun org-e-groff-link (link desc info)
   "Transcode a LINK object from Org to Groff.
@@ -1728,7 +1650,7 @@ the plist used as a communication channel."
 	(if (and (eq (car parent) 'item)
 			 (plist-get (nth 1 parent) :bullet ) ) 
 		  (concat "" contents)
-	  (concat "\n.P" contents)
+	  (concat "" contents)
 	  )
   )
 )
@@ -2014,7 +1936,7 @@ a communication channel."
   (let ((attr (mapconcat 'identity
 						 (org-element-property :attr_groff table)
 						 " ")))
-    (if (string-match "\\<align=\\(\\S-+\\)" attr) (match-string 1 attr)
+    (if (string-match "\\<align :\\(\\S-+\\)" attr) (match-string 1 attr)
       (let (alignment)
 		;; Extract column groups and alignment from first (non-rule)
 		;; row.
@@ -2062,10 +1984,10 @@ This function assumes TABLE has `org' as its `:type' attribute."
 		 ;; or sidewaystable.
 		 (float-env nil)
 		 ;; Extract others display options.
-		 (width (and attr (string-match "\\<width=\\(\\S-+\\)" attr)
+		 (width (and attr (string-match "\\<width :\\(\\S-+\\)" attr)
 					 (org-match-string-no-properties 1 attr)))
 		 (placement
-		  (if (and attr (string-match "\\<placement=\\(\\S-+\\)" attr))
+		  (if (and attr (string-match "\\<placement :\\(\\S-+\\)" attr))
 			  (org-match-string-no-properties 1 attr)
 			(format "[%s]" org-e-groff-default-figure-position))))
     ;; Prepare the final format string for the table.
@@ -2183,7 +2105,7 @@ a communication channel."
 			    " "))
 	   (longtablep nil)
 	   (booktabsp
-	    (or (and attr (string-match "\\<booktabs=\\(yes\\|t\\)\\>" attr))
+	    (or (and attr (string-match "\\<booktabs :\\(yes\\|t\\)\\>" attr))
 		org-e-groff-tables-booktabs))
 	   ;; TABLE-ROW's borders are extracted from its first cell.
 	   (borders
