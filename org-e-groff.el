@@ -1288,7 +1288,7 @@ holding contextual information."
 		(if (not (org-export-last-sibling-p headline)) low-level-body
 		  (replace-regexp-in-string
 		   "[ \t\n]*\\'"
-		   (concat "\n.LE\n" )
+		   (concat ".LE" )
 		   low-level-body))))
      ;; Case 3. Standard headline.  Export it as a section.
      (t
@@ -1647,11 +1647,18 @@ CONTENTS is the contents of the paragraph, as a string.  INFO is
 the plist used as a communication channel."
   (setq parent (plist-get (nth 1 paragraph) :parent))
   (when parent
-	(if (and (eq (car parent) 'item)
-			 (plist-get (nth 1 parent) :bullet ) ) 
-		  (concat "" contents)
-	  (concat "" contents)
-	  )
+	(let ((parent-type (car parent)) 
+		  (fixed-paragraph ""))
+	  (cond ((and (eq parent-type 'item)
+				  (plist-get (nth 1 parent) :bullet ) )
+			 (setq fixed-paragraph (concat "" contents)) )
+			 ((eq parent-type 'section)
+			  (setq fixed-paragraph (concat ".P\n" contents) ) )
+			 ((eq parent-type 'footnote-definition)
+			  (setq fixed-paragraph (concat "" contents) ))
+			 (t (setq fixed-paragraph (concat "" contents)) ) 
+			 )
+	  fixed-paragraph)
   )
 )
 
@@ -1678,7 +1685,7 @@ contextual information."
 					  ((eq type 'descriptive) ".VL"))))
     (org-e-groff--wrap-label
      plain-list
-     (format "%s\n%s\n%s\n.LE"
+     (format "%s%s\n%s.LE"
 			 groff-type
 			 ;; Once special environment, if any, has been removed, the
 			 ;; rest of the attributes will be optional arguments.
