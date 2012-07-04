@@ -1513,6 +1513,7 @@ used as a communication channel."
 		 (path (let ((raw-path (org-element-property :path link)))
 				 (if (not (file-name-absolute-p raw-path)) raw-path
 				   (expand-file-name raw-path))))
+
 		 (caption (org-e-groff--caption/label-string
 				   (org-element-property :caption parent)
 				   (org-element-property :name parent)
@@ -1523,27 +1524,33 @@ used as a communication channel."
 								 (org-element-property :attr_groff parent)
 								 " ")))
 				 (unless (string= raw-attr "") raw-attr)))
+
+		 ;; Attributes are going to be
+		 ;; :position (left|center|right)
+		 ;; :width 
+		 ;; :height 
+
 		 (disposition
 		  (cond
-		   ((and attr (string-match "\\<wrap\\>" attr)) 'wrap)
-		   ((and attr (string-match "\\<multicolumn\\>" attr)) 'multicolumn)
-		   ((or (and attr (string-match "\\<float\\>" attr))
-				(not (string= caption "")))
-			'float)))
+		   ((and attr (string-match "\\<:position\\>" attr)) 'position)
+		   ((and attr (string-match "\\<:width\\>" attr)) 'width)
+		   ((and attr (string-match "\\<:height\\>" attr)) 'height) ))
 		 (placement
 		  (cond
-		   (t ""))))
-    ;; Now clear ATTR from any special keyword and set a default
-    ;; value if nothing is left.
-    (setq attr
-		  (if (not attr) ""
-			(org-trim
-			 (replace-regexp-in-string
-			  "\\(wrap\\|multicolumn\\|float\\|placement=\\S-+\\)" "" attr))))
-    (setq attr (cond (t (or org-e-groff-image-default-option ""))))
-    ;; Return proper string, depending on DISPOSITION.
-    (case disposition
-      (t (format "\n.PSPIC \"%s\" " path)))))
+		   ((eq 'xx 'right) "")
+		   (t ""))) )
+		 ;; Now clear ATTR from any special keyword and set a default
+		 ;; value if nothing is left.
+		 (setq attr
+			   (if (not attr) ""
+				 (org-trim
+				  (replace-regexp-in-string
+				   "\\(right\\|center\\|right\\)" "" attr))))
+		 (setq attr (cond (t (or org-e-groff-image-default-option "")))) )
+		 ;; Return proper string, depending on DISPOSITION.
+		 ;; TODO Needs to be expanded with attributes
+		 (case disposition
+		   (t (format "\n.PSPIC \"%s\" " path))))
 
 (defun org-e-groff-link (link desc info)
   "Transcode a LINK object from Org to Groff.
