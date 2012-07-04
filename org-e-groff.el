@@ -1539,18 +1539,23 @@ used as a communication channel."
 		  (cond
 		   ((eq 'xx 'right) "")
 		   (t ""))) )
-		 ;; Now clear ATTR from any special keyword and set a default
-		 ;; value if nothing is left.
-		 (setq attr
-			   (if (not attr) ""
-				 (org-trim
-				  (replace-regexp-in-string
-				   "\\(right\\|center\\|right\\)" "" attr))))
-		 (setq attr (cond (t (or org-e-groff-image-default-option "")))) )
-		 ;; Return proper string, depending on DISPOSITION.
-		 ;; TODO Needs to be expanded with attributes
-		 (case disposition
-		   (t (format "\n.PSPIC \"%s\" " path))))
+	;; Now clear ATTR from any special keyword and set a default
+	;; value if nothing is left.
+	(setq attr
+		  (if (not attr) ""
+			(org-trim
+			 (replace-regexp-in-string
+			  "\\(right\\|center\\|right\\)" "" attr))))
+	(setq attr (cond (t (or org-e-groff-image-default-option "")))) )
+
+  ;; Return proper string, depending on DISPOSITION.
+  ;;
+  ;; TODO Needs to be expanded with attributes
+  ;; Caption needs to be added
+  ;; by adding .FG "caption"
+
+  (case disposition
+	(t (format "\n.PSPIC \"%s\"\n.FG \"%s\" " raw-path ""))))
 
 (defun org-e-groff-link (link desc info)
   "Transcode a LINK object from Org to Groff.
