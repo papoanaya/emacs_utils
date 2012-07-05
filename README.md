@@ -25,7 +25,12 @@ required.
   No graph support as of yet, but the objective is to be
   able to use TBL and PIC to support those.  It is based on
   the LaTeX export code.  There is still a lot of the latex code
-  there that needs to be cleaned up. It will be done  as soon as I find
-  out what can I safely remove. :)
+  there that needs to be cleaned up.  Development of this code is halted
+  and all efforts are being spent on org-e-groff.el .
+- org-e-groff.el : Org Export for groff using groff's Memorandum
+  Macros. This one uses the new org-export.el framework that generalizes
+  how org items are passed. This one leverages of those tags and
+  translates those to Groff Memorandum Macros.
   
+
  
