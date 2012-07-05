@@ -221,15 +221,22 @@ structure of the values.")
   :type '(string :tag "Groff class"))
 
 (defcustom org-e-groff-classes
-  '(("internal"
+  '(("file"
      ".MT 1"
 	 (".H 1 \"%s\"" . ".HU \"%s\"")
 	 (".H 2 \"%s\"" . ".HU \"%s\"")
 	 (".H 3 \"%s\"" . ".HU \"%s\"")
 	 (".H 4 \"%s\"" . ".HU \"%s\"")
 	 (".H 5 \"%s\"" . ".HU \"%s\"") )
+    ("internal"
+     ".MT 0" 
+	 (".H 1 \"%s\"" . ".HU \"%s\"")
+	 (".H 2 \"%s\"" . ".HU \"%s\"")
+	 (".H 3 \"%s\"" . ".HU \"%s\"")
+	 (".H 4 \"%s\"" . ".HU \"%s\"")
+	 (".H 5 \"%s\"" . ".HU \"%s\"") )
     ("external"
-     ".MT 4" 
+     ".MT 0\n.AR \"\"" 
 	 (".H 1 \"%s\"" . ".HU \"%s\"")
 	 (".H 2 \"%s\"" . ".HU \"%s\"")
 	 (".H 3 \"%s\"" . ".HU \"%s\"")
@@ -1889,27 +1896,21 @@ CONTENTS is the text with strike-through markup.  INFO is a plist
 holding contextual information."
   (org-e-groff--text-markup contents 'strike-through))
 
-;;TODO - Currently stubbed to pass the value.
-;; 
-
-
 ;;;; Subscript
 
 (defun org-e-groff-subscript (subscript contents info)
   "Transcode a SUBSCRIPT object from Org to Groff.
 CONTENTS is the contents of the object.  INFO is a plist holding
 contextual information."
-  (format (if (= (length contents) 1) "$_%s$" "%s") contents))
+  (format  "\\d\\s-2%s\\s+2\\u" contents))
 
-;;TODO
-
-;;;; Superscript
+;;;; Superscript "^_%s$
 
 (defun org-e-groff-superscript (superscript contents info)
   "Transcode a SUPERSCRIPT object from Org to Groff.
 CONTENTS is the contents of the object.  INFO is a plist holding
 contextual information."
-  (format (if (= (length contents) 1) "$^%s$" "%s") contents))
+  (format  "\\u\\s-2%s\\s+2\\d" contents))
 
 
 ;;;; Table
