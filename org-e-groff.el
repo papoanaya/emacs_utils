@@ -236,7 +236,7 @@ structure of the values.")
 	 (".H 4 \"%s\"" . ".HU \"%s\"")
 	 (".H 5 \"%s\"" . ".HU \"%s\"") )
     ("external"
-     ".MT 0\n.AR \"\"" 
+     ".MT 4" 
 	 (".H 1 \"%s\"" . ".HU \"%s\"")
 	 (".H 2 \"%s\"" . ".HU \"%s\"")
 	 (".H 3 \"%s\"" . ".HU \"%s\"")
@@ -838,6 +838,13 @@ These are the .aux, .log, .out, and .toc files."
   :type 'boolean)
 
 
+(defcustom org-e-groff-organization "Org User"
+  "Non-nil means remove the logfiles produced by PDF production.
+These are the .aux, .log, .out, and .toc files."
+  :group 'org-export-e-groff
+  :type 'boolean)
+
+
 
 ;;; Internal Functions
 
@@ -977,6 +984,8 @@ CONTENTS is the transcoded contents string.  INFO is a plist
 holding export options."
   (let ((title (org-export-data (plist-get info :title) info)))
     (concat
+     ;; 4. Insert Organization
+	 (format ".AR \"%s\" \n" org-e-groff-organization)
 	 ;; 3. Title
 	 (cond 
 	  ((string= "" title)
@@ -995,6 +1004,7 @@ holding export options."
 			  (format ".AU \"%s\" \"%s\"\n" author email))
 			 (author (format ".AU \"%s\"\n" author))
 			 (t ".AU \"\" \n")))
+
      ;; 5. Date.
      (let ((date (org-export-data (plist-get info :date) info)))
        (and date (format ".ND \"%s\"\n" date)))
@@ -1174,8 +1184,8 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 ;; 
 
 (defun org-e-groff-footnote-reference (footnote-reference contents info)
-
-;; Changing from info to footnote-reference
+ 
+ ;; Changing from info to footnote-reference
   (let ((definitions (org-export-collect-footnote-definitions
 					  (plist-get info :parse-tree) info)) )
 		;; Insert full links right inside the footnote definition
@@ -1191,7 +1201,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 			(org-trim
 			 (let ((def (nth 2 ref)))
 			   (if (string= id ref-id)
-				   (concat "\\*F\n.FS\n" (org-export-data def info) ".FE")
+				   (format "\\u\\s-2%s\\d\\s+2\n.FS %s\n%s.FE\n" id id (org-export-data def info) )
 				 ""
 				 )
 			   ))))
@@ -1798,7 +1808,7 @@ CONTENTS holds the contents of the block.  INFO is a plist
 holding contextual information."
   (org-e-groff--wrap-label
    quote-block
-   (format ".in 0.5i\n\\fI%s\\fP\n.in 0.5i" contents)))
+   (format ".DS I\n\\fH%s\\fP\n.DE" contents)))
 
 
 ;;;; Quote Section
@@ -1808,7 +1818,7 @@ holding contextual information."
 CONTENTS is nil.  INFO is a plist holding contextual information."
   (let ((value (org-remove-indentation
 				(org-element-property :value quote-section))))
-    (when value (format ".DS L\n\\fC%s\\fP\n.DE\n" value))))
+    (when value (format ".DS L\n\\fI%s\\fP\n.DE\n" value))))
 
 
 ;;;; Radio Target
@@ -2029,7 +2039,7 @@ This function assumes TABLE has `org' as its `:type' attribute."
 						  (setq final-line (concat final-line "\n"))
 						  (dotimes (i (length first-line))
 							(setq final-line (concat final-line "c" " ")))  final-line ))
-				(format "%s.TE"
+				(format "%s.TE\n.TB%s"
 						(let ((final-line ""))
 						  (dolist (line-item lines)
 							(cond 
@@ -2041,7 +2051,7 @@ This function assumes TABLE has `org' as its `:type' attribute."
 							  )
 							 )
 							
-							)  final-line))
+							)  final-line) "")
 
 				)))))
 
@@ -2188,7 +2198,7 @@ channel."
   "Transcode a VERSE-BLOCK element from Org to Groff.
 CONTENTS is verse block contents. INFO is a plist holding
 contextual information."
-  content)
+  (format ".DS C\n\\fH%s\\fP\n.DE" contents))
 
 
 
