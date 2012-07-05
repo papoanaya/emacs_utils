@@ -2014,6 +2014,7 @@ This function assumes TABLE has `org' as its `:type' attribute."
 
 	;;(setq first-line (car contents))
 	(setq lines (org-split-string contents "\n"))
+
 	(when lines
 	  (setq first-line (org-split-string (car lines) "\t")))
     (cond
@@ -2032,8 +2033,6 @@ This function assumes TABLE has `org' as its `:type' attribute."
 						(let ((final-line ""))
 						  (dolist (line-item lines)
 							(cond 
-							 ((string-match "\\hline" line-item)
-							  (setq final-line (concat final-line "_\n")))
 							 (t	
 							  (setq lines (org-split-string contents "\n"))
 
@@ -2120,29 +2119,22 @@ a communication channel."
   ;; borders of the current row.
   (when (eq (org-element-property :type table-row) 'standard)
     (let* ((attr (mapconcat 'identity
-			    (org-element-property
-			     :attr_groff (org-export-get-parent table-row))
-			    " "))
-	   (longtablep nil)
-	   (booktabsp
-	    (or (and attr (string-match "\\<booktabs :\\(yes\\|t\\)\\>" attr))
-		org-e-groff-tables-booktabs))
-	   ;; TABLE-ROW's borders are extracted from its first cell.
-	   (borders
-	    (org-export-table-cell-borders
-	     (car (org-element-contents table-row)) info)))
+							(org-element-property
+							 :attr_groff (org-export-get-parent table-row))
+							" "))
+		   ;; TABLE-ROW's borders are extracted from its first cell.
+		   (borders
+			(org-export-table-cell-borders
+			 (car (org-element-contents table-row)) info)))
       (concat
-       ;; When BOOKTABS are activated enforce top-rule even when no
-       ;; hline was specifically marked.
-       (cond ((and booktabsp (memq 'top borders)) "\\toprule\n")
-	     ((and (memq 'top borders) (memq 'above borders)) "\\hline\n"))
+	   ;; Mark "hline" for horizontal lines.
+       (cond  ((and (memq 'top borders) (memq 'above borders)) "_\n"))
        contents "\\\\\n"
        (cond
-	;; When BOOKTABS are activated enforce bottom rule even when
-	;; no hline was specifically marked.
-	((and booktabsp (memq 'bottom borders)) "box")
-	((and (memq 'bottom borders) (memq 'below borders)) "_")
-	((memq 'below borders) (if booktabsp "_" "_")))))))
+		;; When BOOKTABS are activated enforce bottom rule even when
+		;; no hline was specifically marked.
+		((and (memq 'bottom borders) (memq 'below borders)) "_\n")
+		((memq 'below borders) "_"))))))
 
 
 
