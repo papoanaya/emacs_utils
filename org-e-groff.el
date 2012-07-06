@@ -860,20 +860,22 @@ information.
 If there's no caption nor label, return the empty string.
 
 For non-floats, see `org-e-groff--wrap-label'."
-  (let ((label-str "" ))
-    (cond
-     ((and (not caption) (not label)) "")
-     ((not caption) (format "\\fI%s\\fP\n" label))
-     ;; Option caption format with short name.
-     ((cdr caption)
-      (format "\\fR%s\\fP - \\fI%s\\P - %s\n"
-			  (org-export-data (cdr caption) info)
-			  label-str
-			  (org-export-data (car caption) info)))
-     ;; Standard caption format.
-     (t (format "\\fR%s - %s\\fP\n"
-				label-str
-				(org-export-data (car caption) info))))))
+   (let ((label-str "" ))
+     (cond
+      ((and (not caption) (not label)) "")
+      ((not caption) (format "\\fI%s\\fP\n" label))
+      ;; Option caption format with short name.
+      ((cdr caption)
+       (format "\\fR%s\\fP - \\fI%s\\P - %s\n"
+ 			  (org-export-data (cdr caption) info)
+ 			  label-str
+ 			  (org-export-data (car caption) info)))
+      ;; Standard caption format.
+      (t (format "\\fR%s - %s\\fP\n"
+ 				label-str
+ 				(org-export-data (car caption) info)))))
+
+)
 
 
 ;; TODO
@@ -1526,6 +1528,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
   "Return Groff code for an inline image.
 LINK is the link pointing to the inline image.  INFO is a plist
 used as a communication channel."
+
   (let* ((parent (org-export-get-parent-element link))
 		 (path (let ((raw-path (org-element-property :path link)))
 				 (if (not (file-name-absolute-p raw-path)) raw-path
@@ -1556,6 +1559,7 @@ used as a communication channel."
 		  (cond
 		   ((eq 'xx 'right) "")
 		   (t ""))) )
+
 	;; Now clear ATTR from any special keyword and set a default
 	;; value if nothing is left.
 	(setq attr
@@ -1734,9 +1738,9 @@ contextual information."
 TEXT is the string to transcode.  INFO is a plist holding
 contextual information."
   ;; Protect %, #, &, $, ~, ^, _,  { and }.
-  (while (string-match "\\([^\\]\\|^\\)\\([%$#&{}~^_]\\)" text)
-    (setq text
-		  (replace-match (format "%s" (match-string 2 text)) nil t text 2)))
+;;  (while (string-match "\\([^\\]\\|^\\)\\([%$#&{}~^_]\\)" text)
+;;    (setq text
+;;		  (replace-match (format "%s" (match-string 2 text)) nil t text 2)))
   ;; Protect \
   (setq text (replace-regexp-in-string
 			  "\\(?:[^\\]\\|^\\)\\(\\\\\\)\\(?:[^%$#&{}~^_\\]\\|$\\)"
