@@ -1034,7 +1034,17 @@ holding export options."
      ;; 8. Table of Content must be placed at the end being
      ;; that it gets collected from all the headers. 
 
-     ".TC")))
+
+	 (let ((class (plist-get info :groff-class)))
+	   (cond 
+		((string= class "letter")  
+		 (concat ".FC\n"
+				 ".SG")
+		 )
+		(t ".TC"))
+     )
+
+)))
 
 
 
