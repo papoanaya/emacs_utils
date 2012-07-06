@@ -1,4 +1,4 @@
- ;;; org-e-groff.el --- GRoff Back-End For Org Export Engine
+;;; org-e-groff.el --- GRoff Back-End For Org Export Engine
 
 ;; Copyright (C) 2011-2012  Free Software Foundation, Inc.
 
@@ -863,7 +863,7 @@ For non-floats, see `org-e-groff--wrap-label'."
    (let ((label-str "" ))
      (cond
       ((and (not caption) (not label)) "")
-      ((not caption) (format "\\fI%s\\fP\n" label))
+      ((not caption) (format "\\fI%s\\fP" label))
       ;; Option caption format with short name.
       ((cdr caption)
        (format "\\fR%s\\fP - \\fI%s\\P - %s\n"
@@ -871,8 +871,7 @@ For non-floats, see `org-e-groff--wrap-label'."
  			  label-str
  			  (org-export-data (car caption) info)))
       ;; Standard caption format.
-      (t (format "\\fR%s - %s\\fP\n"
- 				label-str
+      (t (format "\\fR%s\\fP"
  				(org-export-data (car caption) info)))))
 
 )
@@ -1538,7 +1537,6 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
   "Return Groff code for an inline image.
 LINK is the link pointing to the inline image.  INFO is a plist
 used as a communication channel."
-
   (let* ((parent (org-export-get-parent-element link))
 		 (path (let ((raw-path (org-element-property :path link)))
 				 (if (not (file-name-absolute-p raw-path)) raw-path
@@ -2053,7 +2051,7 @@ This function assumes TABLE has `org' as its `:type' attribute."
 						  (setq final-line (concat final-line "\n"))
 						  (dotimes (i (length first-line))
 							(setq final-line (concat final-line "c" " ")))  final-line ))
-				(format "%s.TE\n.TB%s"
+				(format "%s.TE\n.TB \"%s\""
 						(let ((final-line ""))
 						  (dolist (line-item lines)
 							(cond 
@@ -2065,7 +2063,7 @@ This function assumes TABLE has `org' as its `:type' attribute."
 							  )
 							 )
 							
-							)  final-line) "")
+							)  final-line) caption)
 
 				)))))
 
