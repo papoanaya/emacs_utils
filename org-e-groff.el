@@ -28,7 +28,7 @@
 ;;
 ;;   M-: (org-export-to-buffer 'e-groff "*Test e-Groff*") RET
 ;;
-;; in an org-mode buffer then switch to the buffer to see the LaTeX
+;; in an org-mode buffer then switch to the buffer to see the Groff
 ;; export.  See contrib/lisp/org-export.el for more details on how
 ;; this exporter works.
 ;;
@@ -1440,15 +1440,14 @@ contextual information."
 					   until (eq (org-element-type parent) 'headline))))
 			(and count
 				 (< level 5)
-				 ;; .AL
-				 (concat ".BL\n"))))
+				 (concat ".VL 0.25i \n"))))
 ;; 
 ;; Not in use for now
 ;; 
 		 (checkbox (case (org-element-property :checkbox item)
-					 (on "[+] ")
-					 (off "[ ] ")
-					 (trans "[-] ")))
+					 (on "\\(bu ")
+					 (off "\\(ci ")
+					 (trans "\\(em")))
 
 		 (tag (let ((tag (org-element-property :tag item)))
 				;; Check-boxes must belong to the tag.
@@ -1456,15 +1455,17 @@ contextual information."
 								 (concat checkbox
 										 (org-export-data tag info)))))))
 
-    (concat counter ".LI\n" (or tag (concat " " checkbox))
+    (concat counter ".LI " (or tag (concat " " checkbox))
+			"\n"
 			(org-trim contents)
 			;; If there are footnotes references in tag, be sure to
 			;; add their definition at the end of the item.  This
-			;; workaround is necessary since "\footnote{}" command is
-			;; not supported in tags.
-			(and tag
-				 (org-e-groff--delayed-footnotes-definitions
-				  (org-element-property :tag item) info)))))
+			)))
+
+
+;;(and tag
+;;				 (org-e-groff--delayed-footnotes-definitions
+;;				  (org-element-property :tag item) info))
 
 
 ;;;; Keyword
@@ -1736,7 +1737,7 @@ contextual information."
 		 (groff-type (cond
 					  ((eq type 'ordered) ".AL")
 					  ((eq type 'unordered) ".BL")
-					  ((eq type 'descriptive) ".VL"))))
+					  ((eq type 'descriptive) ".VL 1.0i"))))
     (org-e-groff--wrap-label
      plain-list
      (format "%s%s\n%s.LE"
