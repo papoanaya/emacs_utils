@@ -450,7 +450,9 @@ order to reproduce the default set-up:
   :type 'string)
 
 (defcustom org-e-groff-inline-image-rules
-  '(("file" . "\\.\\(pdf\\|ps\\|eps\\|pic\\)\\'"))
+  '(
+	("file" . "\\.\\(pdf\\|ps\\|eps\\|pic\\)\\'")
+	("fuzzy" . "\\.\\(pdf\\|ps\\|eps\\|pic\\)\\'"))
   "Rules characterizing image files that can be inlined into Groff.
 
 A rule consists in an association whose key is the type of link
@@ -1537,15 +1539,13 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
   "Return Groff code for an inline image.
 LINK is the link pointing to the inline image.  INFO is a plist
 used as a communication channel."
-  (let* ((parent (org-export-get-parent-element link))
+  
+   (let* ((parent (org-export-get-parent-element link))
 		 (path (let ((raw-path (org-element-property :path link)))
 				 (if (not (file-name-absolute-p raw-path)) raw-path
 				   (expand-file-name raw-path))))
 
-		 (caption (org-e-groff--caption/label-string
-				   (org-element-property :caption parent)
-				   (org-element-property :name parent)
-				   info))
+
 		 ;; Retrieve groff attributes from the element around.
 		 (attr (let ((raw-attr
 					  (mapconcat #'identity
@@ -1575,7 +1575,14 @@ used as a communication channel."
 			(org-trim
 			 (replace-regexp-in-string
 			  "\\(right\\|center\\|right\\)" "" attr))))
-	(setq attr (cond (t (or org-e-groff-image-default-option "")))) )
+	(setq attr (cond (t (or org-e-groff-image-default-option ""))))
+
+	(setq caption 
+		  (org-e-groff--caption/label-string
+		   (org-element-property :caption parent)
+		   (org-element-property :name parent)
+		   info)
+		  )
 
   ;; Return proper string, depending on DISPOSITION.
   ;;
@@ -1585,8 +1592,8 @@ used as a communication channel."
 
   (cond
 	((string-match ".\.pic$" raw-path) 
-	 (format "\n.PS\ncopy \"%s\"\n.PE\n.FG \"%s\" " raw-path ""))
-	(t (format "\n.PSPIC \"%s\"\n.FG \"%s\" " raw-path ""))))
+	 (format "\n.PS\ncopy \"%s\"\n.PE\n.FG \"%s\" " raw-path caption))
+	(t (format "\n.PSPIC \"%s\"\n.FG \"%s\" " raw-path caption)))))
 
 (defun org-e-groff-link (link desc info)
   "Transcode a LINK object from Org to Groff.
@@ -1594,6 +1601,7 @@ used as a communication channel."
 DESC is the description part of the link, or the empty string.
 INFO is a plist holding contextual information.  See
 `org-export-data'."
+ 
   (let* ((type (org-element-property :type link))
 		 (raw-path (org-element-property :path link))
 		 ;; Ensure DESC really exists, or set it to nil.
@@ -1630,7 +1638,7 @@ INFO is a plist holding contextual information.  See
 		(case (org-element-type destination)
 		  ;; Id link points to an external file.
 		  (plain-text
-		   (if desc (format "\\fIfile://%s\\fP \n %s" destination desc)
+		   (if desc (format "%s \\fBat\\fP \\fIfile://%s\\fP" desc destination)
 			 (format "\\fI file://%s \\fP" destination)))
 		  ;; Fuzzy link points nowhere.
 		  ('nil
@@ -1656,7 +1664,7 @@ INFO is a plist holding contextual information.  See
 		  (otherwise
 		   (let ((path (org-export-solidify-link-text path)))
 			 (if (not desc) (format "\\fI%s\\fP" path)
-			   (format "\\fI%s\\fP - %s" path desc)))))))
+			   (format "%s \\fBat\\fP \\fI%s\\fP" desc path)))))))
      ;; Coderef: replace link with the reference name or the
      ;; equivalent line number.
      ((string= type "coderef")
@@ -1666,7 +1674,7 @@ INFO is a plist holding contextual information.  See
      ((functionp (setq protocol (nth 2 (assoc type org-link-protocols))))
       (funcall protocol (org-link-unescape path) desc 'groff))
      ;; External link with a description part.
-     ((and path desc) (format "\\fI%s\\fP - %s" path desc))
+     ((and path desc) (format "%s \\fBat\\fP \\fI%s\\fP" path desc))
      ;; External link without a description part.
      (path (format "\\fI%s\\fP" path))
      ;; No path, only description.  Try to do something useful.
