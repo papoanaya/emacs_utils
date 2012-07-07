@@ -450,7 +450,7 @@ order to reproduce the default set-up:
   :type 'string)
 
 (defcustom org-e-groff-inline-image-rules
-  '(("file" . "\\.\\(pdf\\|ps\\|eps\\)\\'"))
+  '(("file" . "\\.\\(pdf\\|ps\\|eps\\|pic\\)\\'"))
   "Rules characterizing image files that can be inlined into Groff.
 
 A rule consists in an association whose key is the type of link
@@ -1583,7 +1583,9 @@ used as a communication channel."
   ;; Caption needs to be added
   ;; by adding .FG "caption"
 
-  (case disposition
+  (cond
+	((string-match ".\.pic$" raw-path) 
+	 (format "\n.PS\ncopy \"%s\"\n.PE\n.FG \"%s\" " raw-path ""))
 	(t (format "\n.PSPIC \"%s\"\n.FG \"%s\" " raw-path ""))))
 
 (defun org-e-groff-link (link desc info)
