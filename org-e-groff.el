@@ -1509,7 +1509,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 		(insert value)
 		(goto-char (point-min))
 		(forward-line)
-		(insert (format ".P\n%s\n" label))
+		(insert (format "%s\n" label))
 		(buffer-string)))))
 
 
@@ -1531,8 +1531,8 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 
 ;;;; Link
 ;;;;
-;;;; Inline images just place a call to .PSPIC and load
-;;;; a eps file.
+;;;; Inline images just place a call to .PSPIC or .PS/.PE
+;;;  and load the graph.
 ;;;;
 
 
@@ -1540,7 +1540,6 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
   "Return Groff code for an inline image.
 LINK is the link pointing to the inline image.  INFO is a plist
 used as a communication channel."
-   
   (let* ((parent (org-export-get-parent-element link))
 		 (path (let ((raw-path (org-element-property :path link)))
 				 (if (not (file-name-absolute-p raw-path)) raw-path
