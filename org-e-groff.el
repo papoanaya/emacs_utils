@@ -1625,6 +1625,10 @@ INFO is a plist holding contextual information.  See
     (cond
      ;; Image file.
      (imagep (org-e-groff-link--inline-image link info))
+	 ;; import groff files
+	 ((and (string= type "file") 
+		   (string-match ".\.groff$" raw-path))
+	  (concat ".so " raw-path "\n"))
      ;; Radio link: Transcode target's contents and use them as link's
      ;; description.
      ((string= type "radio")
