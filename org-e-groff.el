@@ -1539,8 +1539,8 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
   "Return Groff code for an inline image.
 LINK is the link pointing to the inline image.  INFO is a plist
 used as a communication channel."
-  
-   (let* ((parent (org-export-get-parent-element link))
+   
+  (let* ((parent (org-export-get-parent-element link))
 		 (path (let ((raw-path (org-element-property :path link)))
 				 (if (not (file-name-absolute-p raw-path)) raw-path
 				   (expand-file-name raw-path))))
@@ -1584,16 +1584,19 @@ used as a communication channel."
 		   info)
 		  )
 
-  ;; Return proper string, depending on DISPOSITION.
-  ;;
-  ;; TODO Needs to be expanded with attributes
-  ;; Caption needs to be added
-  ;; by adding .FG "caption"
 
-  (cond
-	((string-match ".\.pic$" raw-path) 
-	 (format "\n.PS\ncopy \"%s\"\n.PE\n.FG \"%s\" " raw-path caption))
-	(t (format "\n.PSPIC \"%s\"\n.FG \"%s\" " raw-path caption)))))
+	;; Return proper string, depending on DISPOSITION.
+	;;
+	;; TODO Needs to be expanded with attributes
+	;; Caption needs to be added
+	;; by adding .FG "caption"
+
+	;; (message "%s\n" (org-element-property :attr_groff (org-export-get-parent-element link)))
+
+	(cond
+	 ((string-match ".\.pic$" raw-path) 
+	  (format "\n.PS\ncopy \"%s\"\n.PE\n.FG \"%s\" " raw-path caption))
+	 (t (format "\n.PSPIC \"%s\"\n.FG \"%s\" " raw-path caption)))))
 
 (defun org-e-groff-link (link desc info)
   "Transcode a LINK object from Org to Groff.
