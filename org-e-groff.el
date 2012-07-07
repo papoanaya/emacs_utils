@@ -785,9 +785,9 @@ string defines the replacement string for this quote."
 ;;;; Compilation
 
 (defcustom org-e-groff-pdf-process
-  '("pic %f | tbl | groff -mm | ps2pdf - > %b.pdf"
-	"pic %f | tbl | groff -mm | ps2pdf - > %b.pdf"
-	"pic %f | tbl | groff -mm | ps2pdf - > %b.pdf")
+  '("pic %f | tbl | eqn | groff -mm | ps2pdf - > %b.pdf"
+	"pic %f | tbl | eqn | groff -mm | ps2pdf - > %b.pdf"
+	"pic %f | tbl | eqn | groff -mm | ps2pdf - > %b.pdf")
 
   "Commands to process a Groff file to a PDF file.
 This is a list of strings, each of them will be given to the
@@ -819,12 +819,12 @@ file name as its single argument."
 		  (repeat :tag "Shell command sequence"
 				  (string :tag "Shell command"))
 		  (const :tag "2 runs of pdfgroff"
-				 ("pic %f | tbl | groff -mm | ps2pdf - > %b.pdf"
-				  "pic %f | tbl | groff -mm | ps2pdf - > %b.pdf" ))
+				 ("pic %f | tbl | eqn | groff -mm | ps2pdf - > %b.pdf"
+				  "pic %f | tbl | eqn | groff -mm | ps2pdf - > %b.pdf" ))
 		  (const :tag "3 runs of pdfgroff"
-				 ("pic %f | tbl | groff -mm | ps2pdf - > %b.pdf"
-				  "pic %f | tbl | groff -mm | ps2pdf - > %b.pdf"
-				  "pic %f | tbl | groff -mm | ps2pdf - > %b.pdf"))
+				 ("pic %f | tbl | eqn | groff -mm | ps2pdf - > %b.pdf"
+				  "pic %f | tbl | eqn | groff -mm | ps2pdf - > %b.pdf"
+				  "pic %f | tbl | eqn | groff -mm | ps2pdf - > %b.pdf"))
 		  (function)))
 
 (defcustom org-e-groff-logfiles-extensions
