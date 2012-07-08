@@ -868,11 +868,11 @@ OPTIONS is an alist where the key is the options keyword as
 a string, and the value a list containing the keyword value, or
 nil."
   (mapconcat (lambda (pair)
-			   (concat (first pair)
+			   (concat ":" (first pair) " "
 					   (when (> (length (second pair)) 0)
-						 (concat " :" (second pair)))))
+						 (concat (second pair)))))
 			 options
-			 ","))
+			 " "))
 
 (defun org-e-groff--quotation-marks (text info)
   "Export quotation marks depending on language conventions.
@@ -896,8 +896,6 @@ This function shouldn't be used for floats.  See
     (if (or (not output) (not label) (string= output "") (string= label ""))
 		output
       (concat (format "%s\n" label) output))))
-
-;;; TODO
 
 (defun org-e-groff--text-markup (text markup)
   "Format TEXT depending on MARKUP text markup.
@@ -1388,7 +1386,7 @@ contextual information."
 					   until (eq (org-element-type parent) 'headline))))
 			(and count
 				 (< level 5)
-				 (concat ".VL 0.25i \n"))))
+				 (concat ".VL 1.0i \n"))))
 
 		 (checkbox (case (org-element-property :checkbox item)
 					 (on "\\o'\\(sq\\(mu'") ;; \\(bu
@@ -1423,16 +1421,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
      ((string= key "INDEX") nil)
      ;; Invisible targets.
      ((string= key "TARGET") nil)
-     ((string= key "TOC")
-      (let ((value (downcase value)))
-		(cond
-		 ((string-match "\\<headlines\\>" value)
-		  (let ((depth (or (and (string-match "[0-9]+" value)
-								(string-to-number (match-string 0 value)))
-						   (plist-get info :with-toc))))
-			(concat
-			 ".TC\n")))
-		 ((string= "listings" value) (concat ".TC\n") )))))))
+     ((string= key "TOC"   ) nil  ))))
 
 
 ;;;; Groff Environment
