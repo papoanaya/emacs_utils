@@ -249,8 +249,17 @@ structure of the values.")
 	 (".H 3 \"%s\"" . ".HU \"%s\"")
 	 (".H 4 \"%s\"" . ".HU \"%s\"")
 	 (".H 5 \"%s\"" . ".HU \"%s\"") )
+
+    ("none"
+     ""
+	 (".H 1 \"%s\"" . ".HU \"%s\"")
+	 (".H 2 \"%s\"" . ".HU \"%s\"")
+	 (".H 3 \"%s\"" . ".HU \"%s\"")
+	 (".H 4 \"%s\"" . ".HU \"%s\"")
+	 (".H 5 \"%s\"" . ".HU \"%s\"") )
     
     )
+
   "Alist of Groff classes and associated header and structure.
 If #+Groff_CLASS is set in the buffer, use its value and the
 associated information.  Here is the structure of each cell:
@@ -264,49 +273,28 @@ The header string
 -----------------
 
 The HEADER-STRING is the header that will be inserted into the
-Groff file.  It should contain the \\documentclass macro, and
-anything else that is needed for this setup.  To this header, the
-following commands will be added:
+Groff file.  It should contain the MT (Memorandum Type) macro, and
+anything else that is needed for this setup.  
 
-- Calls to \\usepackage for all packages mentioned in the
-  variables `org-export-groff-default-packages-alist' and
-  `org-export-groff-packages-alist'.  Thus, your header
-  definitions should avoid to also request these packages.
-
-- Lines specified via \"#+Groff_HEADER:\"
+- Lines specified via \"#+GROFF_HEADER:\"
 
 If you need more control about the sequence in which the header
 is built up, or if you want to exclude one of these building
 blocks for a particular class, you can use the following
 macro-like placeholders.
 
- [DEFAULT-PACKAGES]      \\usepackage statements for default packages
- [NO-DEFAULT-PACKAGES]   do not include any of the default packages
- [PACKAGES]              \\usepackage statements for packages
- [NO-PACKAGES]           do not include the packages
- [EXTRA]                 the stuff from #+Groff_HEADER
- [NO-EXTRA]              do not include #+Groff_HEADER stuff
- [BEAMER-HEADER-EXTRA]   the beamer extra headers
+ [EXTRA]                 the stuff from #+GROFF_HEADER
+ [NO-EXTRA]              do not include #+GROFF_HEADER stuff
 
 So a header like
 
-  [NO-DEFAULT-PACKAGES]
   [EXTRA]
   \\fB#1\\fP
-  [PACKAGES]
+
 
 will omit the default packages, and will include the
-#+Groff_HEADER lines, then have a call to \\providecommand, and
-then place \\usepackage commands based on the content of
-`org-export-groff-packages-alist'.
+#+Groff_HEADER lines. 
 
-If your header, `org-export-groff-default-packages-alist' or
-`org-export-groff-packages-alist' inserts
-\"\\usepackage[AUTO]{inputenc}\", AUTO will automatically be
-replaced with a coding system derived from
-`buffer-file-coding-system'.  See also the variable
-`org-e-groff-inputenc-alist' for a way to influence this
-mechanism.
 
 The sectioning structure
 ------------------------
@@ -524,24 +512,19 @@ When nil, no transformation is made."
 										   ;; from "verb"
 										   (code . "\\fC%s\\fP") 
 										   (italic . "\\fI%s\\fP")
+
 										   ;;
 										   ;; Strike through
 										   ;; and underline need to be revised.
 
 										   (strike-through . "\\fC%s\\fP")
 										   (underline . "\\fI%s\\fP")
-										   (verbatim . protectedtexttt))
+										   (verbatim .    'protectedtexttt))
   "Alist of Groff expressions to convert text markup.
 
 The key must be a symbol among `bold', `code', `italic',
 `strike-through', `underline' and `verbatim'.  The value is
-a formatting string to wrap fontified text with.
-
-Value can also be set to the following symbols: `verb' and
-`protectedtexttt'.  For the former, Org will use \"\\verb\" to
-create a format string and select a delimiter character that
-isn't in the string.  For the latter, Org will use \"\\texttt\"
-to typeset and try to protect special characters.
+a formatting string to wrap fontified text with it. 
 
 If no association can be found for a given markup, text will be
 returned as-is."
@@ -611,6 +594,11 @@ in order to mimic default behaviour:
 
 ;; Src blocks
 
+;;
+;; TODO - Needs to include the use of pygment, but pygment 
+;; needs to support groff. 
+;; 
+
 (defcustom org-e-groff-listings nil
   "Non-nil means export source code using the listings package.
 This package will fontify source code, possibly even with color.
@@ -625,25 +613,28 @@ for example using customize, or with something like:
 
 Alternatively,
 
-  \(setq org-e-groff-listings 'minted)
+  \(setq org-e-groff-listings 'package)
 
-causes source code to be exported using the minted package as
+causes source code to be exported using the package as
 opposed to listings.  If you want to use minted, you need to add
 the minted package to `org-export-groff-packages-alist', for
 example using customize, or with
 
   \(require 'org-e-groff)
-  \(add-to-list 'org-export-groff-packages-alist '\(\"\" \"minted\"))
+  \(add-to-list 'org-export-groff-packages-alist '\(\"\" \"pygments\"))
 
 In addition, it is necessary to install pygments
 \(http://pygments.org), and to configure the variable
 `org-e-groff-pdf-process' so that the -shell-escape option is
-passed to pdfgroff."
+passed."
+
   :group 'org-export-e-groff
   :type '(choice
-		  (const :tag "Use listings" t)
-		  (const :tag "Use minted" 'minted)
+		  (const :tag "Use listings" nil)
+		  (const :tag "Use minted" nil)
 		  (const :tag "Export verbatim" nil)))
+
+
 
 (defcustom org-e-groff-listings-langs
   '((emacs-lisp "Lisp") (lisp "Lisp") (clojure "Lisp")
@@ -691,49 +682,12 @@ languages."
 		   (string :tag "Listings option name ")
 		   (string :tag "Listings option value"))))
 
-(defcustom org-e-groff-minted-langs
-  '((emacs-lisp "common-lisp")
-    (cc "c++")
-    (cperl "perl")
-    (shell-script "bash")
-    (caml "ocaml"))
-  "Alist mapping languages to their minted language counterpart.
-The key is a symbol, the major mode symbol without the \"-mode\".
-The value is the string that should be inserted as the language
-parameter for the minted package.  If the mode name and the
-listings name are the same, the language does not need an entry
-in this list - but it does not hurt if it is present.
 
-Note that minted uses all lower case for language identifiers,
-and that the full list of language identifiers can be obtained
-with:
-
-  pygmentize -L lexers"
-  :group 'org-export-e-groff
-  :type '(repeat
-		  (list
-		   (symbol :tag "Major mode     ")
-		   (string :tag "Minted language"))))
-
-(defcustom org-e-groff-minted-options nil
-  "Association list of options for the minted package.
-  Minted is not supported in groff.
-
-  \(setq org-e-groff-minted-options
-    '\((\"bgcolor\" \"bg\") \(\"frame\" \"lines\")))
-
-as the start of the minted environment. Note that the same
-options will be applied to blocks of all languages."
-  :group 'org-export-e-groff
-  :type '(repeat
-		  (list
-		   (string :tag "Minted option name ")
-		   (string :tag "Minted option value"))))
 
 (defvar org-e-groff-custom-lang-environments nil
   "Alist mapping languages to language-specific Groff environments.
 
-It is used during export of src blocks by the listings and minted
+It is used during export of src blocks by the listings and 
 groff packages.  For example,
 
   \(setq org-e-groff-custom-lang-environments
@@ -952,10 +906,6 @@ See `org-e-groff-text-markup-alist' for details."
     (cond
      ;; No format string: Return raw text.
      ((not fmt) text)
-     ;; Handle the `verb' special case: Find and appropriate separator
-     ;; and use "\\verb" command.
-	 ;; Handle the `protectedtexttt' special case: Protect some
-     ;; special chars and use "\texttt{%s}" format string.
      ((eq 'protectedtexttt fmt)
       (let ((start 0)
 			(trans '(("\\" . "\\")))
@@ -968,10 +918,7 @@ See `org-e-groff-text-markup-alist' for details."
 		  (setq text (substring text (1+ (match-beginning 0))))
 		  (setq char (or (cdr (assoc char trans)) (concat "\\" char))
 				rtn (concat rtn char)))
-		(setq text (concat rtn text)
-			  fmt "\\fC%s\\fP")
-		(while (string-match "--" text)
-		  (setq text (replace-match "-{}-" t t text)))
+		(setq text (concat rtn text) "\\fC%s\\fP")
 		(format fmt text)))
      ;; Else use format string.
      (t (format fmt text)))))
@@ -1042,8 +989,7 @@ holding export options."
 		 (concat ".FC\n"
 				 ".SG")
 		 )
-		(t ".TC"))
-     )
+		(t ".TC")))
 
 )))
 
@@ -1363,6 +1309,9 @@ holding contextual information."
 
 ;;;; Inline Src Block
 
+;;; TODO - Figure out a highlight package.
+
+
 (defun org-e-groff-inline-src-block (inline-src-block contents info)
   "Transcode an INLINE-SRC-BLOCK element from Org to Groff.
 CONTENTS holds the contents of the item.  INFO is a plist holding
@@ -1373,7 +1322,6 @@ contextual information."
      ;; Do not use a special package: transcode it verbatim.
      (t
       (concat ".DS L" "\\fC" separator "\n" code "\n" separator "\\fP\n.DE\n"))
-     ;; Use minted package.
 	 )))
 
 
@@ -1441,13 +1389,11 @@ contextual information."
 			(and count
 				 (< level 5)
 				 (concat ".VL 0.25i \n"))))
-;; 
-;; Not in use for now
-;; 
+
 		 (checkbox (case (org-element-property :checkbox item)
-					 (on "\\(bu ")
-					 (off "\\(ci ")
-					 (trans "\\(em")))
+					 (on "\\o'\\(sq\\(mu'") ;; \\(bu
+					 (off "\\(sq ") ;;\\(ci
+					 (trans "\\o'\\(sq\\(mi'"   ))) ;; \\(em
 
 		 (tag (let ((tag (org-element-property :tag item)))
 				;; Check-boxes must belong to the tag.
@@ -1462,10 +1408,6 @@ contextual information."
 			;; add their definition at the end of the item.  This
 			)))
 
-
-;;(and tag
-;;				 (org-e-groff--delayed-footnotes-definitions
-;;				  (org-element-property :tag item) info))
 
 
 ;;;; Keyword
@@ -1722,7 +1664,7 @@ the plist used as a communication channel."
 
 
 ;;;; Plain List
-;; TODO
+
 (defun org-e-groff-plain-list (plain-list contents info)
   "Transcode a PLAIN-LIST element from Org to Groff.
 CONTENTS is the contents of the list.  INFO is a plist holding
