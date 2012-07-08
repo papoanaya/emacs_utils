@@ -1475,38 +1475,37 @@ used as a communication channel."
 		 (path (let ((raw-path (org-element-property :path link)))
 				 (if (not (file-name-absolute-p raw-path)) raw-path
 				   (expand-file-name raw-path))))
-
+		 
+		 (attr
+		  (read
+		   (format
+			"(%s)"
+			(mapconcat
+			 #'identity
+			 (org-element-property :attr_groff parent)
+			 " "))))
 
 		 ;; Retrieve groff attributes from the element around.
-		 (attr (let ((raw-attr
-					  (mapconcat #'identity
-								 (org-element-property :attr_groff parent)
-								 " ")))
-				 (unless (string= raw-attr "") raw-attr)))
 
 		 ;; Attributes are going to be
 		 ;; :position (left|center|right)
-		 ;; :width 
-		 ;; :height 
+		 ;; :width id
+		 ;; :height id
 
-		 (disposition
-		  (cond
-		   ((and attr (string-match "\\<:position\\>" attr)) 'position)
-		   ((and attr (string-match "\\<:width\\>" attr)) 'width)
-		   ((and attr (string-match "\\<:height\\>" attr)) 'height) ))
-		 (placement
-		  (cond
-		   ((eq 'xx 'right) "")
-		   (t ""))) )
+		 )
 
 	;; Now clear ATTR from any special keyword and set a default
 	;; value if nothing is left.
-	(setq attr
-		  (if (not attr) ""
-			(org-trim
-			 (replace-regexp-in-string
-			  "\\(right\\|center\\|right\\)" "" attr))))
-	(setq attr (cond (t (or org-e-groff-image-default-option ""))))
+
+	(setq placement
+		  (case (plist-get attr :position)
+			('center "")
+			('left "-L")
+			('right "-R")
+			(t "")))
+
+	(setq width  (or  (plist-get attr :width) "")  )
+	(setq height  (or  (plist-get attr :height) "" )  )
 
 	(setq caption 
 		  (org-e-groff--caption/label-string
@@ -1515,19 +1514,16 @@ used as a communication channel."
 		   info)
 		  )
 
-
 	;; Return proper string, depending on DISPOSITION.
 	;;
 	;; TODO Needs to be expanded with attributes
 	;; Caption needs to be added
 	;; by adding .FG "caption"
 
-	;; (message "%s\n" (org-element-property :attr_groff (org-export-get-parent-element link)))
-
 	(cond
 	 ((string-match ".\.pic$" raw-path) 
 	  (format "\n.PS\ncopy \"%s\"\n.PE\n.FG \"%s\" " raw-path caption))
-	 (t (format "\n.PSPIC \"%s\"\n.FG \"%s\" " raw-path caption)))))
+	 (t (format "\n.PSPIC %s \"%s\" %s %s\n.FG \"%s\" " placement raw-path width height caption)))))
 
 (defun org-e-groff-link (link desc info)
   "Transcode a LINK object from Org to Groff.
@@ -1901,55 +1897,73 @@ contextual information."
   (cond
    ;; Case 1: verbatim table.
    ((or org-e-groff-tables-verbatim
-		(let ((attr (mapconcat 'identity
-							   (org-element-property :attr_groff table)
-							   " ")))
-		  (and attr (string-match "\\<verbatim\\>" attr))))
+		(let ((attr
+		  (read
+		   (format
+			"(%s)"
+			(mapconcat
+			 #'identity
+			 (org-element-property :attr_groff table)
+			 " ")))) )
+
+		  (and attr (plist-get attr :verbatim))))
+
     (format ".DS L\n\\fC%s\\fP\n.DE"
 			;; Re-create table, without affiliated keywords.
 			(org-trim
 			 (org-element-interpret-data
 			  `(table nil ,@(org-element-contents table))))))
-   ;; Case 2: table.el table.  Convert it using appropriate tools.
-   ((eq (org-element-property :type table) 'table.el)
-    (org-e-groff-table--table.el-table table contents info))
-   ;; Case 3: Standard table.
+   ;; Case 2: Standard table.
    (t (org-e-groff-table--org-table table contents info))))
-;;
-;; To Check
-;; 
 
 (defun org-e-groff-table--align-string (table info)
   "Return an appropriate Groff alignment string.
 TABLE is the considered table.  INFO is a plist used as
 a communication channel."
-  (let ((attr (mapconcat 'identity
-						 (org-element-property :attr_groff table)
-						 " ")))
-    (if (string-match "\\<align :\\(\\S-+\\)" attr) (match-string 1 attr)
-      (let (alignment)
-		;; Extract column groups and alignment from first (non-rule)
-		;; row.
-		(org-element-map
-		 (org-element-map
-		  table 'table-row
-		  (lambda (row)
-			(and (eq (org-element-property :type row) 'standard) row))
-		  info 'first-match)
-		 'table-cell
-		 (lambda (cell)
-		   (let ((borders (org-export-table-cell-borders cell info)))
-			 ;; Check left border for the first cell only.
-			 (when (and (memq 'left borders) (not alignment))
-			   (push "|" alignment))
-			 (push (case (org-export-table-cell-alignment cell info)
-					 (left "left")
-					 (right "right")
-					 (center "center"))
-				   alignment)
-			 (when (memq 'right borders) (push "|" alignment))))
-		 info)
-		(apply 'concat (reverse alignment))))))
+  (let ((attr
+		  (read
+		   (format
+			"(%s)"
+			(mapconcat
+			 #'identity
+			 (org-element-property :attr_groff table)
+			 " ")))))
+	(setq align 	
+		  (case (plist-get  attr :align)
+			('center "c")
+			('left "l")
+			('right "r")
+			(nil nil)
+			(t "center")))
+
+
+;;  These can be used to configure the cells.  Leave there for now.
+;;
+;;       (let (alignment)
+;; 		;; Extract column groups and alignment from first (non-rule)
+;; 		;; row.
+;; 		(org-element-map
+;; 		 (org-element-map
+;; 		  table 'table-row
+;; 		  (lambda (row)
+;; 			(and (eq (org-element-property :type row) 'standard) row))
+;; 		  info 'first-match)
+;; 		 'table-cell
+;; 		 (lambda (cell)
+;; 		   (let ((borders (org-export-table-cell-borders cell info)))
+;; 			 ;; Check left border for the first cell only.
+;; 			 (when (and (memq 'left borders) (not alignment))
+;; 			   (push "|" alignment))
+;; 			 (push (case (org-export-table-cell-alignment cell info)
+;; 					 (left "left")
+;; 					 (right "right")
+;; 					 (center "center"))
+;; 				   alignment)
+;; 			 (when (memq 'right borders) (push "|" alignment))))
+;; 		 info)
+;; 		(apply 'concat (reverse alignment)))
+
+))
 
 (defun org-e-groff-table--org-table (table contents info)
   "Return appropriate Groff code for an Org table.
@@ -1962,9 +1976,15 @@ This function assumes TABLE has `org' as its `:type' attribute."
   (let* ((label (org-element-property :name table))
 		 (caption (org-e-groff--caption/label-string
 				   (org-element-property :caption table) label info))
-		 (attr (mapconcat 'identity
-						  (org-element-property :attr_groff table)
-						  " "))
+		 (attr
+		  (read
+		   (format
+			"(%s)"
+			(mapconcat
+			 #'identity
+			 (org-element-property :attr_groff table)
+			 " "))))
+
 		 ;; Determine alignment string.
 		 (alignment (org-e-groff-table--align-string table info))
 		 ;; Determine environment for the table: longtable, tabular...
@@ -1974,19 +1994,31 @@ This function assumes TABLE has `org' as its `:type' attribute."
 		 ;; or sidewaystable.
 		 (float-env nil)
 		 ;; Extract others display options.
-		 (width (and attr (string-match "\\<width :\\(\\S-+\\)" attr)
-					 (org-match-string-no-properties 1 attr)))
-		 (placement
-		  (if (and attr (string-match "\\<placement :\\(\\S-+\\)" attr))
-			  (org-match-string-no-properties 1 attr)
-			(format "[%s]" org-e-groff-default-figure-position))))
+
+		 )
     ;; Prepare the final format string for the table.
 
 	;;(setq first-line (car contents))
+
 	(setq lines (org-split-string contents "\n"))
+
+	(setq expand (plist-get attr :expand) )
+
+	(setq placement
+		  (case (plist-get attr :placement)
+			('center "center")
+			(t ""))  )
+
+	(setq boxtype 
+		  (case (plist-get attr :boxtype)
+			('box "box")
+			('doublebox "doublebox")
+			('none "")
+			(t "box")))
 
 	(when lines
 	  (setq first-line (org-split-string (car lines) "\t")))
+
     (cond
      ;; Others.
      (lines (concat (when (not org-e-groff-tables-centered ) ".TS\nbox,center;\n")
@@ -2016,48 +2048,6 @@ This function assumes TABLE has `org' as its `:type' attribute."
 				)))))
 
 
-
-
-
-
-(defun org-e-groff-table--table.el-table (table contents info)
-  "Return appropriate Groff code for a table.el table.
-
-TABLE is the table type element to transcode.  CONTENTS is its
-contents, as a string.  INFO is a plist used as a communication
-channel.
-
-This function assumes TABLE has `table.el' as its `:type'
-attribute."
-  (require 'table)
-  ;; Ensure "*org-export-table*" buffer is empty.
-  (with-current-buffer (get-buffer-create "*org-export-table*")
-    (erase-buffer))
-  (let ((output (with-temp-buffer
-				  (insert (org-element-property :value table))
-				  (goto-char 1)
-				  (re-search-forward "^[ \t]*|[^|]" nil t)
-				  (table-generate-source 'groff "*org-export-table*")
-				  (with-current-buffer "*org-export-table*"
-					(org-trim (buffer-string))))))
-    (kill-buffer (get-buffer "*org-export-table*"))
-    ;; Remove left out comments.
-    (while (string-match "^%.*\n" output)
-      (setq output (replace-match "" t t output)))
-    ;; When the "rmlines" attribute is provided, remove all hlines but
-    ;; the the one separating heading from the table body.
-    (let ((attr (mapconcat 'identity
-						   (org-element-property :attr_groff table)
-						   " ")))
-      (when (and attr (string-match "\\<rmlines\\>" attr))
-		(let ((n 0) (pos 0))
-		  (while (and (< (length output) pos)
-					  (setq pos (string-match "^\\\\hline\n?" output pos)))
-			(incf n)
-			(unless (= n 2)
-			  (setq output (replace-match "" nil nil output)))))))
-    (if (not org-e-groff-tables-centered) output
-      (format ".DS C\n \\fC%s\\fP\n.DE\n" output))))
 
 
 
