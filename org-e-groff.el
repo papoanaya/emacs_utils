@@ -1324,25 +1324,27 @@ contextual information."
 			 (out-file (make-temp-name 
 						(expand-file-name "reshilite" tmpdir)) )
 			 (org-lang (org-element-property :language inline-src-block))
-			 (lst-lang (or (cadr (assq (intern org-lang)
-						   org-e-groff-listings-langs))
-				       org-lang))
+			 (lst-lang (cadr (assq (intern org-lang)
+						   org-e-groff-listings-langs)))
 			
 			 (cmd (concat (expand-file-name "source-highlight")
-						  " -s " org-lang
+						  " -s " lst-lang
 						  " -f groff_mm "
 						  " -i " in-file
 						  " -o " out-file
 						  )
 				  ))
 				
-		(unless (file-exists-p "source-highlight")
-		  (error 
-		   "GNU Source Highlight must be installed. Turn off org-e-groff-source-highlight.")
-		  )
-		(with-temp-file in-file (insert body))
-		(shell-command cmd)
-		(org-file-contents out-file))
+
+	    (if lst-lang
+		(let ()
+		  (with-temp-file in-file (insert code))
+		  (shell-command cmd)
+		  (org-file-contents out-file))
+	      (format ".DS L\n\\fC%s\\fP\n.DE"
+		      code))
+
+	    )
 	  )
 
      ;; Do not use a special package: transcode it verbatim.
@@ -1877,9 +1879,8 @@ contextual information."
 			(expand-file-name "reshilite" tmpdir)) )
 
 	     (org-lang (org-element-property :language src-block))
-	     (lst-lang (or (cadr (assq (intern org-lang)
-				       org-e-groff-listings-langs))
-			   org-lang))
+	     (lst-lang (cadr (assq (intern org-lang)
+				       org-e-groff-listings-langs)) )
 	     
 	     (cmd (concat "source-highlight"
 			  " -s " lst-lang
@@ -1889,9 +1890,15 @@ contextual information."
 			  )
 		  ))
 	
-	(with-temp-file in-file (insert code))
-	(shell-command cmd)
-	(org-file-contents out-file))
+	(if lst-lang
+	    (let ()
+	      (with-temp-file in-file (insert code))
+	      (shell-command cmd)
+	      (org-file-contents out-file))
+	  (format ".DS L\n\\fC%s\\fP\n.DE"
+		  code))
+
+	  )
       )
 
      (custom-env (format ".DS L\n\\fC%s\\fP\n.DE"
