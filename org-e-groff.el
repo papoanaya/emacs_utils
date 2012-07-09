@@ -469,7 +469,7 @@ default we use here encompasses both."
   :group 'org-export-e-groff
   :type 'string)
 
-(defcustom org-e-groff-tables-centered t
+(defcustom org-e-groff-tables-centered nil
   "When non-nil, tables are exported in a center environment."
   :group 'org-export-e-groff
   :type 'boolean)
@@ -816,21 +816,21 @@ information.
 If there's no caption nor label, return the empty string.
 
 For non-floats, see `org-e-groff--wrap-label'."
-   (let ((label-str "" ))
-     (cond
-      ((and (not caption) (not label)) "")
-      ((not caption) (format "\\fI%s\\fP" label))
-      ;; Option caption format with short name.
-      ((cdr caption)
-       (format "\\fR%s\\fP - \\fI%s\\P - %s\n"
+  (let ((label-str "" ))
+	(cond
+	 ((and (not caption) (not label)) "")
+	 ((not caption) (format "\\fI%s\\fP" label))
+	 ;; Option caption format with short name.
+	 ((cdr caption)
+	  (format "\\fR%s\\fP - \\fI%s\\P - %s\n"
  			  (org-export-data (cdr caption) info)
  			  label-str
  			  (org-export-data (car caption) info)))
-      ;; Standard caption format.
-      (t (format "\\fR%s\\fP"
+	 ;; Standard caption format.
+	 (t (format "\\fR%s\\fP"
  				(org-export-data (car caption) info)))))
 
-)
+  )
 
 
 ;; TODO
@@ -989,7 +989,7 @@ holding export options."
 		 )
 		(t ".TC")))
 
-)))
+	 )))
 
 
 
@@ -1142,11 +1142,11 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 
 (defun org-e-groff-footnote-reference (footnote-reference contents info)
  
- ;; Changing from info to footnote-reference
+  ;; Changing from info to footnote-reference
   (let ((definitions (org-export-collect-footnote-definitions
 					  (plist-get info :parse-tree) info)) )
-		;; Insert full links right inside the footnote definition
-		;; as they have no chance to be inserted later.   
+	;; Insert full links right inside the footnote definition
+	;; as they have no chance to be inserted later.   
 	(when definitions
 	  (concat
 	   (mapconcat
@@ -1389,8 +1389,8 @@ contextual information."
 				 (concat ".VL 1.0i \n"))))
 
 		 (checkbox (case (org-element-property :checkbox item)
-					 (on "\\o'\\(sq\\(mu'") ;; \\(bu
-					 (off "\\(sq ") ;;\\(ci
+					 (on "\\o'\\(sq\\(mu'")			;; \\(bu
+					 (off "\\(sq ")					;;\\(ci
 					 (trans "\\o'\\(sq\\(mi'"   ))) ;; \\(em
 
 		 (tag (let ((tag (org-element-property :tag item)))
@@ -1637,15 +1637,15 @@ the plist used as a communication channel."
 	  (cond ((and (eq parent-type 'item)
 				  (plist-get (nth 1 parent) :bullet ) )
 			 (setq fixed-paragraph (concat "" contents)) )
-			 ((eq parent-type 'section)
-			  (setq fixed-paragraph (concat ".P\n" contents) ) )
-			 ((eq parent-type 'footnote-definition)
-			  (setq fixed-paragraph (concat "" contents) ))
-			 (t (setq fixed-paragraph (concat "" contents)) ) 
-			 )
+			((eq parent-type 'section)
+			 (setq fixed-paragraph (concat ".P\n" contents) ) )
+			((eq parent-type 'footnote-definition)
+			 (setq fixed-paragraph (concat "" contents) ))
+			(t (setq fixed-paragraph (concat "" contents)) ) 
+			)
 	  fixed-paragraph)
+	)
   )
-)
 
 
 ;;;; Plain List
@@ -1690,9 +1690,9 @@ contextual information."
 TEXT is the string to transcode.  INFO is a plist holding
 contextual information."
   ;; Protect %, #, &, $, ~, ^, _,  { and }.
-;;  (while (string-match "\\([^\\]\\|^\\)\\([%$#&{}~^_]\\)" text)
-;;    (setq text
-;;		  (replace-match (format "%s" (match-string 2 text)) nil t text 2)))
+  ;;  (while (string-match "\\([^\\]\\|^\\)\\([%$#&{}~^_]\\)" text)
+  ;;    (setq text
+  ;;		  (replace-match (format "%s" (match-string 2 text)) nil t text 2)))
   ;; Protect \
   (setq text (replace-regexp-in-string
 			  "\\(?:[^\\]\\|^\\)\\(\\\\\\)\\(?:[^%$#&{}~^_\\]\\|$\\)"
@@ -1898,13 +1898,13 @@ contextual information."
    ;; Case 1: verbatim table.
    ((or org-e-groff-tables-verbatim
 		(let ((attr
-		  (read
-		   (format
-			"(%s)"
-			(mapconcat
-			 #'identity
-			 (org-element-property :attr_groff table)
-			 " ")))) )
+			   (read
+				(format
+				 "(%s)"
+				 (mapconcat
+				  #'identity
+				  (org-element-property :attr_groff table)
+				  " ")))) )
 
 		  (and attr (plist-get attr :verbatim))))
 
@@ -1921,13 +1921,13 @@ contextual information."
 TABLE is the considered table.  INFO is a plist used as
 a communication channel."
   (let ((attr
-		  (read
-		   (format
-			"(%s)"
-			(mapconcat
-			 #'identity
-			 (org-element-property :attr_groff table)
-			 " ")))))
+		 (read
+		  (format
+		   "(%s)"
+		   (mapconcat
+			#'identity
+			(org-element-property :attr_groff table)
+			" ")))))
 	(setq align 	
 		  (case (plist-get  attr :align)
 			('center "c")
@@ -1937,33 +1937,33 @@ a communication channel."
 			(t "center")))
 
 
-;;  These can be used to configure the cells.  Leave there for now.
-;;
-;;       (let (alignment)
-;; 		;; Extract column groups and alignment from first (non-rule)
-;; 		;; row.
-;; 		(org-element-map
-;; 		 (org-element-map
-;; 		  table 'table-row
-;; 		  (lambda (row)
-;; 			(and (eq (org-element-property :type row) 'standard) row))
-;; 		  info 'first-match)
-;; 		 'table-cell
-;; 		 (lambda (cell)
-;; 		   (let ((borders (org-export-table-cell-borders cell info)))
-;; 			 ;; Check left border for the first cell only.
-;; 			 (when (and (memq 'left borders) (not alignment))
-;; 			   (push "|" alignment))
-;; 			 (push (case (org-export-table-cell-alignment cell info)
-;; 					 (left "left")
-;; 					 (right "right")
-;; 					 (center "center"))
-;; 				   alignment)
-;; 			 (when (memq 'right borders) (push "|" alignment))))
-;; 		 info)
-;; 		(apply 'concat (reverse alignment)))
+	;;  These can be used to configure the cells.  Leave there for now.
+	;;
+	;;       (let (alignment)
+	;; 		;; Extract column groups and alignment from first (non-rule)
+	;; 		;; row.
+	;; 		(org-element-map
+	;; 		 (org-element-map
+	;; 		  table 'table-row
+	;; 		  (lambda (row)
+	;; 			(and (eq (org-element-property :type row) 'standard) row))
+	;; 		  info 'first-match)
+	;; 		 'table-cell
+	;; 		 (lambda (cell)
+	;; 		   (let ((borders (org-export-table-cell-borders cell info)))
+	;; 			 ;; Check left border for the first cell only.
+	;; 			 (when (and (memq 'left borders) (not alignment))
+	;; 			   (push "|" alignment))
+	;; 			 (push (case (org-export-table-cell-alignment cell info)
+	;; 					 (left "left")
+	;; 					 (right "right")
+	;; 					 (center "center"))
+	;; 				   alignment)
+	;; 			 (when (memq 'right borders) (push "|" alignment))))
+	;; 		 info)
+	;; 		(apply 'concat (reverse alignment)))
 
-))
+	))
 
 (defun org-e-groff-table--org-table (table contents info)
   "Return appropriate Groff code for an Org table.
@@ -2002,50 +2002,82 @@ This function assumes TABLE has `org' as its `:type' attribute."
 
 	(setq lines (org-split-string contents "\n"))
 
-	(setq expand (plist-get attr :expand) )
+	(setq attr-list
+		  (let ((result-list '()))
+			(dolist (attr-item 
+					 (list 
+					  (case (plist-get attr :expand) 
+						(1 "expand")
+						(t nil)
+						)
 
-	(setq placement
-		  (case (plist-get attr :placement)
-			('center "center")
-			(t ""))  )
+					  (if  org-e-groff-tables-centered  "center"
+						(case (plist-get attr :placement)
+						  ('center "center")
+						  ('left nil)
+						  (t nil)) )
 
-	(setq boxtype 
-		  (case (plist-get attr :boxtype)
-			('box "box")
-			('doublebox "doublebox")
-			('none "")
-			(t "box")))
+					  (case (plist-get attr :boxtype)
+						('box "box")
+						('doublebox "doublebox")
+						('allbox "allbox")
+						('none nil)
+						(t "box"))
+					  ))
 
+			  (if (not (null attr-item))
+				  (add-to-list 'result-list attr-item)
+				))
+			result-list ))
+
+
+	(setq divider (case (plist-get attr :divider)
+					(1 "|")
+					(t " ")))
+
+
+	(setq table-format (concat 
+						 (format "%s"
+								 (or (car attr-list) "" ))
+						(or 
+						 (let ((output-list '()))
+						   (when (cdr attr-list)
+							 (dolist (attr-item (cdr attr-list))
+							   (setq output-list (concat output-list  (format ",%s" attr-item )) ) ))
+						   output-list)
+						 "") ))
+
+		
 	(when lines
 	  (setq first-line (org-split-string (car lines) "\t")))
 
     (cond
      ;; Others.
-     (lines (concat (when (not org-e-groff-tables-centered ) ".TS\nbox,center;\n")
-				(when org-e-groff-tables-centered ".TS\nbox,center;\n")
-				(format "%s.\n"
-						(let ((final-line ""))
-						  (dotimes (i (length first-line))
-							(setq final-line (concat final-line "cb" " "))
-							)
-						  (setq final-line (concat final-line "\n"))
-						  (dotimes (i (length first-line))
-							(setq final-line (concat final-line "c" " ")))  final-line ))
-				(format "%s.TE\n.TB \"%s\""
-						(let ((final-line ""))
-						  (dolist (line-item lines)
-							(cond 
-							 (t	
-							  (setq lines (org-split-string contents "\n"))
+     (lines (concat ".TS\n " table-format ";\n" 
+				
+					(format "%s.\n"
+							(let ((final-line ""))
+							  (dotimes (i (length first-line))
+								(setq final-line (concat final-line "cb" divider))
+								)
+							  (setq final-line (concat final-line "\n"))
+							  (dotimes (i (length first-line))
+								(setq final-line (concat final-line "c" divider)))  final-line ))
+					(format "%s.TE\n.TB \"%s\""
+							(let ((final-line ""))
+							  (dolist (line-item lines)
+								(cond 
+								 (t	
+								  (setq lines (org-split-string contents "\n"))
 
-							  (setq final-line (concat final-line 
-													   (car (org-split-string line-item "\\\\")) "\n"))
-							  )
-							 )
+								  (setq final-line (concat final-line 
+														   (car (org-split-string line-item "\\\\")) "\n"))
+								  )
+								 )
 							
-							)  final-line) caption)
+								)  final-line) caption)
 
-				)))))
+					)))))
 
 
 
@@ -2058,15 +2090,15 @@ This function assumes TABLE has `org' as its `:type' attribute."
 CONTENTS is the cell contents.  INFO is a plist used as
 a communication channel."
   (concat (if (and contents
-		   org-e-groff-table-scientific-notation
-		   (string-match orgtbl-exp-regexp contents))
-	      ;; Use appropriate format string for scientific
-	      ;; notation.
-	      (format org-e-groff-table-scientific-notation
-		      (match-string 1 contents)
-		      (match-string 2 contents))
-	    contents)
-	  (when (org-export-get-next-element table-cell) " \t ")))
+				   org-e-groff-table-scientific-notation
+				   (string-match orgtbl-exp-regexp contents))
+			  ;; Use appropriate format string for scientific
+			  ;; notation.
+			  (format org-e-groff-table-scientific-notation
+					  (match-string 1 contents)
+					  (match-string 2 contents))
+			contents)
+		  (when (org-export-get-next-element table-cell) " \t ")))
 
 
 ;;;; Table Row
