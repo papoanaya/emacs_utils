@@ -469,7 +469,7 @@ default we use here encompasses both."
   :group 'org-export-e-groff
   :type 'string)
 
-(defcustom org-e-groff-tables-centered nil
+(defcustom org-e-groff-tables-centered t
   "When non-nil, tables are exported in a center environment."
   :group 'org-export-e-groff
   :type 'boolean)
