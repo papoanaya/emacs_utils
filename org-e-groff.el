@@ -594,12 +594,7 @@ in order to mimic default behaviour:
 
 ;; Src blocks
 
-;;
-;; TODO - Needs to include the use of pygment, but pygment 
-;; needs to support groff. 
-;; 
-
-(defcustom org-e-groff-listings nil
+(defcustom org-e-groff-listings t
   "Non-nil means export source code using the listings package.
 This package will fontify source code, possibly even with color.
 If you want to use this, you also need to make Groff use the
@@ -637,16 +632,17 @@ passed."
 
 
 (defcustom org-e-groff-listings-langs
-  '((emacs-lisp "Lisp") (lisp "Lisp") (clojure "Lisp")
-    (c "C") (cc "C++")
-    (fortran "fortran")
-    (perl "Perl") (cperl "Perl") (python "Python") (ruby "Ruby")
-    (html "HTML") (xml "XML")
-    (tex "TeX") (groff "TeX")
-    (shell-script "bash")
-    (gnuplot "Gnuplot")
-    (ocaml "Caml") (caml "Caml")
-    (sql "SQL") (sqlite "sql"))
+  '((emacs-lisp "lisp") (lisp "lisp") (clojure "lisp")
+    (c "c") (cc "cpp")
+    (fortran "fortran") (cobol "cobol") (pascal "pascal")
+    (perl "perl") (cperl "perl") (python "python") (ruby "ruby") (tcl "tcl")
+    (html "html") (xml "xml")
+    (tex "latex") 
+    (shell-script "sh") (awk "awk")
+    (ocaml "caml") (caml "caml")
+    (sql "sql") (sqlite "sql")
+
+)
   "Alist mapping languages to their listing language counterpart.
 The key is a symbol, the major mode symbol without the \"-mode\".
 The value is the string that should be inserted as the language
@@ -795,8 +791,13 @@ These are the .aux, .log, .out, and .toc files."
 
 
 (defcustom org-e-groff-organization "Org User"
-  "Non-nil means remove the logfiles produced by PDF production.
-These are the .aux, .log, .out, and .toc files."
+  "Name of the organization used to populate the .AR command."
+  :group 'org-export-e-groff
+  :type 'boolean)
+
+
+(defcustom org-e-groff-source-highlight t
+ "Use GNU source highlight to embellish source blocks " 
   :group 'org-export-e-groff
   :type 'boolean)
 
@@ -1304,11 +1305,7 @@ holding contextual information."
 ;;
 ;; Inline Babel Calls are ignored.
 
-
 ;;;; Inline Src Block
-
-;;; TODO - Figure out a highlight package.
-
 
 (defun org-e-groff-inline-src-block (inline-src-block contents info)
   "Transcode an INLINE-SRC-BLOCK element from Org to Groff.
@@ -1317,6 +1314,37 @@ contextual information."
   (let* ((code (org-element-property :value inline-src-block))
 		 (separator (org-e-groff--find-verb-separator code)))
     (cond
+	 ((and org-e-groff-listings org-e-groff-source-highlight)
+
+	  (let* ((tmpdir (if (featurep 'xemacs)
+			     temp-directory 
+			   temporary-file-directory ))
+			 (in-file  (make-temp-name 
+						(expand-file-name "srchilite" tmpdir))  )
+			 (out-file (make-temp-name 
+						(expand-file-name "reshilite" tmpdir)) )
+			 (org-lang (org-element-property :language inline-src-block))
+			 (lst-lang (or (cadr (assq (intern org-lang)
+						   org-e-groff-listings-langs))
+				       org-lang))
+			
+			 (cmd (concat (expand-file-name "source-highlight")
+						  " -s " org-lang
+						  " -f groff_mm "
+						  " -i " in-file
+						  " -o " out-file
+						  )
+				  ))
+				
+		(unless (file-exists-p "source-highlight")
+		  (error 
+		   "GNU Source Highlight must be installed. Turn off org-e-groff-source-highlight.")
+		  )
+		(with-temp-file in-file (insert body))
+		(shell-command cmd)
+		(org-file-contents out-file))
+	  )
+
      ;; Do not use a special package: transcode it verbatim.
      (t
       (concat ".DS L" "\\fC" separator "\n" code "\n" separator "\\fP\n.DE\n"))
@@ -1816,34 +1844,62 @@ holding contextual information."
   "Transcode a SRC-BLOCK element from Org to Groff.
 CONTENTS holds the contents of the item.  INFO is a plist holding
 contextual information."
+
   (let* ((lang (org-element-property :language src-block))
-		 (caption (org-element-property :caption src-block))
-		 (label (org-element-property :name src-block))
-		 (custom-env (and lang
-						  (cadr (assq (intern lang)
-									  org-e-groff-custom-lang-environments))))
-		 (num-start (case (org-element-property :number-lines src-block)
-					  (continued (org-export-get-loc src-block info))
-					  (new 0)))
-		 (retain-labels (org-element-property :retain-labels src-block)))
+	 (caption (org-element-property :caption src-block))
+	 (label (org-element-property :name src-block))
+	 (code (org-element-property :value src-block))
+	 (custom-env (and lang
+			  (cadr (assq (intern lang)
+				      org-e-groff-custom-lang-environments))))
+	 (num-start (case (org-element-property :number-lines src-block)
+		      (continued (org-export-get-loc src-block info))
+		      (new 0)))
+	 (retain-labels (org-element-property :retain-labels src-block)))
     (cond
      ;; Case 1.  No source fontification.
      ((not org-e-groff-listings)
       (let ((caption-str (org-e-groff--caption/label-string caption label info))
-			(float-env (when caption "\\fC%s\\fP")))
-		(format
-		 (or float-env "%s")
-		 (concat caption-str
-				 (format "\\fC%s\\fP"
-						 (org-export-format-code-default src-block info))))))
-     ;; Case 2.  Custom environment.
+	    (float-env (when caption "\\fC%s\\fP")))
+	(format
+	 (or float-env "%s")
+	 (concat caption-str " "
+		 (format "\\fC%s\\fP"
+			 (org-export-format-code-default src-block info))))))
+     ( (and org-e-groff-listings org-e-groff-source-highlight) 
+      (let* ((tmpdir (if (featurep 'xemacs)
+			 temp-directory 
+		       temporary-file-directory ))
+
+	     (in-file  (make-temp-name 
+			(expand-file-name "srchilite" tmpdir))  )
+	     (out-file (make-temp-name 
+			(expand-file-name "reshilite" tmpdir)) )
+
+	     (org-lang (org-element-property :language src-block))
+	     (lst-lang (or (cadr (assq (intern org-lang)
+				       org-e-groff-listings-langs))
+			   org-lang))
+	     
+	     (cmd (concat "source-highlight"
+			  " -s " lst-lang
+			  " -f groff_mm "
+			  " -i " in-file
+			  " -o " out-file
+			  )
+		  ))
+	
+	(with-temp-file in-file (insert code))
+	(shell-command cmd)
+	(org-file-contents out-file))
+      )
+
      (custom-env (format ".DS L\n\\fC%s\\fP\n.DE"
-						 custom-env
-						 (src-block)
-						 custom-env))
+			 custom-env
+			 (src-block)
+			 custom-env))
 
-
-	 )))
+     )))
 
 
 ;;;; Statistics Cookie
