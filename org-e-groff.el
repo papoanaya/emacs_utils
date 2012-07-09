@@ -1329,7 +1329,7 @@ contextual information."
 			
 			 (cmd (concat (expand-file-name "source-highlight")
 						  " -s " lst-lang
-						  " -f groff_mm "
+						  " -f groff_mm_color "
 						  " -i " in-file
 						  " -o " out-file
 						  )
@@ -1884,7 +1884,7 @@ contextual information."
 	     
 	     (cmd (concat "source-highlight"
 			  " -s " lst-lang
-			  " -f groff_mm "
+			  " -f groff_mm_color "
 			  " -i " in-file
 			  " -o " out-file
 			  )
