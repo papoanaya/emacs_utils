@@ -32,5 +32,16 @@ required.
   how org items are passed. This one leverages of those tags and
   translates those to Groff Memorandum Macros.
   
+Auxiliary files:
 
+The following files that are used by the org-e-groff.el are included in
+this repository. These files are used to perform syntax colorization
+during export.  
+
+- groff_mm.outlang : GNU Source Highlight definition file for black and
+  white output.
+- groff_mm_color.outlang : GNU Source Highlight definition file for
+  colored output.
+- outlang.map : GNU Source Highlight definition file to add the groff_mm
+  ones. 
  
