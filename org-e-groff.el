@@ -519,7 +519,7 @@ When nil, no transformation is made."
 
 					   (strike-through . "\\fC%s\\fP")
 					   (underline . "\\fI%s\\fP")
-					   (verbatim .    'protectedtexttt))
+					   (verbatim .   "protectedtexttt"))
   "Alist of Groff expressions to convert text markup.
 
 The key must be a symbol among `bold', `code', `italic',
@@ -594,44 +594,13 @@ in order to mimic default behaviour:
 
 ;; Src blocks
 
-(defcustom org-e-groff-listings t
-  "Non-nil means export source code using the listings package.
-This package will fontify source code, possibly even with color.
-If you want to use this, you also need to make Groff use the
-listings package, and if you want to have color, the color
-package.  Just add these to `org-export-groff-packages-alist',
-for example using customize, or with something like:
-
-  \(require 'org-e-groff)
-  \(add-to-list 'org-export-groff-packages-alist '\(\"\" \"listings\"))
-  \(add-to-list 'org-export-groff-packages-alist '\(\"\" \"color\"))
-
-Alternatively,
-
-  \(setq org-e-groff-listings 'package)
-
-causes source code to be exported using the package as
-opposed to listings.  If you want to use minted, you need to add
-the minted package to `org-export-groff-packages-alist', for
-example using customize, or with
-
-  \(require 'org-e-groff)
-  \(add-to-list 'org-export-groff-packages-alist '\(\"\" \"pygments\"))
-
-In addition, it is necessary to install pygments
-\(http://pygments.org), and to configure the variable
-`org-e-groff-pdf-process' so that the -shell-escape option is
-passed."
-
+(defcustom org-e-groff-source-highlight t
+  "Use GNU source highlight to embellish source blocks " 
   :group 'org-export-e-groff
-  :type '(choice
-	  (const :tag "Use listings" nil)
-	  (const :tag "Use minted" nil)
-	  (const :tag "Export verbatim" nil)))
+  :type 'boolean)
 
 
-
-(defcustom org-e-groff-listings-langs
+(defcustom org-e-groff-source-highlight-langs
   '((emacs-lisp "lisp") (lisp "lisp") (clojure "lisp")
     (c "c") (cc "cpp")
     (fortran "fortran") (cobol "cobol") (pascal "pascal")
@@ -655,7 +624,7 @@ in this list - but it does not hurt if it is present."
 	   (symbol :tag "Major mode       ")
 	   (string :tag "Listings language"))))
 
-(defcustom org-e-groff-listings-options nil
+(defcustom org-e-groff-source-highlight-options nil
   "Association list of options for the groff listings package.
 
 These options are supplied as a comma-separated list to the
@@ -663,7 +632,7 @@ These options are supplied as a comma-separated list to the
 a list containing two strings: the name of the option, and the
 value.  For example,
 
-  (setq org-e-groff-listings-options
+  (setq org-e-groff-source-highlight-options
     '((\"basicstyle\" \"\\small\")
       (\"keywordstyle\" \"\\color{black}\\bfseries\\underbar\")))
 
@@ -695,6 +664,8 @@ during groff export it will output
   \\begin{pythoncode}
   <src block body>
   \\end{pythoncode}")
+
+
 
 
 ;;;; Plain text
@@ -795,11 +766,6 @@ These are the .aux, .log, .out, and .toc files."
   :group 'org-export-e-groff
   :type 'boolean)
 
-
-(defcustom org-e-groff-source-highlight t
-  "Use GNU source highlight to embellish source blocks " 
-  :group 'org-export-e-groff
-  :type 'boolean)
 
 
 
@@ -905,20 +871,20 @@ See `org-e-groff-text-markup-alist' for details."
     (cond
      ;; No format string: Return raw text.
      ((not fmt) text)
-     ((eq 'protectedtexttt fmt)
+     ((string= "protectedtexttt" fmt)
       (let ((start 0)
 	    (trans '(("\\" . "\\")))
 	    (rtn "")
 	    char)
-	(while (string-match "[\\{}$%&_#~^]" text)
-	  (setq char (match-string 0 text))
-	  (if (> (match-beginning 0) 0)
-	      (setq rtn (concat rtn (substring text 0 (match-beginning 0)))))
-	  (setq text (substring text (1+ (match-beginning 0))))
-	  (setq char (or (cdr (assoc char trans)) (concat "\\" char))
-		rtn (concat rtn char)))
-	(setq text (concat rtn text) "\\fC%s\\fP")
-	(format fmt text)))
+		(while (string-match "[\\{}$%&_#~^]" text)
+		  (setq char (match-string 0 text))
+		  (if (> (match-beginning 0) 0)
+			  (setq rtn (concat rtn (substring text 0 (match-beginning 0)))))
+		  (setq text (substring text (1+ (match-beginning 0))))
+		  (setq char (or (cdr (assoc char trans)) (concat "\\" char))
+				rtn (concat rtn char)))
+		(setq text (concat rtn text) )
+		(format "\\fC%s\\fP" text)))
      ;; Else use format string.
      (t (format fmt text)))))
 
@@ -1311,11 +1277,11 @@ holding contextual information."
   "Transcode an INLINE-SRC-BLOCK element from Org to Groff.
 CONTENTS holds the contents of the item.  INFO is a plist holding
 contextual information."
+(message "%s\n" inline-src-block)
   (let* ((code (org-element-property :value inline-src-block))
 	 (separator (org-e-groff--find-verb-separator code)))
     (cond
-     ((and org-e-groff-listings org-e-groff-source-highlight)
-
+     (org-e-groff-source-highlight
       (let* ((tmpdir (if (featurep 'xemacs)
 			 temp-directory 
 		       temporary-file-directory ))
@@ -1325,7 +1291,7 @@ contextual information."
 			(expand-file-name "reshilite" tmpdir)) )
 	     (org-lang (org-element-property :language inline-src-block))
 	     (lst-lang (cadr (assq (intern org-lang)
-				   org-e-groff-listings-langs)))
+				   org-e-groff-source-highlight-langs)))
 	     
 	     (cmd (concat (expand-file-name "source-highlight")
 			  " -s " lst-lang
@@ -1334,7 +1300,6 @@ contextual information."
 			  " -o " out-file
 			  )
 		  ))
-	
 
 	(if lst-lang
 	    (let ((code-block "" ))
@@ -1344,11 +1309,10 @@ contextual information."
 	      (delete-file in-file)
 	      (delete-file out-file)
 	      code-block)
-	  (format ".DS I\n\\fC\\m[black]%s\\m[]\\fP\n.DE"
+	  (format "\\fC\\m[black]%s\\m[]\\fP"
 		  code))
 
-	)
-      )
+	))
 
      ;; Do not use a special package: transcode it verbatim.
      (t
@@ -1859,7 +1823,7 @@ contextual information."
 	 (retain-labels (org-element-property :retain-labels src-block)))
     (cond
      ;; Case 1.  No source fontification.
-     ((not org-e-groff-listings)
+     ((not org-e-groff-source-highlight)
       (let ((caption-str (org-e-groff--caption/label-string caption label info))
 	    (float-env (when caption "\\fC%s\\fP")))
 	(format
@@ -1867,7 +1831,7 @@ contextual information."
 	 (concat caption-str " "
 		 (format "\\fC%s\\fP"
 			 (org-export-format-code-default src-block info))))))
-     ( (and org-e-groff-listings org-e-groff-source-highlight) 
+     ( (and org-e-groff-source-highlight) 
        (let* ((tmpdir (if (featurep 'xemacs)
 			  temp-directory 
 			temporary-file-directory ))
@@ -1879,7 +1843,7 @@ contextual information."
 
 	      (org-lang (org-element-property :language src-block))
 	      (lst-lang (cadr (assq (intern org-lang)
-				    org-e-groff-listings-langs)) )
+				    org-e-groff-source-highlight-langs)) )
 	      
 	      (cmd (concat "source-highlight"
 			   " -s " lst-lang
