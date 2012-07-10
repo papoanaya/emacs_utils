@@ -1277,7 +1277,6 @@ holding contextual information."
   "Transcode an INLINE-SRC-BLOCK element from Org to Groff.
 CONTENTS holds the contents of the item.  INFO is a plist holding
 contextual information."
-(message "%s\n" inline-src-block)
   (let* ((code (org-element-property :value inline-src-block))
 	 (separator (org-e-groff--find-verb-separator code)))
     (cond
