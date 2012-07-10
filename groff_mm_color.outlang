@@ -8,23 +8,18 @@ $title
 .AU \"\"
 .ND
 .SA 0
-.S -2
-.DS L
+.DS I
 "
 ".DE
-.S +2
 $footer
 "
 end
 
 nodoctemplate
-".S -2
-.DS L
+".DS I
 "
 "
-.DE
-.S +2
-"
+.DE"
 end
 
 bold "\fB$text\fP"

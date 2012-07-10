@@ -1341,7 +1341,7 @@ contextual information."
 		  (with-temp-file in-file (insert code))
 		  (shell-command cmd)
 		  (org-file-contents out-file))
-	      (format ".DS L\n\\fC%s\\fP\n.DE"
+	      (format ".DS I\n\\fC\\m[black]%s\\m[]\\fP\n.DE"
 		      code))
 
 	    )
@@ -1895,7 +1895,7 @@ contextual information."
 	      (with-temp-file in-file (insert code))
 	      (shell-command cmd)
 	      (org-file-contents out-file))
-	  (format ".DS L\n\\fC%s\\fP\n.DE"
+	  (format ".DS I\n\\fC\\m[black]%s\\m[]\\fP\n.DE"
 		  code))
 
 	  )
