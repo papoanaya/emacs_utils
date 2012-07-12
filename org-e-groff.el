@@ -708,7 +708,12 @@ string defines the replacement string for this quote."
 (defcustom org-e-groff-pdf-process
   '("pic %f | tbl | eqn | groff -mm | ps2pdf - > %b.pdf"
     "pic %f | tbl | eqn | groff -mm | ps2pdf - > %b.pdf"
-    "pic %f | tbl | eqn | groff -mm | ps2pdf - > %b.pdf")
+    "pic %f | tbl | eqn | groff -mm | ps2pdf - > %b.pdf"
+    "pic %f | tbl | eqn | groff -mm | ps2pdf - > %b.pdf"
+    "pic %f | tbl | eqn | groff -mm | ps2pdf - > %b.pdf"
+    "pic %f | tbl | eqn | groff -mm | ps2pdf - > %b.pdf"
+    "pic %f | tbl | eqn | groff -mm | ps2pdf - > %b.pdf"
+)
 
   "Commands to process a Groff file to a PDF file.
 This is a list of strings, each of them will be given to the
@@ -1220,7 +1225,7 @@ holding contextual information."
 	     (concat
 	      ;; If the headline is the first sibling, start a list.
 	      (when (org-export-first-sibling-p headline)
-		(format "%s\n" (if numberedp 'enumerate 'itemize)))
+		(format "%s\n" (if numberedp ".AL 1\n" ".AL a\n")))
 	      ;; Itemize headline
 	      ".LI\n" full-text "\n" headline-label pre-blanks contents)))
 	;; If headline is not the last sibling simply return
@@ -1229,7 +1234,7 @@ holding contextual information."
 	(if (not (org-export-last-sibling-p headline)) low-level-body
 	  (replace-regexp-in-string
 	   "[ \t\n]*\\'"
-	   (concat ".LE" )
+	   (concat "\n.LE" )
 	   low-level-body))))
      ;; Case 3. Standard headline.  Export it as a section.
      (t
@@ -1397,7 +1402,7 @@ contextual information."
 
     (concat counter ".LI " (or tag (concat " " checkbox))
 	    "\n"
-	    (org-trim contents)
+	    (org-trim (or contents " " ) )
 	    ;; If there are footnotes references in tag, be sure to
 	    ;; add their definition at the end of the item.  This
 	    )))
@@ -1666,7 +1671,7 @@ contextual information."
 		      ((eq type 'descriptive) ".VL 1.0i"))))
     (org-e-groff--wrap-label
      plain-list
-     (format "%s%s\n%s.LE"
+     (format "%s%s\n%s\n.LE"
 	     groff-type
 	     ;; Once special environment, if any, has been removed, the
 	     ;; rest of the attributes will be optional arguments.
