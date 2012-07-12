@@ -709,10 +709,6 @@ string defines the replacement string for this quote."
   '("pic %f | tbl | eqn | groff -mm | ps2pdf - > %b.pdf"
     "pic %f | tbl | eqn | groff -mm | ps2pdf - > %b.pdf"
     "pic %f | tbl | eqn | groff -mm | ps2pdf - > %b.pdf"
-    "pic %f | tbl | eqn | groff -mm | ps2pdf - > %b.pdf"
-    "pic %f | tbl | eqn | groff -mm | ps2pdf - > %b.pdf"
-    "pic %f | tbl | eqn | groff -mm | ps2pdf - > %b.pdf"
-    "pic %f | tbl | eqn | groff -mm | ps2pdf - > %b.pdf"
 )
 
   "Commands to process a Groff file to a PDF file.
