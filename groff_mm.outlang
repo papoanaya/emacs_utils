@@ -35,7 +35,9 @@ fixed "\fC$text\fP"
 anchor "$infilename : $linenum - $text"
 reference "$text \(-> $infile:$linenum, page : $infilename:$linenum"
 
-lineprefix "\fC\(em\fP   "
+lineprefix ""
+
+#lineprefix "\fC\(em\fP   "
 #lineprefix "\fC\n(ln\fP   "
 
 translations
