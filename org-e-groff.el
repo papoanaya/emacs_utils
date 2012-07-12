@@ -762,7 +762,7 @@ These are the .aux, .log, .out, and .toc files."
 
 
 (defcustom org-e-groff-organization "Org User"
-  "Name of the organization used to populate the .AR command."
+  "Name of the organization used to populate the .AF command."
   :group 'org-export-e-groff
   :type 'boolean)
 
@@ -900,7 +900,7 @@ holding export options."
   (let ((title (org-export-data (plist-get info :title) info)))
     (concat
      ;; 4. Insert Organization
-     (format ".AR \"%s\" \n" org-e-groff-organization)
+     (format ".AF \"%s\" \n" org-e-groff-organization)
      ;; 3. Title
      (cond 
       ((string= "" title)
