@@ -765,7 +765,7 @@ These are the .aux, .log, .out, and .toc files."
 (defcustom org-e-groff-organization "Org User"
   "Name of the organization used to populate the .AF command."
   :group 'org-export-e-groff
-  :type 'boolean)
+  :type 'string)
 
 
 
