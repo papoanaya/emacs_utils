@@ -1,4 +1,4 @@
-;;; org-e-groff.el --- GRoff Back-End For Org Export Engine
+;; org-e-groff.el --- GRoff Back-End For Org Export Engine
 
 ;; Copyright (C) 2011-2012  Free Software Foundation, Inc.
 
@@ -869,8 +869,6 @@ See `org-e-groff-text-markup-alist' for details."
      ;; Else use format string.
      (t (format fmt text)))))
 
-
-
 
 ;;; Template
 
@@ -878,10 +876,21 @@ See `org-e-groff-text-markup-alist' for details."
   "Return complete document string after Groff conversion.
 CONTENTS is the transcoded contents string.  INFO is a plist
 holding export options."
-  (let ((title (org-export-data (plist-get info :title) info)))
+  (let ((title (org-export-data (plist-get info :title) info))
+		(attr
+		  (read
+		   (format
+			"(%s)"
+			(mapconcat
+			 #'identity
+			 (list (plist-get info :groff-class-options))
+			 " ")))))
     (concat
      ;; 1. Insert Organization
-     (format ".AF \"%s\" \n" org-e-groff-organization)
+     (if (setq firm-option (plist-get attr :firm))
+		 (format ".AF \"%s\" \n" firm-option)
+	   (format ".AF \"%s\" \n" org-e-groff-organization))
+
      ;; 2. Title
      (cond 
       ((string= "" title)
@@ -928,14 +937,17 @@ holding export options."
      ;; 7. Table of Content must be placed at the end being
      ;; that it gets collected from all the headers. 
 
-
      (let ((class (plist-get info :groff-class)))
        (cond 
 		((string= class "letter")  
-		 (concat ".FC\n"
+		 (concat (if (setq fc-item (plist-get attr :closing) )
+					 (format ".FC \"%s\" \n" fc-item)
+						   ".FC\n")
 				 ".SG")
 		 )
-		(t ".TC")))
+		(t (if (plist-get attr :toc)
+			   ".TC"
+			 "")) ))
 
      )))
 
@@ -2002,11 +2014,6 @@ This function assumes TABLE has `org' as its `:type' attribute."
 
 		 ;; Determine alignment string.
 		 (alignment (org-e-groff-table--align-string divider table info))
-		 ;; Determine environment for the table: longtable, tabular...
-		 (table-env nil)
-		 ;; If table is a float, determine environment: table, table*
-		 ;; or sidewaystable.
-		 (float-env nil)
 		 ;; Extract others display options.
 
 		 )
