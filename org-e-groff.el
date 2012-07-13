@@ -1955,16 +1955,19 @@ a communication channel."
 		info 'first-match)
 	   'table-cell
 	   (lambda (cell)
-		 (let ((borders (org-export-table-cell-borders cell info)))
+		 (let* ((borders (org-export-table-cell-borders cell info))
+				(raw-width (org-export-table-cell-width cell info))
+				(width-cm (when raw-width (/ raw-width 5)))
+				(width (if raw-width (format "w(%dc)" (if (< width-cm 1) 1 width-cm)) "") ))
 		   ;; Check left border for the first cell only.
 		   (when (and (memq 'left borders) (not alignment))
 			 (push "|" alignment))
 		   (push 
 			(if (not align)
 				(case (org-export-table-cell-alignment cell info)
-				  (left (concat "l" divider) )
-				  (right (concat "r" divider))
-				  (center (concat "c" divider)))
+				  (left (concat "l" width divider) )
+				  (right (concat "r" width divider))
+				  (center (concat "c" width divider)))
 			  (concat align divider))
 			alignment)
 		   (when (memq 'right borders) (push "|" alignment))))
@@ -2040,6 +2043,9 @@ This function assumes TABLE has `org' as its `:type' attribute."
 			result-list ))
 
 
+	(setq title-line (case (plist-get attr :title-line)
+					   (1 t)
+					   (t nil)))
 
     (setq table-format (concat 
 						(format "%s"
@@ -2062,9 +2068,11 @@ This function assumes TABLE has `org' as its `:type' attribute."
 		    
 					(format "%s.\n"
 							(let ((final-line ""))
-							  (dotimes (i (length first-line))
-								(setq final-line (concat final-line "cb" divider))
-								)
+
+							  (when title-line
+								(dotimes (i (length first-line))
+								  (setq final-line (concat final-line "cb" divider))
+								  ))
 
 							  (setq final-line (concat final-line "\n"))
 							  (if alignment
