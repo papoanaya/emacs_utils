@@ -889,7 +889,7 @@ holding export options."
      ;; 1. Insert Organization
      (if (setq firm-option (plist-get attr :firm))
 		 (format ".AF \"%s\" \n" firm-option)
-	   (format ".AF \"%s\" \n" org-e-groff-organization))
+	   (format ".AF \"%s\" \n" (or org-e-groff-organization "")) )
 
      ;; 2. Title
      (cond 
@@ -919,13 +919,7 @@ holding export options."
 		   (class-options (plist-get info :groff-class-options)))
        (org-element-normalize-string
 		(let* ((header (nth 1 (assoc class org-e-groff-classes)))
-			   (document-class-string
-				(and (stringp header)
-					 (if class-options
-						 (replace-regexp-in-string
-						  "^[ \t]*\\.MT\\(\\[.*?\\]\\)"
-						  class-options header t nil 1)
-					   header))))
+			   (document-class-string (if (stringp header) header "") ))
 		  (when document-class-string
 			(org-e-groff--guess-babel-language
 			 header info)))))
@@ -2008,9 +2002,9 @@ This function assumes TABLE has `org' as its `:type' attribute."
 			 (org-element-property :attr_groff table)
 			 " "))))
 
-		 (divider (case (plist-get attr :divider)
-					(1 "|")
-					(t " ")))
+		 (divider (if (plist-get attr :divider)
+					"|"
+					" "))
 
 		 ;; Determine alignment string.
 		 (alignment (org-e-groff-table--align-string divider table info))
@@ -2025,9 +2019,9 @@ This function assumes TABLE has `org' as its `:type' attribute."
 		  (let ((result-list '()))
 			(dolist (attr-item 
 					 (list 
-					  (case (plist-get attr :expand) 
-						(1 "expand")
-						(t nil)
+					  (if (plist-get attr :expand) 
+						"expand"
+						 nil
 						)
 
 					  (if  org-e-groff-tables-centered  "center"
@@ -2050,9 +2044,7 @@ This function assumes TABLE has `org' as its `:type' attribute."
 			result-list ))
 
 
-	(setq title-line (case (plist-get attr :title-line)
-					   (1 t)
-					   (t nil)))
+	(setq title-line  (plist-get attr :title-line))
 
     (setq table-format (concat 
 						(format "%s"
