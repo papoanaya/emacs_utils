@@ -887,9 +887,13 @@ holding export options."
 			 " ")))))
     (concat
      ;; 1. Insert Organization
-     (if (setq firm-option (plist-get attr :firm))
-		 (format ".AF \"%s\" \n" firm-option)
-	   (format ".AF \"%s\" \n" (or org-e-groff-organization "")) )
+
+     (let ((firm-option (plist-get attr :firm)))
+		   (cond 
+			((stringp firm-option)
+			 (format ".AF \"%s\" \n" firm-option))
+			(t (format ".AF \"%s\" \n" (or org-e-groff-organization "")) )))
+
 
      ;; 2. Title
      (cond 
@@ -898,6 +902,7 @@ holding export options."
        )
       (t
        (format ".TL\n%s\n" title)))
+
      ;; 3. Author.
      ;; In Groff, .AU *MUST* be placed after .TL
      (let ((author (and (plist-get info :with-author)
@@ -909,11 +914,19 @@ holding export options."
 			  (format ".AU \"%s\" \"%s\"\n" author email))
 			 (author (format ".AU \"%s\"\n" author))
 			 (t ".AU \"\" \n")))
+	 
+	 ;; 4. Author Title, if present
 
-     ;; 4. Date.
+	 (let ((at-item (plist-get attr :author-title)  ))
+		   (if (and at-item (stringp at-item))
+			   (format ".AT \"%s\" \n" at-item )
+			 ""))
+
+     ;; 5. Date.
      (let ((date (org-export-data (plist-get info :date) info)))
        (and date (format ".ND \"%s\"\n" date)))
-     ;; 5. Document class and packages.
+
+     ;; 6. Document class. 
 
      (let ((class (plist-get info :groff-class))
 		   (class-options (plist-get info :groff-class-options)))
@@ -924,12 +937,13 @@ holding export options."
 			(org-e-groff--guess-babel-language
 			 header info)))))
 
-     ;; 6. Document's body.
+     ;; 7. Document's body.
 
      contents
 
-     ;; 7. Table of Content must be placed at the end being
+     ;; 8. Table of Content must be placed at the end being
      ;; that it gets collected from all the headers. 
+     ;; In the case of letters, signature will be placed instead.
 
      (let ((class (plist-get info :groff-class)))
        (cond 
@@ -1372,9 +1386,9 @@ contextual information."
 				 (concat ".VL 1.0i \n"))))
 
 		 (checkbox (case (org-element-property :checkbox item)
-					 (on "\\o'\\(sq\\(mu'")			;; \\(bu
-					 (off "\\(sq ")					;;\\(ci
-					 (trans "\\o'\\(sq\\(mi'"   ))) ;; \\(em
+					 (on "\\o'\\(sq\\(mu'")			;; 
+					 (off "\\(sq ")					;;
+					 (trans "\\o'\\(sq\\(mi'"   ))) ;;
 
 		 (tag (let ((tag (org-element-property :tag item)))
 				;; Check-boxes must belong to the tag.
