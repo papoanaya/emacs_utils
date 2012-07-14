@@ -1693,10 +1693,6 @@ contextual information."
 
   ;; Handle quotation marks
   (setq text (org-e-groff--quotation-marks text info))
-  ;; Convert special strings.
-  (when (plist-get info :with-special-strings)
-    (while (string-match (regexp-quote "...") text)
-      (setq text (replace-match "..." nil t text))))
   ;; Handle break preservation if required.
   (when (plist-get info :preserve-breaks)
     (setq text (replace-regexp-in-string "\\(\\\\\\\\\\)?[ \t]*\n" " \\\\\\\\\n"
