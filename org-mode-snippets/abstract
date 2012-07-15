@@ -1,0 +1,10 @@
+# name: abstract
+# key: abstract
+# --
+#+BEGIN_GROFF
+.AS 
+${1:name}
+.AE
+.MT ${2:type}
+#+END_GROFF
+$0
