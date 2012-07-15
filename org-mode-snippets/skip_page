@@ -1,0 +1,7 @@
+# name: skip_page
+# key: sk
+# --
+#+BEGIN_GROFF
+.SK
+#+END_GROFF
+$0

@@ -1,0 +1,12 @@
+# name: equation
+# key: eq
+# --
+#+BEGIN_GROFF
+.DS C
+.EQ
+${1:equation}
+$0
+.EN
+.DE
+.EC "${2:caption}"
+#+END_GROFF
