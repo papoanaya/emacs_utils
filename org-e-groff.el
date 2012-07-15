@@ -1714,23 +1714,23 @@ information."
 		   (let ((closed (org-element-property :closed planning)))
 			 (when closed
 			   (concat
-				(format "\\fC%s\\fP" org-closed-string)
+				(format "\\fR %s \\fP" org-closed-string)
 				(format org-e-groff-inactive-timestamp-format
 						(org-translate-time closed)))))
 		   (let ((deadline (org-element-property :deadline planning)))
 			 (when deadline
 			   (concat
-				(format "\\fB%s\\fP" org-deadline-string)
+				(format "\\fB %s \\fP" org-deadline-string)
 				(format org-e-groff-active-timestamp-format
 						(org-translate-time deadline)))))
 		   (let ((scheduled (org-element-property :scheduled planning)))
 			 (when scheduled
 			   (concat
-				(format "\\fC%s\\fP" org-scheduled-string)
+				(format "\\fR %s \\fP" org-scheduled-string)
 				(format org-e-groff-active-timestamp-format
 						(org-translate-time scheduled)))))))
-    " ")
-   "\\\\"))
+    "")
+   ""))
 
 
 ;;;; Property Drawer
