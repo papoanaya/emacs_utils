@@ -938,7 +938,6 @@ holding export options."
 			 header info)))))
 
      ;; 7. Document's body.
-
      contents
 
      ;; 8. Table of Content must be placed at the end being
