@@ -5,8 +5,8 @@
 .DS C
 .EQ
 ${1:equation}
-$0
 .EN
 .DE
 .EC "${2:caption}"
 #+END_GROFF
+$0
