@@ -937,7 +937,27 @@ holding export options."
 			(org-e-groff--guess-babel-language
 			 header info)))))
 
+	 ;; 7. Hyphenation and Right Justification
+	 (let ()
+	   (set 'hyphenate (plist-get attr :hyphenate))
+	   (set 'justify-right (plist-get attr :justify-right))
+		   (concat 
+			(if justify-right
+			  (case justify-right
+				('yes ".SA 1 \n")
+				('no ".SA 0 \n")
+				(t ""))
+			  "")
+		   (if hyphenate
+			   (case hyphenate 
+				 ('yes ".nr Hy 1 \n")
+				 ('no ".nr Hy 0 \n")
+				 (t "")
+				 )
+			 "") ))
+
      ;; 7. Document's body.
+	 
      contents
 
      ;; 8. Table of Content must be placed at the end being
