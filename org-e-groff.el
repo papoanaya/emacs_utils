@@ -258,14 +258,6 @@ structure of the values.")
      (".H 4 \"%s\"" . ".HU \"%s\"")
      (".H 5 \"%s\"" . ".HU \"%s\"") )
 
-    ("left"
-     ""
-     (".H 1 \"%s\" \n.ad l\n.hy 14" . ".HU \"%s\" \n.ad l\n.hy 14")
-     (".H 2 \"%s\" \n.ad l\n.hy 14" . ".HU \"%s\" \n.ad l\n.hy 14")
-     (".H 3 \"%s\" \n.ad l\n.hy 14" . ".HU \"%s\" \n.ad l\n.hy 14")
-     (".H 4 \"%s\" \n.ad l\n.hy 14" . ".HU \"%s\" \n.ad l\n.hy 14")
-     (".H 5 \"%s\" \n.ad l\n.hy 14" . ".HU \"%s\" \n.ad l\n.hy 14") )
-    
     )
 
   "Alist of Groff classes and associated header and structure.
