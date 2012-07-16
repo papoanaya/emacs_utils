@@ -574,7 +574,7 @@ in order to mimic default behaviour:
 
 ;; Src blocks
 
-(defcustom org-e-groff-source-highlight t
+(defcustom org-e-groff-source-highlight nil
   "Use GNU source highlight to embellish source blocks " 
   :group 'org-export-e-groff
   :type 'boolean)
