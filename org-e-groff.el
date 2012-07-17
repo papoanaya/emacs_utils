@@ -1716,6 +1716,10 @@ contextual information."
   	      "\\(?:[^\\]\\|^\\)\\(\\\\\\)\\(?:[^%$#&{}~^_\\]\\|$\\)"
   	      "$\\" text nil t 1))
 
+    ;; Protect leading dots and quotes
+
+    (setq text (replace-regexp-in-string  "^[.']" 
+					  "\\\\&\\&" text nil t 1))
   ;; Handle quotation marks
    (setq text (org-e-groff--quotation-marks text info))
   ;; Handle break preservation if required.
@@ -1724,6 +1728,7 @@ contextual information."
   					 text)))
   ;; Return value.
   text)
+
 
 
 ;;;; Planning
