@@ -1815,7 +1815,7 @@ holding contextual information."
   (let ((type (downcase (org-element-property :type special-block))))
     (org-e-groff--wrap-label
      special-block
-     (format ".DS L\n%s\n.DE" contents))))
+     (format "%s\n" contents))))
 
 
 ;;;; Src Block
