@@ -849,7 +849,7 @@ This function shouldn't be used for floats.  See
   (let ((label (org-element-property :name element)))
     (if (or (not output) (not label) (string= output "") (string= label ""))
 	output
-      (concat (format "%s\n" label) output))))
+      (concat (format "%s\n.br\n" label) output))))
 
 (defun org-e-groff--text-markup (text markup)
   "Format TEXT depending on MARKUP text markup.

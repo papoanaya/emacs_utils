@@ -493,43 +493,6 @@ in order to mimic default behaviour:
 
 
 ;;;; Inlinetasks
-
-(defcustom org-e-man-format-inlinetask-function nil
-  "Function called to format an inlinetask in Man code.
-
-The function must accept six parameters:
-  TODO      the todo keyword, as a string
-  TODO-TYPE the todo type, a symbol among `todo', `done' and nil.
-  PRIORITY  the inlinetask priority, as a string
-  NAME      the inlinetask name, as a string.
-  TAGS      the inlinetask tags, as a list of strings.
-  CONTENTS  the contents of the inlinetask, as a string.
-
-The function should return the string to be exported.
-
-For example, the variable could be set to the following function
-in order to mimic default behaviour:
-
-\(defun org-e-man-format-inlinetask \(todo type priority name tags contents\)
-\"Format an inline task element for Man export.\"
-  \(let ((full-title
-	 \(concat
-	  \(when todo
-            \(format \"\\fB%s\\fP \" todo))
-	  \(when priority (format \"[\\#%c] \" priority))
-	  title
-	  \(when tags
-            \(format \":%s:\"
-                    \(mapconcat 'identity tags \":\")))))
-    \(format (concat \".DS L\\n\"
-		    \"%s\\n\\n\"
-		    \"%s\"
-		    \".DE\")
-	    full-title contents))"
-  :group 'org-export-e-man
-  :type 'function)
-
-
 ;; Src blocks
 
 (defcustom org-e-man-source-highlight nil
@@ -792,7 +755,7 @@ This function shouldn't be used for floats.  See
   (let ((label (org-element-property :name element)))
     (if (or (not output) (not label) (string= output "") (string= label ""))
 	output
-      (concat (format "%s\n" label) output))))
+      (concat (format "%s\n.br\n" label) output))))
 
 (defun org-e-man--text-markup (text markup)
   "Format TEXT depending on MARKUP text markup.
@@ -854,7 +817,6 @@ holding export options."
 
      )))
 
-
 
 ;;; Transcode Functions
 
@@ -880,7 +842,9 @@ CONTENTS holds the contents of the center block.  INFO is a plist
 holding contextual information."
   (org-e-man--wrap-label
    center-block
-   (format ".DS C \n%s\n.DE" contents)))
+   (format ".ce %d\n.nf\n%s\n.fi" 
+	   (- (length (split-string contents "\n")) 1 ) 
+	   contents)))
 
 
 ;;;; Clock
@@ -949,7 +913,7 @@ CONTENTS is nil.  INFO is a plist holding contextual
 information."
   (org-e-man--wrap-label
    example-block
-   (format ".DS L\n%s\n.DE"
+   (format ".RS\n.nf\n%s\n.fi\n.RE"
 	   (org-export-format-code-default example-block info))))
 
 
@@ -1125,8 +1089,6 @@ holding contextual information."
 ;; Not supported
 
 
-
-
 ;;;; Inline Babel Call
 ;;
 ;; Inline Babel Calls are ignored.
@@ -1154,7 +1116,7 @@ contextual information."
 	     
 	     (cmd (concat (expand-file-name "source-highlight")
 			  " -s " lst-lang
-			  " -f groff_mm"
+			  " -f groff_man"
 			  " -i " in-file
 			  " -o " out-file
 			  )
@@ -1181,44 +1143,6 @@ contextual information."
 
 
 ;;;; Inlinetask
-
-
-(defun org-e-man-inlinetask (inlinetask contents info)
-  "Transcode an INLINETASK element from Org to Man.
-CONTENTS holds the contents of the block.  INFO is a plist
-holding contextual information."
-  (let ((title (org-export-data (org-element-property :title inlinetask) info))
-	(todo (and (plist-get info :with-todo-keywords)
-		   (let ((todo (org-element-property :todo-keyword inlinetask)))
-		     (and todo (org-export-data todo info)))))
-	(todo-type (org-element-property :todo-type inlinetask))
-	(tags (and (plist-get info :with-tags)
-		   (org-export-get-tags inlinetask info)))
-	(priority (and (plist-get info :with-priority)
-		       (org-element-property :priority inlinetask))))
-    ;; If `org-e-man-format-inlinetask-function' is provided, call it
-    ;; with appropriate arguments.
-    (if (functionp org-e-man-format-inlinetask-function)
-	(funcall org-e-man-format-inlinetask-function
-		 todo todo-type priority title tags contents)
-      ;; Otherwise, use a default template.
-      (org-e-man--wrap-label
-       inlinetask
-       (let ((full-title
-	      (concat
-	       (when todo (format "\\fB%s\\fP " todo))
-	       (when priority (format " [\\#%c] " priority))
-	       title
-	       (when tags (format " \\fC:%s:\\fP "
-				  (mapconcat 'identity tags ":"))))))
-	 (format (concat ".DS C\n"
-			 "%s\n\n"
-			 ".P"
-			 "%s"
-			 ".DE")
-		 full-title contents))))))
-
-
 ;;;; Italic
 
 (defun org-e-man-italic (italic contents info)
@@ -1244,7 +1168,7 @@ contextual information."
 	    (and count
 		 (< level 5)
 		 (concat ""))))
-
+	 (bullet (org-element-property :bullet item))
 	 (checkbox (case (org-element-property :checkbox item)
 		     (on "\\o'\\(sq\\(mu'")			;; 
 		     (off "\\(sq ")					;;
@@ -1256,11 +1180,24 @@ contextual information."
 				 (concat checkbox
 					 (org-export-data tag info)))))))
 ;; removed counter
-    (concat "\n.IP " (or tag (concat " " checkbox)) "\n"
-	    (org-trim (or contents " " ) )
-	    ;; If there are footnotes references in tag, be sure to
-	    ;; add their definition at the end of the item.  This
-	    )))
+
+    (if (or (not (null tag))
+	    (not (null checkbox))) 
+	(concat "\n.IP " (or tag (concat " " checkbox)) "\n"
+		(org-trim (or contents " " ) )
+		;; If there are footnotes references in tag, be sure to
+		;; add their definition at the end of the item.  This
+		)
+      (let ((marker (cond  ((string= "-" (org-trim bullet)) "\\(em")
+			   ((string= "*" (org-trim bullet)) "\\(bu")
+			   (t "\\(dg")
+		      ) ))
+	(concat "\n.IP " marker " 4\n"
+		(org-trim (or contents " " ) )
+		;; If there are footnotes references in tag, be sure to
+		;; add their definition at the end of the item.  This
+		) ))
+))
 
 
 
@@ -1606,7 +1543,7 @@ contextual information."
 	      
 	      (cmd (concat "source-highlight"
 			   " -s " lst-lang
-			   " -f groff_mm "
+			   " -f groff_man "
 			   " -i " in-file
 			   " -o " out-file
 			   )
@@ -1965,7 +1902,7 @@ channel."
   "Transcode a VERSE-BLOCK element from Org to Man.
 CONTENTS is verse block contents. INFO is a plist holding
 contextual information."
-  (format ".RS\n.ft HI\n%s\n.ft\n.RE" contents))
+  (format ".RS\n.ft I\n%s\n.ft\n.RE" contents))
 
 
 
