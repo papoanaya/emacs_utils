@@ -747,6 +747,13 @@ These are the .aux, .log, .out, and .toc files."
   :group 'org-export-e-groff
   :type 'string)
 
+;; Preamble
+
+;; Adding GROFF as a block parser to make sure that its contents
+;; does not execute
+
+(add-to-list 'org-element-block-name-alist
+	     '("GROFF" . org-element-export-block-parser))
 
 
 
@@ -781,7 +788,6 @@ For non-floats, see `org-e-groff--wrap-label'."
   )
 
 
-;; TODO
 
 (defun org-e-groff--guess-babel-language (header info)
   "Set Babel's language according to LANGUAGE keyword.
@@ -1706,16 +1712,16 @@ contextual information."
 TEXT is the string to transcode.  INFO is a plist holding
 contextual information."
   ;; Protect 
-  ;;  (setq text (replace-regexp-in-string
-  ;;	      "\\(?:[^\\]\\|^\\)\\(\\\\\\)\\(?:[^%$#&{}~^_\\]\\|$\\)"
-  ;;	      "$\\" text nil t 1))
+    (setq text (replace-regexp-in-string
+  	      "\\(?:[^\\]\\|^\\)\\(\\\\\\)\\(?:[^%$#&{}~^_\\]\\|$\\)"
+  	      "$\\" text nil t 1))
 
   ;; Handle quotation marks
-  ;; (setq text (org-e-groff--quotation-marks text info))
+   (setq text (org-e-groff--quotation-marks text info))
   ;; Handle break preservation if required.
-  ;;  (when (plist-get info :preserve-breaks)
-  ;;    (setq text (replace-regexp-in-string "\\(\\\\\\\\\\)?[ \t]*\n" " \\\\\\\\\n"
-  ;;					 text)))
+    (when (plist-get info :preserve-breaks)
+      (setq text (replace-regexp-in-string "\\(\\\\\\\\\\)?[ \t]*\n" " \\\\\\\\\n"
+  					 text)))
   ;; Return value.
   text)
 
