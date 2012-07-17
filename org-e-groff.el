@@ -1783,7 +1783,7 @@ CONTENTS holds the contents of the block.  INFO is a plist
 holding contextual information."
   (org-e-groff--wrap-label
    quote-block
-   (format ".DS I\n\\fH%s\\fP\n.DE" contents)))
+   (format ".DS I\n.ft H\n%s\\fP\n.ft\n.DE" contents)))
 
 
 ;;;; Quote Section
