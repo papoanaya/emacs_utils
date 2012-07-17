@@ -157,9 +157,13 @@ For more on the structure of this list, see
     (begin-oli-item  . ".LI\n")
     (begin-oli       . ".AL\n")
     (end-oli         . "\n.LE")
-    (begin-ddt       . "\\fB")
-    (begin-dde       . "\\fP\n.IR 4P\n")
-    (end-ddt         . "\\fR"))
+    (begin-dl       . ".VL 0.5i\n")
+    (end-dl         . "\n.LE")
+    (begin-ddt       . ".LI \"")
+    (end-ddt         . "\"\n")
+    (begin-dde       . "")
+
+)
   "Strings used for marking up text.
 These cover the most basic kinds of markup, the handling of which
 differs little between the various styles."
