@@ -165,9 +165,9 @@ For more on the structure of this list, see
     (begin-oli       . ".list DIGIT\n.SHIFT_LIST 2m\n")
     (begin-oli-item . ".ITEM\n")
     (end-oli         . "\n.LIST OFF")
-    (begin-ddt       . "\\fB")
-    (begin-dde       . "\\fP\n.IR 4P\n")
-    (end-ddt         . ".IRX CLEAR"))
+    (begin-ddt       . ".VL 0.5i")
+    (begin-dde       . ".LI")
+    (end-ddt         . ".LE"))
   "Strings used for marking up text.
 These cover the most basic kinds of markup, the handling of which
 differs little between the various styles."
