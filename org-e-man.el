@@ -1045,15 +1045,16 @@ holding contextual information."
 	     (concat
 	      ;; If the headline is the first sibling, start a list.
 	      (when (org-export-first-sibling-p headline)
-		(format "%s\n" ""))
+			(format "%s\n" ".RS"))
 	      ;; Itemize headline
-	      ".IP\n" full-text "\n" headline-label pre-blanks contents)))
+	      ".TP\n.ft I\n" full-text "\n.ft\n" 
+		  headline-label pre-blanks contents ".RE")))
 	;; If headline is not the last sibling simply return
 	;; LOW-LEVEL-BODY.  Otherwise, also close the list, before any
 	;; blank line.
 	(if (not (org-export-last-sibling-p headline)) low-level-body
 	  (replace-regexp-in-string
-	   "[ \t\n]*\\'"
+	   "[ \t\n]*\\'" ""
 	   low-level-body))))
      ;; Case 3. Standard headline.  Export it as a section.
      (t
@@ -1183,7 +1184,7 @@ contextual information."
 
     (if (or (not (null tag))
 	    (not (null checkbox))) 
-	(concat "\n.IP " (or tag (concat " " checkbox)) "\n"
+	(concat "\n.TP\n" (or tag (concat " " checkbox)) "\n"
 		(org-trim (or contents " " ) )
 		;; If there are footnotes references in tag, be sure to
 		;; add their definition at the end of the item.  This
