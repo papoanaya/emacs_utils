@@ -1525,7 +1525,7 @@ contextual information."
 	(format
 	 (or float-env "%s")
 	 (concat 
-	  (format ".RS\n.nf\n\\fC%s\\fP\n.fi\nRE\n\n"
+	  (format ".RS\n.nf\n\\fC%s\\fP\n.fi\n.RE\n\n"
 		  (org-export-format-code-default src-block info) 
 		  )))))
      ( (and org-e-man-source-highlight) 
