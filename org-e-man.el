@@ -223,8 +223,8 @@ structure of the values.")
 (defcustom org-e-man-classes
   '(("1"
      "1"
-     (".SH \"%s\"" . ".SH \"%s\" ")
-     (".SS \"%s\"" . ".SS \"%s\" "))
+     (".SH \"%s\"" . ".SH \"%s\"")
+     (".SS \"%s\"" . ".SS \"%s\""))
     )
 
   "Alist of Man classes and associated header and structure.
@@ -1170,6 +1170,7 @@ contextual information."
 		 (< level 5)
 		 (concat ""))))
 	 (bullet (org-element-property :bullet item))
+	 (type (org-element-property :type (org-element-property :parent item)))
 	 (checkbox (case (org-element-property :checkbox item)
 		     (on "\\o'\\(sq\\(mu'")			;; 
 		     (off "\\(sq ")					;;
@@ -1180,20 +1181,22 @@ contextual information."
 		(and tag (format "\\fB%s\\fP"
 				 (concat checkbox
 					 (org-export-data tag info)))))))
-;; removed counter
 
     (if (or (not (null tag))
 	    (not (null checkbox))) 
-	(concat "\n.TP\n" (or tag (concat " " checkbox)) "\n"
+	(concat ".TP\n" (or tag (concat " " checkbox)) "\n"
 		(org-trim (or contents " " ) )
 		;; If there are footnotes references in tag, be sure to
 		;; add their definition at the end of the item.  This
 		)
-      (let ((marker (cond  ((string= "-" (org-trim bullet)) "\\(em")
-			   ((string= "*" (org-trim bullet)) "\\(bu")
+      (let* ((bullet (org-trim bullet))
+			 (marker (cond  ((string= "-" bullet) "\\(em")
+			   ((string= "*" bullet) "\\(bu")
+			   ((eq type 'ordered)  
+				(format "%s " (org-trim bullet)))
 			   (t "\\(dg")
 		      ) ))
-	(concat "\n.IP " marker " 4\n"
+	(concat ".IP " marker " 4\n"
 		(org-trim (or contents " " ) )
 		;; If there are footnotes references in tag, be sure to
 		;; add their definition at the end of the item.  This
@@ -1370,8 +1373,8 @@ the plist used as a communication channel."
 	    ((eq parent-type 'section)
 	     (setq fixed-paragraph (concat ".PP\n" contents) ) )
 	    ((eq parent-type 'footnote-definition)
-	     (setq fixed-paragraph (concat "" contents) ))
-	    (t (setq fixed-paragraph (concat "" contents)) ) 
+	     (setq fixed-paragraph contents))
+	    (t (setq fixed-paragraph (concat "" contents) ) ) 
 	    )
       fixed-paragraph)
     )
@@ -1401,16 +1404,7 @@ contextual information."
 
     (org-e-man--wrap-label
      plain-list
-     (format "%s %s "
-	     
-	     ;; Once special environment, if any, has been removed, the
-	     ;; rest of the attributes will be optional arguments.
-	     ;; They will be put inside square brackets if necessary.
-	     (let ((opt (replace-regexp-in-string
-			 (format " *%s *" paralist-regexp) "" attr)))
-	       (cond ((string= opt "") "")
-		     ((string-match "\\`\\[[^][]+\\]\\'" opt) opt)
-		     (t (format "\\fB%s\\fP" opt))))
+     (format "%s"
 	     contents ))))
 
 
@@ -1432,11 +1426,12 @@ contextual information."
   ;; Handle quotation marks
    (setq text (org-e-man--quotation-marks text info))
   ;; Handle break preservation if required.
-    (when (plist-get info :preserve-breaks)
-      (setq text (replace-regexp-in-string "\\(\\\\\\\\\\)?[ \t]*\n" " \\\\\\\\\n"
-  					 text)))
-  ;; Return value.
-  text)
+
+   (when (plist-get info :preserve-breaks)
+	 (setq text (replace-regexp-in-string "\\(\\\\\\\\\\)?[ \t]*\n" " \\\\\\\\\n"
+										  text)))
+   ;; Return value.
+   text)
 
 
 
