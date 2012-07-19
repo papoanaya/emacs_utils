@@ -2095,6 +2095,7 @@ This function assumes TABLE has `org' as its `:type' attribute."
 
 
     (setq title-line  (plist-get attr :title-line))
+    (setq disable-caption (plist-get attr :disable-caption)) 
 
     (setq table-format (concat 
 			(format "%s"
@@ -2129,7 +2130,8 @@ This function assumes TABLE has `org' as its `:type' attribute."
 				(dotimes (i (length first-line))
 				  (setq final-line (concat final-line "c" divider))))
 			      final-line ))
-		    (format "%s.TE\n.TB \"%s\""
+
+		    (format "%s.TE\n"
 			    (let ((final-line ""))
 			      (dolist (line-item lines)
 				(cond 
@@ -2141,13 +2143,12 @@ This function assumes TABLE has `org' as its `:type' attribute."
 				  )
 				 )
 				
-				)  final-line) caption)
+				)  final-line))
 
-		    )))))
-
-
-
-
+		    (if (not disable-caption)
+			(format ".TB \"%s\""
+				caption)
+		      "") )))))
 
 ;;;; Table Cell
 
