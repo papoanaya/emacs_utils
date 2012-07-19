@@ -1415,7 +1415,7 @@ contextual information."
 		       until (eq (org-element-type parent) 'headline))))
 	    (and count
 		 (< level 5)
-		 (concat ".VL 1.0i \n"))))
+		 (concat ".VL 2.0i \n"))))
 
 	 (checkbox (case (org-element-property :checkbox item)
 		     (on "\\o'\\(sq\\(mu'")			;; 
@@ -1428,7 +1428,7 @@ contextual information."
 				 (concat checkbox
 					 (org-export-data tag info)))))))
 
-    (concat counter ".LI " (or tag (concat " " checkbox))
+    (concat counter ".LI " "\"" (or tag (concat " " checkbox)) "\""
 	    "\n"
 	    (org-trim (or contents " " ) )
 	    ;; If there are footnotes references in tag, be sure to
@@ -1696,7 +1696,7 @@ contextual information."
 	 (groff-type (cond
 		      ((eq type 'ordered) ".AL")
 		      ((eq type 'unordered) ".BL")
-		      ((eq type 'descriptive) ".VL 1.0i"))))
+		      ((eq type 'descriptive) ".VL 2.0i"))))
     (org-e-groff--wrap-label
      plain-list
      (format "%s%s\n%s\n.LE"
