@@ -1428,12 +1428,20 @@ contextual information."
 				 (concat checkbox
 					 (org-export-data tag info)))))))
 
-    (concat counter ".LI " "\"" (or tag (concat " " checkbox)) "\""
-	    "\n"
-	    (org-trim (or contents " " ) )
-	    ;; If there are footnotes references in tag, be sure to
-	    ;; add their definition at the end of the item.  This
-	    )))
+	(if (or checkbox tag)
+		(concat ".LI " "\"" (or tag (concat " " checkbox)) "\""
+				"\n"
+				(org-trim (or contents " " ) )
+				;; If there are footnotes references in tag, be sure to
+				;; add their definition at the end of the item.  This
+				)
+
+	  (concat ".LI"
+			  "\n"
+			  (org-trim (or contents " " ) )
+			  ;; If there are footnotes references in tag, be sure to
+			  ;; add their definition at the end of the item.  This
+			  )) ))
 
 
 
