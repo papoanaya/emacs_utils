@@ -902,12 +902,19 @@ holding export options."
 
 
      ;; 2. Title
+     (let ((subtitle1 (plist-get attr :subtitle1))
+	   (subtitle2 (plist-get attr :subtitle2)))
+
      (cond 
       ((string= "" title)
-       (format ".TL\n%s\n" " ")
+       (format ".TL \"%s\" \"%s\" \n%s\n" 
+	       (or subtitle1 "")
+	       (or subtitle2 "") " ")
        )
       (t
-       (format ".TL\n%s\n" title)))
+       (format ".TL \"%s\" \"%s \" \n%s\n" 
+	       (or subtitle1 "")
+	       (or subtitle2 "") title)  )))
 
      ;; 3. Author.
      ;; In Groff, .AU *MUST* be placed after .TL
