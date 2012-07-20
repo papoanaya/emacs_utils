@@ -45,6 +45,9 @@ The muse directory contains drivers for Emacs Muse mode:
   This MUSE driver may be rough around the edges but it works good
   enough for me.
 - muse-man.el : MUSE driver for groff manual pages (-man). 
+- muse-groff.el : MUSE driver for groff MOM macros. (-mom) This is my personal
+  version that matches the latest version of the MOM macros. One is
+  included in the muse distribution.
 
   
 The org-old directory contains deprecated items in org mode
