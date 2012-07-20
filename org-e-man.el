@@ -37,47 +37,13 @@
 
 ;;; Code:
 
+(require 'org-export)
+
 (eval-when-compile (require 'cl))
 
 (defvar org-export-man-default-packages-alist)
 (defvar org-export-man-packages-alist)
 
-
-(declare-function org-element-property "org-element" (property element))
-(declare-function org-element-normalize-string "org-element" (s))
-
-(declare-function org-export-data "org-export" (data info))
-(declare-function org-export-directory "org-export" (type plist))
-(declare-function org-export-expand-macro "org-export" (macro info))
-(declare-function org-export-first-sibling-p "org-export" (headline))
-(declare-function org-export-footnote-first-reference-p "org-export"
-		  (footnote-reference info))
-(declare-function org-export-format-code "org-export"
-		  (code fun &optional num-lines ref-alist))
-(declare-function org-export-format-code-default "org-export" (element info))
-(declare-function org-export-get-coderef-format "org-export" (path desc))
-(declare-function org-export-get-footnote-definition "org-export"
-		  (footnote-reference info))
-(declare-function org-export-get-footnote-number "org-export" (footnote info))
-(declare-function org-export-get-previous-element "org-export" (blob))
-(declare-function org-export-get-relative-level "org-export" (headline info))
-(declare-function org-export-unravel-code "org-export" (element))
-(declare-function org-export-inline-image-p "org-export"
-		  (link &optional extensions))
-(declare-function org-export-last-sibling-p "org-export" (headline))
-(declare-function org-export-low-level-p "org-export" (headline info))
-(declare-function org-export-output-file-name
-		  "org-export" (extension &optional subtreep pub-dir))
-(declare-function org-export-resolve-coderef "org-export" (ref info))
-(declare-function org-export-resolve-fuzzy-link "org-export" (link info))
-(declare-function org-export-resolve-radio-link "org-export" (link info))
-(declare-function org-export-solidify-link-text "org-export" (s))
-(declare-function
- org-export-to-buffer "org-export"
- (backend buffer &optional subtreep visible-only body-only ext-plist))
-(declare-function
- org-export-to-file "org-export"
- (backend file &optional subtreep visible-only body-only ext-plist))
 
 
 
@@ -140,68 +106,13 @@
   "Alist between element or object types and translators.")
 
 (defconst org-e-man-options-alist
-  '((:date "DATE" nil org-e-man-date-format t)
-    (:man-class "MAN_CLASS" nil org-e-man-default-class t)
+  '((:date "DATE" nil nil t)
+    (:man-class "MAN_CLASS" nil nil t)
     (:man-class-options "MAN_CLASS_OPTIONS" nil nil t)
     (:man-header-extra "MAN_HEADER" nil nil newline))
   "Alist between Man export properties and ways to set them.
 See `org-export-options-alist' for more information on the
 structure of the values.")
-
-
-
-;;; Internal Variables
-
-(defconst org-e-man-babel-language-alist
-  '(("af" . "afrikaans")
-    ("bg" . "bulgarian")
-    ("bt-br" . "brazilian")
-    ("ca" . "catalan")
-    ("cs" . "czech")
-    ("cy" . "welsh")
-    ("da" . "danish")
-    ("de" . "germanb")
-    ("de-at" . "naustrian")
-    ("de-de" . "ngerman")
-    ("el" . "greek")
-    ("en" . "english")
-    ("en-au" . "australian")
-    ("en-ca" . "canadian")
-    ("en-gb" . "british")
-    ("en-ie" . "irish")
-    ("en-nz" . "newzealand")
-    ("en-us" . "american")
-    ("es" . "spanish")
-    ("et" . "estonian")
-    ("eu" . "basque")
-    ("fi" . "finnish")
-    ("fr" . "frenchb")
-    ("fr-ca" . "canadien")
-    ("gl" . "galician")
-    ("hr" . "croatian")
-    ("hu" . "hungarian")
-    ("id" . "indonesian")
-    ("is" . "icelandic")
-    ("it" . "italian")
-    ("la" . "latin")
-    ("ms" . "malay")
-    ("nl" . "dutch")
-    ("no-no" . "nynorsk")
-    ("pl" . "polish")
-    ("pt" . "portuguese")
-    ("ro" . "romanian")
-    ("ru" . "russian")
-    ("sa" . "sanskrit")
-    ("sb" . "uppersorbian")
-    ("sk" . "slovak")
-    ("sl" . "slovene")
-    ("sq" . "albanian")
-    ("sr" . "serbian")
-    ("sv" . "swedish")
-    ("ta" . "tamil")
-    ("tr" . "turkish")
-    ("uk" . "ukrainian"))
-  "Alist between language code and corresponding Babel option.")
 
 
 
@@ -214,117 +125,6 @@ structure of the values.")
 
 
 ;;;; Preamble
-
-(defcustom org-e-man-default-class "1"
-  "The default Man class."
-  :group 'org-export-e-man
-  :type '(string :tag "Man class"))
-
-(defcustom org-e-man-classes
-  '(("1"
-     "1"
-     (".SH \"%s\"" . ".SH \"%s\"")
-     (".SS \"%s\"" . ".SS \"%s\""))
-    )
-
-  "Alist of Man classes and associated header and structure.
-If #+Man_CLASS is set in the buffer, use its value and the
-associated information.  Here is the structure of each cell:
-
-  \(class-name
-    header-string
-    \(numbered-section . unnumbered-section\)
-    ...\)
-
-The header string
------------------
-
-The HEADER-STRING is the header that will be inserted into the
-Man file.  It should contain the MT (Memorandum Type) macro, and
-anything else that is needed for this setup.  
-
-- Lines specified via \"#+MAN_HEADER:\"
-
-If you need more control about the sequence in which the header
-is built up, or if you want to exclude one of these building
-blocks for a particular class, you can use the following
-macro-like placeholders.
-
- [EXTRA]                 the stuff from #+MAN_HEADER
- [NO-EXTRA]              do not include #+MAN_HEADER stuff
-
-So a header like
-
-  [EXTRA]
-  \\fB#1\\fP
-
-
-will omit the default packages, and will include the
-#+Man_HEADER lines. 
-
-
-The sectioning structure
-------------------------
-
-The sectioning structure of the class is given by the elements
-following the header string.  For each sectioning level, a number
-of strings is specified.  A %s formatter is mandatory in each
-section string and will be replaced by the title of the section.
-
-Instead of a cons cell \(numbered . unnumbered\), you can also
-provide a list of 2 or 4 elements,
-
-  \(numbered-open numbered-close\)
-
-or
-
-  \(numbered-open numbered-close unnumbered-open unnumbered-close\)
-
-providing opening and closing strings for a Man environment
-that should represent the document section.  The opening clause
-should have a %s to represent the section title.
-
-Instead of a list of sectioning commands, you can also specify
-a function name.  That function will be called with two
-parameters, the \(reduced) level of the headline, and a predicate
-non-nil when the headline should be numbered.  It must return
-a format string in which the section title will be added."
-  :group 'org-export-e-man
-  :type '(repeat
-	  (list (string :tag "Man class")
-		(string :tag "Man header")
-		(repeat :tag "Levels" :inline t
-			(choice
-			 (cons :tag "Heading"
-			       (string :tag "  numbered")
-			       (string :tag "unnumbered"))
-			 (list :tag "Environment"
-			       (string :tag "Opening   (numbered)")
-			       (string :tag "Closing   (numbered)")
-			       (string :tag "Opening (unnumbered)")
-			       (string :tag "Closing (unnumbered)"))
-			 (function :tag "Hook computing sectioning"))))))
-
-(defcustom org-e-man-inputenc-alist nil
-  "Alist of inputenc coding system names, and what should really be used.
-For example, adding an entry
-
-      (\"utf8\" . \"utf8x\")
-
-will cause \\usepackage[utf8x]{inputenc} to be used for buffers that
-are written as utf8 files."
-  :group 'org-export-e-man
-  :type '(repeat
-	  (cons
-	   (string :tag "Derived from buffer")
-	   (string :tag "Use this instead"))))
-
-(defcustom org-e-man-date-format
-  (format-time-string "%Y-%m-%d")
-  "Format string for .ND "
-  :group 'org-export-e-man
-  :type 'boolean)
-
 
 ;;;; Headline
 
@@ -358,60 +158,6 @@ order to reproduce the default set-up:
   :type 'function)
 
 
-;;;; Footnotes
-
-;;;; Timestamps
-
-(defcustom org-e-man-active-timestamp-format "\\fI%s\\fP"
-  "A printf format string to be applied to active timestamps."
-  :group 'org-export-e-man
-  :type 'string)
-
-(defcustom org-e-man-inactive-timestamp-format "\\fI%s\\fP"
-  "A printf format string to be applied to inactive timestamps."
-  :group 'org-export-e-man
-  :type 'string)
-
-(defcustom org-e-man-diary-timestamp-format "\\fI%s\\fP"
-  "A printf format string to be applied to diary timestamps."
-  :group 'org-export-e-man
-  :type 'string)
-
-
-;;;; Links
-
-(defcustom org-e-man-image-default-option nil
-  "Default option for images."
-  :group 'org-export-e-man
-  :type 'string)
-
-(defcustom org-e-man-default-figure-position nil
-  "Default position for man figures."
-  :group 'org-export-e-man
-  :type 'string)
-
-(defcustom org-e-man-inline-image-rules nil
-  "Rules characterizing image files that can be inlined into Man.
-
-A rule consists in an association whose key is the type of link
-to consider, and value is a regexp that will be matched against
-link's path.
-
-Note that, by default, the image extension *actually* allowed
-depend on the way the Man file is processed.  When used with
-pdfman, pdf, jpg and png images are OK.  When processing
-through dvi to Postscript, only ps and eps are allowed.  The
-default we use here encompasses both."
-  :group 'org-export-e-man
-  :type '(alist :key-type (string :tag "Type")
-		:value-type (regexp :tag "Path")))
-
-(defcustom org-e-man-link-with-unknown-path-format "\\fI%s\\fP"
-  "Format string for links with unknown path type."
-  :group 'org-export-man
-  :type 'string)
-
-
 ;;;; Tables
 
 
@@ -442,33 +188,6 @@ When nil, no transformation is made."
   :type '(choice
 	  (string :tag "Format string")
 	  (const :tag "No formatting")))
-
-
-;;;; Text markup
-
-(defcustom org-e-man-text-markup-alist '((bold . "\\fB%s\\fP")
-					   ;; from "verb"
-					   (code . "\\fC%s\\fP") 
-					   (italic . "\\fI%s\\fP")
-
-					   ;;
-					   ;; Strike through
-					   ;; and underline need to be revised.
-
-					   (strike-through . "\\fC%s\\fP")
-					   (underline . "\\fI%s\\fP")
-					   (verbatim .   "protectedtexttt"))
-  "Alist of Man expressions to convert text markup.
-
-The key must be a symbol among `bold', `code', `italic',
-`strike-through', `underline' and `verbatim'.  The value is
-a formatting string to wrap fontified text with it. 
-
-If no association can be found for a given markup, text will be
-returned as-is."
-  :group 'org-export-e-man
-  :type 'alist
-  :options '(bold code italic strike-through underline verbatim))
 
 
 ;;;; Drawers
@@ -702,38 +421,6 @@ For non-floats, see `org-e-man--wrap-label'."
 
 
 
-(defun org-e-man--guess-babel-language (header info)
-  "Set Babel's language according to LANGUAGE keyword.
-
-HEADER is the Man header string.  INFO is the plist used as
-a communication channel.
-
-Insertion of guessed language only happens when Babel package has
-explicitly been loaded.  Then it is added to the rest of
-package's options.
-
-Return the new header."
-  header )
-
-
-(defun org-e-man--guess-inputenc (header)
-  "Set the coding system in inputenc to what the buffer is.
-HEADER is the Man header string.  Return the new header."
-  header )
-
-
-(defun org-e-man--make-option-string (options)
-  "Return a comma separated string of keywords and values.
-OPTIONS is an alist where the key is the options keyword as
-a string, and the value a list containing the keyword value, or
-nil."
-  (mapconcat (lambda (pair)
-	       (concat ":" (first pair) " "
-		       (when (> (length (second pair)) 0)
-			 (concat (second pair)))))
-	     options
-	     " "))
-
 (defun org-e-man--quotation-marks (text info)
   "Export quotation marks depending on language conventions.
 TEXT is a string containing quotation marks to be replaced.  INFO
@@ -757,30 +444,6 @@ This function shouldn't be used for floats.  See
 	output
       (concat (format "%s\n.br\n" label) output))))
 
-(defun org-e-man--text-markup (text markup)
-  "Format TEXT depending on MARKUP text markup.
-See `org-e-man-text-markup-alist' for details."
-  (let ((fmt (cdr (assq markup org-e-man-text-markup-alist))))
-    (cond
-     ;; No format string: Return raw text.
-     ((not fmt) text)
-     ((string= "protectedtexttt" fmt)
-      (let ((start 0)
-	    (trans '(("\\" . "\\")))
-	    (rtn "")
-	    char)
-	(while (string-match "[\\{}$%&_#~^]" text)
-	  (setq char (match-string 0 text))
-	  (if (> (match-beginning 0) 0)
-	      (setq rtn (concat rtn (substring text 0 (match-beginning 0)))))
-	  (setq text (substring text (1+ (match-beginning 0))))
-	  (setq char (or (cdr (assoc char trans)) (concat "\\" char))
-		rtn (concat rtn char)))
-	(setq text (concat rtn text) )
-	(format "\\fC%s\\fP" text)))
-     ;; Else use format string.
-     (t (format fmt text)))))
-
 
 ;;; Template
 
@@ -796,26 +459,17 @@ holding export options."
 	   (mapconcat
 	    #'identity
 	    (list (plist-get info :man-class-options))
-	    " "))))
-	(class (plist-get info :man-class)))
+	    " ")))) )
     (concat
-     ;; 2. Title
+
      (cond 
       ((string= "" title)
-       (format ".TH \"%s\" \"%s\" \n" " " class )
+       (format ".TH \"%s\" \"%s\" \n" " " "1" )
        )
       (t
-       (format ".TH \"%s\" \"%s\" \n" title class )))
+       (format ".TH \"%s\" \"%s\" \n" title "1" )))
 
-     ;; 7. Document's body.
-     
-     contents
-
-     ;; 8. Table of Content must be placed at the end being
-     ;; that it gets collected from all the headers. 
-     ;; In the case of letters, signature will be placed instead.
-
-     )))
+     contents )))
 
 
 ;;; Transcode Functions
@@ -831,7 +485,7 @@ holding export options."
   "Transcode BOLD from Org to Man.
 CONTENTS is the text with bold markup.  INFO is a plist holding
 contextual information."
-  (org-e-man--text-markup contents 'bold))
+  (format "\\fB%s\\fP" contents) )
 
 
 ;;;; Center Block
@@ -853,13 +507,7 @@ holding contextual information."
   "Transcode a CLOCK element from Org to Man.
 CONTENTS is nil.  INFO is a plist holding contextual
 information."
-  (concat
-   (format "\\fB%s\\fP " org-clock-string)
-   (format org-e-man-inactive-timestamp-format
-	   (concat (org-translate-time (org-element-property :value clock))
-		   (let ((time (org-element-property :time clock)))
-		     (and time (format " (%s)" time)))))
-   "\\\\"))
+nil )
 
 
 ;;;; Code
@@ -868,7 +516,7 @@ information."
   "Transcode a CODE object from Org to Man.
 CONTENTS is nil.  INFO is a plist used as a communication
 channel."
-  (org-e-man--text-markup (org-element-property :value code) 'code))
+  (format "\\fC%s\\fP" code) )
 
 
 ;;;; Comment
@@ -884,6 +532,12 @@ channel."
 ;;;; Drawer
 
 ;; Drawers are ignored
+(defun org-e-man-drawer (drawer contents info)
+  "Transcode a DRAWER element from Org to Man.
+   DRAWER holds the drawer information
+   CONTENTS holds the contents of the block.  
+   INFO is a plist holding contextual information. "
+  contents)
 
 
 ;;;; Dynamic Block
@@ -901,7 +555,7 @@ holding contextual information.  See `org-export-data'."
   "Transcode an ENTITY object from Org to Man.
 CONTENTS are the definition itself.  INFO is a plist holding
 contextual information."
-  (let ((ent (org-element-property :man entity)))
+  (let ((ent (org-element-property :utf8 entity)))
     (if (org-element-property :man-math-p entity) (format "$%s$" ent) ent)))
 
 
@@ -963,76 +617,18 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
   "Transcode an HEADLINE element from Org to Man.
 CONTENTS holds the contents of the headline.  INFO is a plist
 holding contextual information."
-  (let* ((class (plist-get info :man-class))
-	 (level (org-export-get-relative-level headline info))
-	 (numberedp (org-export-numbered-headline-p headline info))
-	 (class-sectionning (assoc class org-e-man-classes))
-	 ;; Section formatting will set two placeholders: one for the
-	 ;; title and the other for the contents.
-	 (section-fmt
-	  (let ((sec (if (and (symbolp (nth 2 class-sectionning))
-			      (fboundp (nth 2 class-sectionning)))
-			 (funcall (nth 2 class-sectionning) level numberedp)
-		       (nth (1+ level) class-sectionning))))
-	    (cond
-	     ;; No section available for that LEVEL.
-	     ((not sec) nil)
-	     ;; Section format directly returned by a function.
-	     ((stringp sec) sec)
-	     ;; (numbered-section . unnumbered-section)
-	     ((not (consp (cdr sec)))
-	      (concat (funcall (if numberedp #'car #'cdr) sec) "\n%s"))
-	     ;; (numbered-open numbered-close)
-	     ((= (length sec) 2)
-	      (when numberedp (concat (car sec) "\n%s" (nth 1 sec))))
-	     ;; (num-in num-out no-num-in no-num-out)
-	     ((= (length sec) 4)
-	      (if numberedp (concat (car sec) "\n%s" (nth 1 sec))
-		(concat (nth 2 sec) "\n%s" (nth 3 sec)))))))
-	 (text (org-export-data (org-element-property :title headline) info))
-	 (todo
-	  (and (plist-get info :with-todo-keywords)
-	       (let ((todo (org-element-property :todo-keyword headline)))
-		 (and todo (org-export-data todo info)))))
-	 (todo-type (and todo (org-element-property :todo-type headline)))
-	 (tags (and (plist-get info :with-tags)
-		    (org-export-get-tags headline info)))
-	 (priority (and (plist-get info :with-priority)
-			(org-element-property :priority headline)))
-	 ;; Create the headline text along with a no-tag version.  The
-	 ;; latter is required to remove tags from table of contents.
-	 (full-text (if (functionp org-e-man-format-headline-function)
-			;; User-defined formatting function.
-			(funcall org-e-man-format-headline-function
-				 todo todo-type priority text tags)
-		      ;; Default formatting.
-		      (concat
-		       (when todo
-			 (format "\\fB%s\\fP " todo))
-		       (when priority (format " [\\#%c] " priority))
-		       text
-		       (when tags
-			 (format "\\fC:%s:\\fP "
-				 (mapconcat 'identity tags ":"))))))
-	 (full-text-no-tag
-	  (if (functionp org-e-man-format-headline-function)
-	      ;; User-defined formatting function.
-	      (funcall org-e-man-format-headline-function
-		       todo todo-type priority text nil)
-	    ;; Default formatting.
-	    (concat
-	     (when todo (format "\\fB%s\\fP " todo))
-	     (when priority (format " [\\#%c] " priority))
-	     text)))
-	 ;; Associate some \label to the headline for internal links.
-	 ;; 	 (headline-label 
-	 ;; 	  (format "\\label{sec-%s}\n"
-	 ;; 		  (mapconcat 'number-to-string
-	 ;; 			     (org-export-get-headline-number headline info)
-	 ;; 			     "-")))
-	 (headline-label "")
-	 (pre-blanks
-	  (make-string (org-element-property :pre-blank headline) 10)))
+  (let* ((level (org-export-get-relative-level headline info))
+		 (numberedp (org-export-numbered-headline-p headline info))
+		 ;; Section formatting will set two placeholders: one for the
+		 ;; title and the other for the contents.
+		 (section-fmt
+		  (case level
+			(0 ".SH \"%s\"\n%s")
+			(1 ".SH \"%s\"\n%s")
+			(2 ".SS \"%s\"\n%s")
+			(3 ".SS \"%s\"\n%s") 
+			(t nil)) )
+		 (text (org-export-data (org-element-property :title headline) info)) )
     (cond
      ;; Case 1: This is a footnote section: ignore it.
      ((org-element-property :footnote-section-p headline) nil)
@@ -1042,53 +638,25 @@ holding contextual information."
      ((or (not section-fmt) (org-export-low-level-p headline info))
       ;; Build the real contents of the sub-tree.
       (let ((low-level-body
-	     (concat
-	      ;; If the headline is the first sibling, start a list.
-	      (when (org-export-first-sibling-p headline)
-			(format "%s\n" ".RS"))
-	      ;; Itemize headline
-	      ".TP\n.ft I\n" full-text "\n.ft\n" 
-		  headline-label pre-blanks contents ".RE")))
-	;; If headline is not the last sibling simply return
-	;; LOW-LEVEL-BODY.  Otherwise, also close the list, before any
-	;; blank line.
-	(if (not (org-export-last-sibling-p headline)) low-level-body
-	  (replace-regexp-in-string
-	   "[ \t\n]*\\'" ""
-	   low-level-body))))
+			 (concat
+			  ;; If the headline is the first sibling, start a list.
+			  (when (org-export-first-sibling-p headline)
+				(format "%s\n" ".RS"))
+			  ;; Itemize headline
+			  ".TP\n.ft I\n" text "\n.ft\n" 
+			  contents ".RE")))
+		;; If headline is not the last sibling simply return
+		;; LOW-LEVEL-BODY.  Otherwise, also close the list, before any
+		;; blank line.
+		(if (not (org-export-last-sibling-p headline)) low-level-body
+		  (replace-regexp-in-string
+		   "[ \t\n]*\\'" ""
+		   low-level-body))))
      ;; Case 3. Standard headline.  Export it as a section.
-     (t
-      (cond
-       ((not (and tags (eq (plist-get info :with-tags) 'not-in-toc)))
-	;; Regular section.  Use specified format string.
-	(format section-fmt full-text
-		(concat headline-label pre-blanks contents)))
-       ((string-match "\\`\\\\\\(.*?\\){" section-fmt)
-	;; If tags should be removed from table of contents, insert
-	;; title without tags as an alternative heading in sectioning
-	;; command.
-	(format (replace-match (concat (match-string 1 section-fmt) "[%s]")
-			       nil nil section-fmt 1)
-		;; Replace square brackets with parenthesis since
-		;; square brackets are not supported in optional
-		;; arguments.
-		(replace-regexp-in-string
-		 "\\[" "("
-		 (replace-regexp-in-string
-		  "\\]" ")"
-		  full-text-no-tag))
-		full-text
-		(concat headline-label pre-blanks contents)))
-       (t
-	;; Impossible to add an alternative heading.  Fallback to
-	;; regular sectioning format string.
-	(format section-fmt full-text
-		(concat headline-label pre-blanks contents))))))))
-
+     (t (format section-fmt text contents )))))
 
 ;;;; Horizontal Rule
 ;; Not supported
-
 
 ;;;; Inline Babel Call
 ;;
@@ -1150,16 +718,19 @@ contextual information."
   "Transcode ITALIC from Org to Man.
 CONTENTS is the text with italic markup.  INFO is a plist holding
 contextual information."
-  (org-e-man--text-markup contents 'italic))
+  (format "\\fI%s\\fP" contents))
 
 
 ;;;; Item
 
 
 (defun org-e-man-item (item contents info)
+
+
   "Transcode an ITEM element from Org to Man.
 CONTENTS holds the contents of the item.  INFO is a plist holding
 contextual information."
+
   (let* ((counter
 	  (let ((count (org-element-property :counter item))
 		(level
@@ -1258,10 +829,6 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 
 
 ;;;; Link
-;;;;
-;;;; Inline images just place a call to .PSPIC or .PS/.PE
-;;;  and load the graph.
-;;;;
 
 
 (defun org-e-man-link (link desc info)
@@ -1275,77 +842,27 @@ INFO is a plist holding contextual information.  See
 	 (raw-path (org-element-property :path link))
 	 ;; Ensure DESC really exists, or set it to nil.
 	 (desc (and (not (string= desc "")) desc))
-	 (imagep (org-export-inline-image-p
-		  link org-e-man-inline-image-rules))
+
 	 (path (cond
-		((member type '("http" "https" "ftp" "mailto"))
-		 (concat type ":" raw-path))
-		((string= type "file")
-		 (when (string-match "\\(.+\\)::.+" raw-path)
-		   (setq raw-path (match-string 1 raw-path)))
-		 (if (file-name-absolute-p raw-path)
-		     (concat "file://" (expand-file-name raw-path))
-		   (concat "file://" raw-path)))
-		(t raw-path)))
+			((member type '("http" "https" "ftp" "mailto"))
+			 (concat type ":" raw-path))
+			((string= type "file")
+			 (when (string-match "\\(.+\\)::.+" raw-path)
+			   (setq raw-path (match-string 1 raw-path)))
+			 (if (file-name-absolute-p raw-path)
+				 (concat "file://" (expand-file-name raw-path))
+			   (concat "file://" raw-path)))
+			(t raw-path)))
 	 protocol)
     (cond
-     ;; Radio link: Transcode target's contents and use them as link's
-     ;; description.
-     ((string= type "radio")
-      (let ((destination (org-export-resolve-radio-link link info)))
-	(when destination
-	  (format "\\fI [%s] \\fP"
-		  (org-export-solidify-link-text path) ))))
-     ;; Links pointing to an headline: Find destination and build
-     ;; appropriate referencing command.
-     ((member type '("custom-id" "fuzzy" "id"))
-      (let ((destination (if (string= type "fuzzy")
-			     (org-export-resolve-fuzzy-link link info)
-			   (org-export-resolve-id-link link info))))
-	(case (org-element-type destination)
-	  ;; Id link points to an external file.
-	  (plain-text
-	   (if desc (format "%s \\fBat\\fP \\fIfile://%s\\fP" desc destination)
-	     (format "\\fI file://%s \\fP" destination)))
-	  ;; Fuzzy link points nowhere.
-	  ('nil
-	   (format org-e-man-link-with-unknown-path-format
-		   (or desc
-		       (org-export-data
-			(org-element-property :raw-link link) info))))
-	  ;; Fuzzy link points to an invisible target.
-	  (keyword nil)
-	  ;; LINK points to an headline.  If headlines are numbered
-	  ;; and the link has no description, display headline's
-	  ;; number.  Otherwise, display description or headline's
-	  ;; title.
-	  (headline
-	   (let ((label ""))
-	     (if (and (plist-get info :section-numbers) (not desc))
-		 (format "\\fI%s\\fP" label)
-	       (format "\\fI%s\\fP"
-		       (or desc
-			   (org-export-data
-			    (org-element-property :title destination) info))))))
-          ;; Fuzzy link points to a target.  Do as above.
-	  (otherwise
-	   (let ((path (org-export-solidify-link-text path)))
-	     (if (not desc) (format "\\fI%s\\fP" path)
-	       (format "%s \\fBat\\fP \\fI%s\\fP" desc path)))))))
      ;; Coderef: replace link with the reference name or the
      ;; equivalent line number.
-     ((string= type "coderef")
-      (format (org-export-get-coderef-format path desc)
-	      (org-export-resolve-coderef path info)))
-     ;; Link type is handled by a special function.
-     ((functionp (setq protocol (nth 2 (assoc type org-link-protocols))))
-      (funcall protocol (org-link-unescape path) desc 'man))
      ;; External link with a description part.
      ((and path desc) (format "%s \\fBat\\fP \\fI%s\\fP" path desc))
      ;; External link without a description part.
      (path (format "\\fI%s\\fP" path))
      ;; No path, only description.  Try to do something useful.
-     (t (format org-e-man-link-with-unknown-path-format desc)))))
+     (t (format "\\fI%s\\fP" desc)))))
 
 
 ;;;; Macro
@@ -1387,25 +904,8 @@ the plist used as a communication channel."
   "Transcode a PLAIN-LIST element from Org to Man.
 CONTENTS is the contents of the list.  INFO is a plist holding
 contextual information."
-  (let* ((type (org-element-property :type plain-list))
-	 (paralist-types '("inparaenum" "asparaenum" "inparaitem" "asparaitem"
-			   "inparadesc" "asparadesc"))
-	 (paralist-regexp (concat
-			   "\\("
-			   (mapconcat 'identity paralist-types "\\|")
-			   "\\)"))
-	 (attr (mapconcat #'identity
-			  (org-element-property :attr_man plain-list)
-			  " "))
-	 (list-type (cond
-		      ((eq type 'ordered) "\\(bu")
-		      ((eq type 'unordered) "\\(em")
-		      ((eq type 'descriptive) ""))))
+contents)
 
-    (org-e-man--wrap-label
-     plain-list
-     (format "%s"
-	     contents ))))
 
 
 ;;;; Plain Text
@@ -1575,7 +1075,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
   "Transcode STRIKE-THROUGH from Org to Man.
 CONTENTS is the text with strike-through markup.  INFO is a plist
 holding contextual information."
-  (org-e-man--text-markup contents 'strike-through))
+  (format "\\fI%s\\fP" contents))
 
 ;;;; Subscript
 
@@ -1740,8 +1240,8 @@ This function assumes TABLE has `org' as its `:type' attribute."
 			(t "box"))
 		      ))
 
-	      (if (not (null attr-item))
-		  (add-to-list 'result-list attr-item)
+	      (if attr-item
+			  (add-to-list 'result-list attr-item)
 		))
 	    result-list ))
 
@@ -1863,15 +1363,9 @@ information."
 
 (defun org-e-man-timestamp (timestamp contents info)
   "Transcode a TIMESTAMP object from Org to Man.
-CONTENTS is nil.  INFO is a plist holding contextual
-information."
-  (let ((value (org-translate-time (org-element-property :value timestamp)))
-	(type (org-element-property :type timestamp)))
-    (cond ((memq type '(active active-range))
-	   (format org-e-man-active-timestamp-format value))
-	  ((memq type '(inactive inactive-range))
-	   (format org-e-man-inactive-timestamp-format value))
-	  (t (format org-e-man-diary-timestamp-format value)))))
+  CONTENTS is nil.  INFO is a plist holding contextual
+  information."
+nil )
 
 
 ;;;; Underline
@@ -1880,7 +1374,7 @@ information."
   "Transcode UNDERLINE from Org to Man.
 CONTENTS is the text with underline markup.  INFO is a plist
 holding contextual information."
-  (org-e-man--text-markup contents 'underline))
+  (format "\\fI%s\\fP" contents))
 
 
 ;;;; Verbatim
@@ -1889,7 +1383,7 @@ holding contextual information."
   "Transcode a VERBATIM object from Org to Man.
 CONTENTS is nil.  INFO is a plist used as a communication
 channel."
-  (org-e-man--text-markup (org-element-property :value verbatim) 'verbatim))
+  (format ".nf\n%s\n.fi" contents))
 
 
 ;;;; Verse Block
