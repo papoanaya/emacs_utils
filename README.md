@@ -44,13 +44,8 @@ The muse directory contains drivers for Emacs Muse mode:
   (Memorandum, White Papers, Business Letters, etc.)
   This MUSE driver may be rough around the edges but it works good
   enough for me.
-  - muse-mm.el : MUSE driver for groff Memorandum Macros (-mm).  Even though
-  muse already has a groff mode, that mode  uses the MOM and WWW macros
-  which seems to be geared to literary works (i. e. books).
-  The MM macros are catered for professional communications
-  (Memorandum, White Papers, Business Letters, etc.)
-  This MUSE driver may be rough around the edges but it works good
-  enough for me.
+- muse-man.el : MUSE driver for groff manual pages (-man). 
+
   
 The org-old directory contains deprecated items in org mode
 
