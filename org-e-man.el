@@ -507,7 +507,7 @@ holding contextual information."
   "Transcode a CLOCK element from Org to Man.
 CONTENTS is nil.  INFO is a plist holding contextual
 information."
-nil )
+"" )
 
 
 ;;;; Code
@@ -753,26 +753,25 @@ contextual information."
 				 (concat checkbox
 					 (org-export-data tag info)))))))
 
-    (if (or (not (null tag))
-	    (not (null checkbox))) 
+    (if (and (null tag )
+			 (null checkbox)) 
+		(let* ((bullet (org-trim bullet))
+			   (marker (cond  ((string= "-" bullet) "\\(em")
+							  ((string= "*" bullet) "\\(bu")
+							  ((eq type 'ordered)  
+							   (format "%s " (org-trim bullet)))
+							  (t "\\(dg") ) ))
+		  (concat ".IP " marker " 4\n"
+				  (org-trim (or contents " " ) )
+		;; If there are footnotes references in tag, be sure to
+		;; add their definition at the end of the item.  This
+		))
+; else
 	(concat ".TP\n" (or tag (concat " " checkbox)) "\n"
 		(org-trim (or contents " " ) )
 		;; If there are footnotes references in tag, be sure to
 		;; add their definition at the end of the item.  This
-		)
-      (let* ((bullet (org-trim bullet))
-			 (marker (cond  ((string= "-" bullet) "\\(em")
-			   ((string= "*" bullet) "\\(bu")
-			   ((eq type 'ordered)  
-				(format "%s " (org-trim bullet)))
-			   (t "\\(dg")
-		      ) ))
-	(concat ".IP " marker " 4\n"
-		(org-trim (or contents " " ) )
-		;; If there are footnotes references in tag, be sure to
-		;; add their definition at the end of the item.  This
-		) ))
-))
+		)) ))
 
 
 
@@ -1297,10 +1296,6 @@ This function assumes TABLE has `org' as its `:type' attribute."
 
 		    )))))
 
-
-
-
-
 ;;;; Table Cell
 
 (defun org-e-man-table-cell (table-cell contents info)
@@ -1347,8 +1342,6 @@ a communication channel."
 	((memq 'below borders) "_"))))))
 
 
-
-
 ;;;; Target
 
 (defun org-e-man-target (target contents info)
@@ -1365,7 +1358,7 @@ information."
   "Transcode a TIMESTAMP object from Org to Man.
   CONTENTS is nil.  INFO is a plist holding contextual
   information."
-nil )
+"" )
 
 
 ;;;; Underline
@@ -1414,8 +1407,8 @@ first.
 When optional argument VISIBLE-ONLY is non-nil, don't export
 contents of hidden elements.
 
-When optional argument BODY-ONLY is non-nil, only write code
-between \"\\begin{document}\" and \"\\end{document}\".
+When optional argument BODY-ONLY is non-nil, only the body 
+without any markers.
 
 EXT-PLIST, when provided, is a property list with external
 parameters overriding Org default settings, but still inferior to
@@ -1426,7 +1419,6 @@ directory.
 
 Return output file's name."
   (interactive)
-;; TODO needs to change to document class
   (let ((outfile (org-export-output-file-name ".man"  subtreep pub-dir)))
     (org-export-to-file
      'e-man outfile subtreep visible-only body-only ext-plist)))
@@ -1447,8 +1439,8 @@ first.
 When optional argument VISIBLE-ONLY is non-nil, don't export
 contents of hidden elements.
 
-When optional argument BODY-ONLY is non-nil, only write code
-between \"\\begin{document}\" and \"\\end{document}\".
+When optional argument BODY-ONLY is non-nil, only write between
+markers. 
 
 EXT-PLIST, when provided, is a property list with external
 parameters overriding Org default settings, but still inferior to
