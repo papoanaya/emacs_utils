@@ -1,0 +1,7 @@
+# name: groff
+# key: gr
+# --
+#+BEGIN_GROFF
+$1
+#+END_GROFF
+$0
