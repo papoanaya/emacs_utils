@@ -1836,7 +1836,7 @@ contextual information."
 	(format
 	 (or float-env "%s")
 	 (concat 
-	  (format ".DS I\n\\fC%s\\fP\n.DE\n.FG \"%s\"\n"
+	  (format ".DS I\n\\fC%s\\fP\n.DE\n.EX \"%s\"\n"
 		  (org-export-format-code-default src-block info) 
 		  (or caption-str ""))))))
      ( (and org-e-groff-source-highlight) 
