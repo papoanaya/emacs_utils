@@ -1,0 +1,7 @@
+# name: display end
+# key: de
+# --
+#+BEGIN_GROFF
+.DE
+#+END_GROFF
+$0

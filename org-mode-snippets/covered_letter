@@ -1,0 +1,13 @@
+# name: covered_letter
+# key: clet
+# --
+#+BEGIN_GROFF
+.TL
+$1
+.AU "${2:name}" "${3:initials}" "${4:loc}" "${5:division}" "${6:phone}" "${7:address}" "${8:city_state}"
+.AT "${9:author_title}" "${10:author_team}"
+.AS
+${12:destination_address}
+.AE
+#+END_GROFF
+$0
