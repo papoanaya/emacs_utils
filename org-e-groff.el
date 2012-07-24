@@ -1524,7 +1524,8 @@ used as a communication channel."
     (cond
      ((string-match ".\.pic$" raw-path) 
       (format "\n.PS\ncopy \"%s\"\n.PE\n.FG \"%s\" " raw-path caption))
-     (t (format "\n.PSPIC %s \"%s\" %s %s\n.FG \"%s\" " placement raw-path width height caption)))))
+     (t (format "\n.DS L F\n.PSPIC %s \"%s\" %s %s\n.FG \"%s\"\n.DE " 
+                placement raw-path width height caption)))))
 
 (defun org-e-groff-link (link desc info)
   "Transcode a LINK object from Org to Groff.
