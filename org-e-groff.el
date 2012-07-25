@@ -692,8 +692,8 @@ holding export options."
        (let ()
          (concat
           (when (and (stringp document-class-string)
-                     (string= type-option "cover") 
-                     (format ".COVER %s\n" document-class-string)))
+                     (string= type-option "cover") )
+            (format ".COVER %s\n" document-class-string))
           ;; 1. Insert Organization
           (let ((firm-option (plist-get attr :firm)))
             (cond 
