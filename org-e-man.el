@@ -509,8 +509,7 @@ holding contextual information.  See `org-export-data'."
   "Transcode an ENTITY object from Org to Man.
 CONTENTS are the definition itself.  INFO is a plist holding
 contextual information."
-  (let ((ent (org-element-property :utf8 entity)))
-    (if (org-element-property :man-math-p entity) (format "$%s$" ent) ent)))
+  (let ((ent (org-element-property :utf8 entity))) ent))
 
 
 ;;;; Example Block
