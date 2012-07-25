@@ -129,7 +129,7 @@ structure of the values.")
   :group 'org-export-e-groff
   :type '(string :tag "Groff class"))
 
-(defcustom org-e-groff-doctype
+(defcustom org-e-groff-classes
   '(("file" ".MT 1"  
      (:heading 'default :type "memo" :last-section "toc"))
     ("internal" ".MT 0" 
@@ -676,15 +676,15 @@ holding export options."
                          " "))))
          (class (plist-get info :groff-class))
          (class-options (plist-get info :groff-class-options))
-         (doctype (assoc class org-e-groff-doctype))
-         (doctype-options (car (last doctype)) )
-         (heading-option (plist-get doctype-options :heading ) )
-         (type-option (plist-get doctype-options :type ) )
-         (last-option (plist-get doctype-options :last-section ) )
+         (classes (assoc class org-e-groff-classes))
+         (classes-options (car (last classes)) )
+         (heading-option (plist-get classes-options :heading ) )
+         (type-option (plist-get classes-options :type ) )
+         (last-option (plist-get classes-options :last-section ) )
          (document-class-string
           (let ()
             (org-element-normalize-string
-             (let* ((header (nth 1 (assoc class org-e-groff-doctype)))
+             (let* ((header (nth 1 (assoc class org-e-groff-classes)))
                     (document-class-item (if (stringp header) header "") )) 
                document-class-item)))))
     (concat
@@ -972,9 +972,9 @@ holding contextual information."
          (numberedp (org-export-numbered-headline-p headline info))
          ;; Section formatting will set two placeholders: one for the
          ;; title and the other for the contents.
-         (doctype (assoc class org-e-groff-doctype))
-         (doctype-options (car (last doctype)) )
-         (heading-option (plist-get doctype-options :heading ) )
+         (classes (assoc class org-e-groff-classes))
+         (classes-options (car (last classes)) )
+         (heading-option (plist-get classes-options :heading ) )
          (section-fmt
           (let ()
             (cond
