@@ -896,7 +896,7 @@ holding contextual information.  See `org-export-data'."
 CONTENTS are the definition itself.  INFO is a plist holding
 contextual information."
   (let ((ent (org-element-property :utf8 entity)))
-    (if (org-element-property :groff-math-p entity) (format "$%s$" ent) ent)))
+    ent))
 
 
 ;;;; Example Block
