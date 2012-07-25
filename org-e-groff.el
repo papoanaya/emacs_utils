@@ -141,7 +141,7 @@ structure of the values.")
     ("external" ".MT 4" 
      (:heading 'default :type "memo" :last-section "toc"))
     ("letter" ".MT 5" 
-     (:heading 'default :type "memo" :last-section "toc"))
+     (:heading 'default :type "memo" :last-section "sign"))
     ("custom" ".so file" 
      (:heading custom-function :type "custom" :last-section "toc")  ) 
     ("dummy" "" 
