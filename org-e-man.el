@@ -123,41 +123,6 @@ structure of the values.")
   :tag "Org Export Man"
   :group 'org-export)
 
-
-;;;; Preamble
-
-;;;; Headline
-
-
-(defcustom org-e-man-format-headline-function nil
-  "Function to format headline text.
-
-This function will be called with 5 arguments:
-TODO      the todo keyword (string or nil).
-TODO-TYPE the type of todo (symbol: `todo', `done', nil)
-PRIORITY  the priority of the headline (integer or nil)
-TEXT      the main headline text (string).
-TAGS      the tags as a list of strings (list of strings or nil).
-
-The function result will be used in the section format string.
-
-As an example, one could set the variable to the following, in
-order to reproduce the default set-up:
-
-\(defun org-e-man-format-headline (todo todo-type priority text tags)
-  \"Default format function for an headline.\"
-  \(concat (when todo
-            \(format \"\\fB%s\\fP \" todo))
-	  \(when priority
-            \(format \"[\\#%c] \" priority))
-	  text
-	  \(when tags
-            \(format \" %s \"
-              \(mapconcat 'identity tags \":\"))))"
-  :group 'org-export-e-man
-  :type 'function)
-
-
 ;;;; Tables
 
 
