@@ -920,17 +920,17 @@ contextual information."
 
     ;; Protect leading dots and quotes
 
-    (setq text (replace-regexp-in-string  "^[.']" 
-					  "\\\\&\\&" text nil t 1))
-  ;; Handle quotation marks
-   (setq text (org-e-man--quotation-marks text info))
-  ;; Handle break preservation if required.
+;;    (setq text (replace-regexp-in-string  "^[.']" 
+;;                                          "\\\\&\\&" text nil t 1))
+    ;; Handle quotation marks
+    (setq text (org-e-man--quotation-marks text info))
+    ;; Handle break preservation if required.
 
-   (when (plist-get info :preserve-breaks)
-	 (setq text (replace-regexp-in-string "\\(\\\\\\\\\\)?[ \t]*\n" " \\\\\\\\\n"
-										  text)))
-   ;; Return value.
-   text)
+    (when (plist-get info :preserve-breaks)
+      (setq text (replace-regexp-in-string "\\(\\\\\\\\\\)?[ \t]*\n" " \\\\\\\\\n"
+                                           text)))
+    ;; Return value.
+    text)
 
 
 
