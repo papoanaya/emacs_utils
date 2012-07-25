@@ -129,7 +129,6 @@ structure of the values.")
   :group 'org-export-e-groff
   :type '(string :tag "Groff class"))
 
-
 (defcustom org-e-groff-classes
   '(("file"
      ".MT 1"
