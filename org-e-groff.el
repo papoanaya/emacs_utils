@@ -388,16 +388,24 @@ in order to mimic default behaviour:
 
 
 (defcustom org-e-groff-source-highlight-langs
-  '((emacs-lisp "lisp") (lisp "lisp") (clojure "lisp")
-    (c "c") (cc "cpp")
+  '((emacs-lisp "lisp") (lisp "lisp") (clojure "lisp") 
+    (scheme "scheme")
+    (c "c") (cc "cpp") (csharp "csharp") (d "d") 
     (fortran "fortran") (cobol "cobol") (pascal "pascal")
-    (perl "perl") (cperl "perl") (python "python") (ruby "ruby") (tcl "tcl")
-    (html "html") (xml "xml")
+    (ada "ada") (asm "asm")
+    (perl "perl") (cperl "perl") 
+    (python "python") (ruby "ruby") (tcl "tcl") (lua "lua")
+    (java "java") (javascript "javascript")
     (tex "latex") 
-    (shell-script "sh") (awk "awk")
+    (shell-script "sh") (awk "awk") (diff "diff") (m4 "m4")
     (ocaml "caml") (caml "caml")
     (sql "sql") (sqlite "sql")
-
+    (html "html") (css "css") (xml "xml")
+    (bat "bat") (bison "bison") (clipper "clipper")
+    (ldap "ldap") (opa "opa")
+    (php "php") (postscript "postscript") (prolog "prolog") 
+    (properties "properties") (makefile "makefile")
+    (tml "tml") (vala "vala") (vbscript "vbscript") (xorg "xorg")
     )
   "Alist mapping languages to their listing language counterpart.
 The key is a symbol, the major mode symbol without the \"-mode\".
