@@ -144,9 +144,14 @@ structure of the values.")
      (:heading 'default :type "memo" :last-section "toc"))
     ("custom" ".so file" 
      (:heading custom-function :type "custom") :last-section "toc")
-    ("dummy" "" (:heading 'default :type "memo"))
-    ("ms" "ms" (:heading 'default :type "cover" :last-section "toc"))
-    ("none" "" '(:heading 'default :type "custom"))) 
+    ("dummy" "" 
+     (:heading 'default :type "memo"))
+    ("se_ms" "se_ms" 
+     (:heading 'default :type "cover" :last-section "toc"))
+    ("ms" "ms" 
+     (:heading 'default :type "cover" :last-section "toc"))
+    ("none" "" 
+     (:heading 'default :type "custom"))) 
   ;; none means, no Memorandum Type but AU, AT, ND and TL
   ;; gets populated. This is to facilitate the creation of
   ;; abstract blocks. 
