@@ -155,27 +155,6 @@ When nil, no transformation is made."
 	  (const :tag "No formatting")))
 
 
-;;;; Drawers
-
-(defcustom org-e-man-format-drawer-function nil
-  "Function called to format a drawer in Man code.
-
-The function must accept two parameters:
-  NAME      the drawer name, like \"LOGBOOK\"
-  CONTENTS  the contents of the drawer.
-
-The function should return the string to be exported.
-
-For example, the variable could be set to the following function
-in order to mimic default behaviour:
-
-\(defun org-e-man-format-drawer-default \(name contents\)
-  \"Format a drawer element for Man export.\"
-  contents\)"
-  :group 'org-export-e-man
-  :type 'function)
-
-
 ;;;; Inlinetasks
 ;; Src blocks
 
