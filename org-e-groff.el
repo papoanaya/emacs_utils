@@ -114,61 +114,6 @@ structure of the values.")
 
 
 
-;;; Internal Variables
-
-(defconst org-e-groff-babel-language-alist
-  '(("af" . "afrikaans")
-    ("bg" . "bulgarian")
-    ("bt-br" . "brazilian")
-    ("ca" . "catalan")
-    ("cs" . "czech")
-    ("cy" . "welsh")
-    ("da" . "danish")
-    ("de" . "germanb")
-    ("de-at" . "naustrian")
-    ("de-de" . "ngerman")
-    ("el" . "greek")
-    ("en" . "english")
-    ("en-au" . "australian")
-    ("en-ca" . "canadian")
-    ("en-gb" . "british")
-    ("en-ie" . "irish")
-    ("en-nz" . "newzealand")
-    ("en-us" . "american")
-    ("es" . "spanish")
-    ("et" . "estonian")
-    ("eu" . "basque")
-    ("fi" . "finnish")
-    ("fr" . "frenchb")
-    ("fr-ca" . "canadien")
-    ("gl" . "galician")
-    ("hr" . "croatian")
-    ("hu" . "hungarian")
-    ("id" . "indonesian")
-    ("is" . "icelandic")
-    ("it" . "italian")
-    ("la" . "latin")
-    ("ms" . "malay")
-    ("nl" . "dutch")
-    ("no-no" . "nynorsk")
-    ("pl" . "polish")
-    ("pt" . "portuguese")
-    ("ro" . "romanian")
-    ("ru" . "russian")
-    ("sa" . "sanskrit")
-    ("sb" . "uppersorbian")
-    ("sk" . "slovak")
-    ("sl" . "slovene")
-    ("sq" . "albanian")
-    ("sr" . "serbian")
-    ("sv" . "swedish")
-    ("ta" . "tamil")
-    ("tr" . "turkish")
-    ("uk" . "ukrainian"))
-  "Alist between language code and corresponding Babel option.")
-
-
-
 ;;; User Configurable Variables
 
 (defgroup org-export-e-groff nil
@@ -183,6 +128,7 @@ structure of the values.")
   "The default Groff class."
   :group 'org-export-e-groff
   :type '(string :tag "Groff class"))
+
 
 (defcustom org-e-groff-classes
   '(("file"
@@ -288,19 +234,19 @@ non-nil when the headline should be numbered.  It must return
 a format string in which the section title will be added."
   :group 'org-export-e-groff
   :type '(repeat
-	  (list (string :tag "Groff class")
-		(string :tag "Groff header")
-		(repeat :tag "Levels" :inline t
-			(choice
-			 (cons :tag "Heading"
-			       (string :tag "  numbered")
-			       (string :tag "unnumbered"))
-			 (list :tag "Environment"
-			       (string :tag "Opening   (numbered)")
-			       (string :tag "Closing   (numbered)")
-			       (string :tag "Opening (unnumbered)")
-			       (string :tag "Closing (unnumbered)"))
-			 (function :tag "Hook computing sectioning"))))))
+          (list (string :tag "Groff class")
+                (string :tag "Groff header")
+                (repeat :tag "Levels" :inline t
+                        (choice
+                         (cons :tag "Heading"
+                               (string :tag "  numbered")
+                               (string :tag "unnumbered"))
+                         (list :tag "Environment"
+                               (string :tag "Opening   (numbered)")
+                               (string :tag "Closing   (numbered)")
+                               (string :tag "Opening (unnumbered)")
+                               (string :tag "Closing (unnumbered)"))
+                         (function :tag "Hook computing sectioning"))))))
 
 (defcustom org-e-groff-inputenc-alist nil
   "Alist of inputenc coding system names, and what should really be used.
@@ -753,24 +699,6 @@ For non-floats, see `org-e-groff--wrap-label'."
 
 
 
-(defun org-e-groff--guess-babel-language (header info)
-  "Set Babel's language according to LANGUAGE keyword.
-
-HEADER is the Groff header string.  INFO is the plist used as
-a communication channel.
-
-Insertion of guessed language only happens when Babel package has
-explicitly been loaded.  Then it is added to the rest of
-package's options.
-
-Return the new header."
-  header )
-
-
-(defun org-e-groff--guess-inputenc (header)
-  "Set the coding system in inputenc to what the buffer is.
-HEADER is the Groff header string.  Return the new header."
-  header )
 
 (defun org-e-groff--find-verb-separator (s)
   "Return a character not used in string S.
