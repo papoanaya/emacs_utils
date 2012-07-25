@@ -130,22 +130,36 @@ structure of the values.")
   :type '(string :tag "Groff class"))
 
 (defcustom org-e-groff-doctype
-  '(("file" ".MT 1"  (:heading 'default))
-    ("internal" ".MT 0" (:heading 'default))
-    ("external" ".MT 4" (:heading 'default))
-    ("letter" ".MT 5" (:heading 'default))
-    ("custom" ".so file" (:heading custom))
-    ("none" "" '(:heading 'default))) 
-  "Description"
+  '(("file" ".MT 1"  
+     (:heading 'default :type "memo" :last-section "toc"))
+    ("internal" ".MT 0" 
+     (:heading 'default :type "memo" :last-section "toc"))
+    ("programmer" ".MT 2" 
+     (:heading 'default :type "memo" :last-section "toc"))
+    ("engineer" ".MT 3" 
+     (:heading 'default :type "memo" :last-section "toc"))
+    ("external" ".MT 4" 
+     (:heading 'default :type "memo" :last-section "toc"))
+    ("letter" ".MT 5" 
+     (:heading 'default :type "memo" :last-section "toc"))
+    ("custom" ".so file" 
+     (:heading custom-function :type "custom") :last-section "toc")
+    ("dummy" "" (:heading 'default :type "memo"))
+    ("ms" "ms" (:heading 'default :type "cover" :last-section "toc"))
+    ("none" "" '(:heading 'default :type "custom"))) 
+  ;; none means, no Memorandum Type but AU, AT, ND and TL
+  ;; gets populated. This is to facilitate the creation of
+  ;; abstract blocks. 
+
+  "This list describes the attributes for the documents being created.
+   It allows for the creation of new "
   :group 'org-export-e-groff
   :type '(repeat
           (list (string :tag "Document Type")
                 (string :tag "Header")
-                (repeat :tag "Levels" :inline t
+                (repeat :tag "Options" :inline t
                         (choice
-                         (list :tag "Heading"
-                               (string :tag "  numbered")
-                               (string :tag "unnumbered"))
+                         (list :tag "Heading")
                          (function :tag "Hook computing sectioning"))))))
 
 
@@ -653,73 +667,82 @@ See `org-e-groff-text-markup-alist' for details."
   "Return complete document string after Groff conversion.
 CONTENTS is the transcoded contents string.  INFO is a plist
 holding export options."
-  (let ((title (org-export-data (plist-get info :title) info))
-        (attr
-         (read
-          (format
-           "(%s)"
-           (mapconcat
-            #'identity
-            (list (plist-get info :groff-class-options))
-            " ")))))
+  (let* ((title (org-export-data (plist-get info :title) info))
+         (attr (read
+                (format "(%s)"
+                        (mapconcat
+                         #'identity
+                         (list (plist-get info :groff-class-options))
+                         " "))))
+         (class (plist-get info :groff-class))
+         (class-options (plist-get info :groff-class-options))
+         (doctype (assoc class org-e-groff-doctype))
+         (doctype-options (car (last doctype)) )
+         (heading-option (plist-get doctype-options :heading ) )
+         (type-option (plist-get doctype-options :type ) )
+         (last-option (plist-get doctype-options :last-section ) )
+         (document-class-string
+          (let ()
+            (org-element-normalize-string
+             (let* ((header (nth 1 (assoc class org-e-groff-doctype)))
+                    (document-class-item (if (stringp header) header "") )) 
+               document-class-item)))))
     (concat
-     ;; 1. Insert Organization
+     (unless (string= type-option "custom")
+       (let ()
+         (concat
+          (when (and (stringp document-class-string)
+                     (string= type-option "cover") 
+                     (format ".COVER %s\n" document-class-string)))
+          ;; 1. Insert Organization
+          (let ((firm-option (plist-get attr :firm)))
+            (cond 
+             ((stringp firm-option)
+              (format ".AF \"%s\" \n" firm-option))
+             (t (format ".AF \"%s\" \n" (or org-e-groff-organization "")) )))
+          ;; 2. Title
+          (let ((subtitle1 (plist-get attr :subtitle1))
+                (subtitle2 (plist-get attr :subtitle2)))
 
-     (let ((firm-option (plist-get attr :firm)))
-       (cond 
-        ((stringp firm-option)
-         (format ".AF \"%s\" \n" firm-option))
-        (t (format ".AF \"%s\" \n" (or org-e-groff-organization "")) )))
+            (cond 
+             ((string= "" title)
+              (format ".TL \"%s\" \"%s\" \n%s\n" 
+                      (or subtitle1 "")
+                      (or subtitle2 "") " ")
+              )
+             (t
+              (format ".TL \"%s\" \"%s \" \n%s\n" 
+                      (or subtitle1 "")
+                      (or subtitle2 "") title)  )))
 
+          ;; 3. Author.
+          ;; In Groff, .AU *MUST* be placed after .TL
+          (let ((author (and (plist-get info :with-author)
+                             (let ((auth (plist-get info :author)))
+                               (and auth (org-export-data auth info)))))
+                (email (and (plist-get info :with-email)
+                            (org-export-data (plist-get info :email) info))))
+            (cond ((and author email (not (string= "" email)))
+                   (format ".AU \"%s\" \"%s\"\n" author email))
+                  (author (format ".AU \"%s\"\n" author))
+                  (t ".AU \"\" \n")))
+          
+          ;; 4. Author Title, if present
 
-     ;; 2. Title
-     (let ((subtitle1 (plist-get attr :subtitle1))
-           (subtitle2 (plist-get attr :subtitle2)))
+          (let ((at-item (plist-get attr :author-title)  ))
+            (if (and at-item (stringp at-item))
+                (format ".AT \"%s\" \n" at-item )
+              ""))
 
-       (cond 
-        ((string= "" title)
-         (format ".TL \"%s\" \"%s\" \n%s\n" 
-                 (or subtitle1 "")
-                 (or subtitle2 "") " ")
-         )
-        (t
-         (format ".TL \"%s\" \"%s \" \n%s\n" 
-                 (or subtitle1 "")
-                 (or subtitle2 "") title)  )))
+          ;; 5. Date.
+          (let ((date (org-export-data (plist-get info :date) info)))
+            (and date (format ".ND \"%s\"\n" date)))
 
-     ;; 3. Author.
-     ;; In Groff, .AU *MUST* be placed after .TL
-     (let ((author (and (plist-get info :with-author)
-                        (let ((auth (plist-get info :author)))
-                          (and auth (org-export-data auth info)))))
-           (email (and (plist-get info :with-email)
-                       (org-export-data (plist-get info :email) info))))
-       (cond ((and author email (not (string= "" email)))
-              (format ".AU \"%s\" \"%s\"\n" author email))
-             (author (format ".AU \"%s\"\n" author))
-             (t ".AU \"\" \n")))
-     
-     ;; 4. Author Title, if present
+          (when (string= type-option "cover")
+            ".COVEND\n"
+            ) )))
 
-     (let ((at-item (plist-get attr :author-title)  ))
-       (if (and at-item (stringp at-item))
-           (format ".AT \"%s\" \n" at-item )
-         ""))
-
-     ;; 5. Date.
-     (let ((date (org-export-data (plist-get info :date) info)))
-       (and date (format ".ND \"%s\"\n" date)))
-
-     ;; 6. Document class. 
-
-     (let ((class (plist-get info :groff-class))
-           (class-options (plist-get info :groff-class-options)))
-       (org-element-normalize-string
-        (let* ((header (nth 1 (assoc class org-e-groff-doctype)))
-               (document-class-string (if (stringp header) header "") )) 
-          document-class-string)))
-
-     ;; 7. Hyphenation and Right Justification
+     ;;6. Hyphenation and Right Justification
      (let ()
        (set 'hyphenate (plist-get attr :hyphenate))
        (set 'justify-right (plist-get attr :justify-right))
@@ -738,6 +761,9 @@ holding export options."
               )
           "") ))
 
+     (when (string= type-option "memo")
+       document-class-string)
+
      ;; 7. Document's body.
      
      contents
@@ -746,19 +772,20 @@ holding export options."
      ;; that it gets collected from all the headers. 
      ;; In the case of letters, signature will be placed instead.
 
-     (let ((class (plist-get info :groff-class)))
-       (cond 
-        ((string= class "letter")  
-         (concat (if (setq fc-item (plist-get attr :closing) )
+
+     (cond 
+      ((string= last-option "toc")
+       ".TC")
+      ((string= last-option "sign")
+       (let ((fc-item (plist-get attr :closing)))
+         (concat (if (stringp fc-item)
                      (format ".FC \"%s\" \n" fc-item)
                    ".FC\n")
-                 ".SG")
-         )
-        (t (if (plist-get attr :toc)
-               ".TC"
-             "")) ))
+                 ".SG")))
 
-     )))
+      (t ""))
+     )
+    ))
 
 
 
@@ -1164,16 +1191,16 @@ contextual information."
                                  (concat checkbox
                                          (org-export-data tag info)))))))
 
-	(if (or checkbox tag)
-		(concat ".LI " "\"" (or tag (concat " " checkbox)) "\""
-				"\n"
-				(org-trim (or contents " " ) ))
-	  (concat ".LI"
-			  "\n"
-			  (org-trim (or contents " " ) )
-			  ;; If there are footnotes references in tag, be sure to
-			  ;; add their definition at the end of the item.  This
-			  )) ))
+    (if (or checkbox tag)
+        (concat ".LI " "\"" (or tag (concat " " checkbox)) "\""
+                "\n"
+                (org-trim (or contents " " ) ))
+      (concat ".LI"
+              "\n"
+              (org-trim (or contents " " ) )
+              ;; If there are footnotes references in tag, be sure to
+              ;; add their definition at the end of the item.  This
+              )) ))
 
 
 
