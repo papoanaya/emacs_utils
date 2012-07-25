@@ -32,7 +32,7 @@ colorization during export for org-e-groff.el and org-e-man.el. These are:
   colored output for mm macros
 - outlang.map : GNU Source Highlight definition file to add the groff_mm
   ones. 
-- groff_mm.outlang : GNU Source Highlight definition file for black and
+- groff_man.outlang : GNU Source Highlight definition file for black and
   white output for man pages.
 
 The muse directory contains drivers for Emacs Muse mode:
