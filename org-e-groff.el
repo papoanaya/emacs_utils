@@ -129,123 +129,24 @@ structure of the values.")
   :group 'org-export-e-groff
   :type '(string :tag "Groff class"))
 
-(defcustom org-e-groff-classes
-  '(("file"
-     ".MT 1"
-     (".H 1 \"%s\"" . ".HU \"%s\"")
-     (".H 2 \"%s\"" . ".HU \"%s\"")
-     (".H 3 \"%s\"" . ".HU \"%s\"")
-     (".H 4 \"%s\"" . ".HU \"%s\"")
-     (".H 5 \"%s\"" . ".HU \"%s\"") )
-    ("internal"
-     ".MT 0" 
-     (".H 1 \"%s\"" . ".HU \"%s\"")
-     (".H 2 \"%s\"" . ".HU \"%s\"")
-     (".H 3 \"%s\"" . ".HU \"%s\"")
-     (".H 4 \"%s\"" . ".HU \"%s\"")
-     (".H 5 \"%s\"" . ".HU \"%s\"") )
-    ("external"
-     ".MT 4" 
-     (".H 1 \"%s\"" . ".HU \"%s\"")
-     (".H 2 \"%s\"" . ".HU \"%s\"")
-     (".H 3 \"%s\"" . ".HU \"%s\"")
-     (".H 4 \"%s\"" . ".HU \"%s\"")
-     (".H 5 \"%s\"" . ".HU \"%s\"") )
-    ("letter"
-     ".MT 5"
-     (".H 1 \"%s\"" . ".HU \"%s\"")
-     (".H 2 \"%s\"" . ".HU \"%s\"")
-     (".H 3 \"%s\"" . ".HU \"%s\"")
-     (".H 4 \"%s\"" . ".HU \"%s\"")
-     (".H 5 \"%s\"" . ".HU \"%s\"") )
-
-    ("none"
-     ""
-     (".H 1 \"%s\"" . ".HU \"%s\"")
-     (".H 2 \"%s\"" . ".HU \"%s\"")
-     (".H 3 \"%s\"" . ".HU \"%s\"")
-     (".H 4 \"%s\"" . ".HU \"%s\"")
-     (".H 5 \"%s\"" . ".HU \"%s\"") )
-
-    )
-
-  "Alist of Groff classes and associated header and structure.
-If #+Groff_CLASS is set in the buffer, use its value and the
-associated information.  Here is the structure of each cell:
-
-  \(class-name
-    header-string
-    \(numbered-section . unnumbered-section\)
-    ...\)
-
-The header string
------------------
-
-The HEADER-STRING is the header that will be inserted into the
-Groff file.  It should contain the MT (Memorandum Type) macro, and
-anything else that is needed for this setup.  
-
-- Lines specified via \"#+GROFF_HEADER:\"
-
-If you need more control about the sequence in which the header
-is built up, or if you want to exclude one of these building
-blocks for a particular class, you can use the following
-macro-like placeholders.
-
- [EXTRA]                 the stuff from #+GROFF_HEADER
- [NO-EXTRA]              do not include #+GROFF_HEADER stuff
-
-So a header like
-
-  [EXTRA]
-  \\fB#1\\fP
-
-
-will omit the default packages, and will include the
-#+Groff_HEADER lines. 
-
-
-The sectioning structure
-------------------------
-
-The sectioning structure of the class is given by the elements
-following the header string.  For each sectioning level, a number
-of strings is specified.  A %s formatter is mandatory in each
-section string and will be replaced by the title of the section.
-
-Instead of a cons cell \(numbered . unnumbered\), you can also
-provide a list of 2 or 4 elements,
-
-  \(numbered-open numbered-close\)
-
-or
-
-  \(numbered-open numbered-close unnumbered-open unnumbered-close\)
-
-providing opening and closing strings for a Groff environment
-that should represent the document section.  The opening clause
-should have a %s to represent the section title.
-
-Instead of a list of sectioning commands, you can also specify
-a function name.  That function will be called with two
-parameters, the \(reduced) level of the headline, and a predicate
-non-nil when the headline should be numbered.  It must return
-a format string in which the section title will be added."
+(defcustom org-e-groff-doctype
+  '(("file" ".MT 1"  (:heading 'default))
+    ("internal" ".MT 0" (:heading 'default))
+    ("external" ".MT 4" (:heading 'default))
+    ("letter" ".MT 5" (:heading 'default))
+    ("custom" ".so file" (:heading custom))
+    ("none" "" '(:heading 'default))) 
+  "Description"
   :group 'org-export-e-groff
   :type '(repeat
-          (list (string :tag "Groff class")
-                (string :tag "Groff header")
-                (repeat :tag "Levels" :inline t
-                        (choice
-                         (cons :tag "Heading"
-                               (string :tag "  numbered")
-                               (string :tag "unnumbered"))
-                         (list :tag "Environment"
-                               (string :tag "Opening   (numbered)")
-                               (string :tag "Closing   (numbered)")
-                               (string :tag "Opening (unnumbered)")
-                               (string :tag "Closing (unnumbered)"))
-                         (function :tag "Hook computing sectioning"))))))
+	  (list (string :tag "Document Type")
+		(string :tag "Header")
+		(repeat :tag "Levels" :inline t
+			(choice
+			 (list :tag "Heading"
+			       (string :tag "  numbered")
+			       (string :tag "unnumbered"))
+			 (function :tag "Hook computing sectioning"))))))
 
 
 (defcustom org-e-groff-date-format
@@ -285,14 +186,6 @@ order to reproduce the default set-up:
               \(mapconcat 'identity tags \":\"))))"
   :group 'org-export-e-groff
   :type 'function)
-
-
-;;;; Footnotes
-
-(defcustom org-e-groff-footnote-separator "\\*F"
-  "Text used to separate footnotes."
-  :group 'org-export-e-groff
-  :type 'string)
 
 
 ;;;; Timestamps
@@ -342,7 +235,7 @@ through dvi to Postscript, only ps and eps are allowed.  The
 default we use here encompasses both."
   :group 'org-export-e-groff
   :type '(alist :key-type (string :tag "Type")
-                :value-type (regexp :tag "Path")))
+		:value-type (regexp :tag "Path")))
 
 (defcustom org-e-groff-link-with-unknown-path-format "\\fI%s\\fP"
   "Format string for links with unknown path type."
@@ -378,24 +271,24 @@ The format should have \"%s\" twice, for mantissa and exponent
 When nil, no transformation is made."
   :group 'org-export-e-groff
   :type '(choice
-          (string :tag "Format string")
-          (const :tag "No formatting")))
+	  (string :tag "Format string")
+	  (const :tag "No formatting")))
 
 
 ;;;; Text markup
 
 (defcustom org-e-groff-text-markup-alist '((bold . "\\fB%s\\fP")
-                                           ;; from "verb"
-                                           (code . "\\fC%s\\fP") 
-                                           (italic . "\\fI%s\\fP")
+					   ;; from "verb"
+					   (code . "\\fC%s\\fP") 
+					   (italic . "\\fI%s\\fP")
 
-                                           ;;
-                                           ;; Strike through
-                                           ;; and underline need to be revised.
+					   ;;
+					   ;; Strike through
+					   ;; and underline need to be revised.
 
-                                           (strike-through . "\\fC%s\\fP")
-                                           (underline . "\\fI%s\\fP")
-                                           (verbatim .   "protectedtexttt"))
+					   (strike-through . "\\fC%s\\fP")
+					   (underline . "\\fI%s\\fP")
+					   (verbatim .   "protectedtexttt"))
   "Alist of Groff expressions to convert text markup.
 
 The key must be a symbol among `bold', `code', `italic',
@@ -496,9 +389,9 @@ listings name are the same, the language does not need an entry
 in this list - but it does not hurt if it is present."
   :group 'org-export-e-groff
   :type '(repeat
-          (list
-           (symbol :tag "Major mode       ")
-           (string :tag "Listings language"))))
+	  (list
+	   (symbol :tag "Major mode       ")
+	   (string :tag "Listings language"))))
 
 (defcustom org-e-groff-source-highlight-options nil
   "Association list of options for the groff listings package.
@@ -519,9 +412,9 @@ Note that the same options will be applied to blocks of all
 languages."
   :group 'org-export-e-groff
   :type '(repeat
-          (list
-           (string :tag "Listings option name ")
-           (string :tag "Listings option value"))))
+	  (list
+	   (string :tag "Listings option name ")
+	   (string :tag "Listings option value"))))
 
 
 
@@ -568,15 +461,15 @@ for allowed characters before/after the quote, the second
 string defines the replacement string for this quote."
   :group 'org-export-e-groff
   :type '(list
-          (cons :tag "Opening quote"
-                (string :tag "Regexp for char before")
-                (string :tag "Replacement quote     "))
-          (cons :tag "Closing quote"
-                (string :tag "Regexp for char after ")
-                (string :tag "Replacement quote     "))
-          (cons :tag "Single quote"
-                (string :tag "Regexp for char before")
-                (string :tag "Replacement quote     "))))
+	  (cons :tag "Opening quote"
+		(string :tag "Regexp for char before")
+		(string :tag "Replacement quote     "))
+	  (cons :tag "Closing quote"
+		(string :tag "Regexp for char after ")
+		(string :tag "Replacement quote     "))
+	  (cons :tag "Single quote"
+		(string :tag "Regexp for char before")
+		(string :tag "Replacement quote     "))))
 
 
 ;;;; Compilation
@@ -614,16 +507,16 @@ AUCTeX or the Emacs Groff mode.  This function should accept the
 file name as its single argument."
   :group 'org-export-pdf
   :type '(choice
-          (repeat :tag "Shell command sequence"
-                  (string :tag "Shell command"))
-          (const :tag "2 runs of pdfgroff"
-                 ("pic %f | tbl | eqn | groff -mm | ps2pdf - > %b.pdf"
-                  "pic %f | tbl | eqn | groff -mm | ps2pdf - > %b.pdf" ))
-          (const :tag "3 runs of pdfgroff"
-                 ("pic %f | tbl | eqn | groff -mm | ps2pdf - > %b.pdf"
-                  "pic %f | tbl | eqn | groff -mm | ps2pdf - > %b.pdf"
-                  "pic %f | tbl | eqn | groff -mm | ps2pdf - > %b.pdf"))
-          (function)))
+	  (repeat :tag "Shell command sequence"
+		  (string :tag "Shell command"))
+	  (const :tag "2 runs of pdfgroff"
+		 ("pic %f | tbl | eqn | groff -mm | ps2pdf - > %b.pdf"
+		  "pic %f | tbl | eqn | groff -mm | ps2pdf - > %b.pdf" ))
+	  (const :tag "3 runs of pdfgroff"
+		 ("pic %f | tbl | eqn | groff -mm | ps2pdf - > %b.pdf"
+		  "pic %f | tbl | eqn | groff -mm | ps2pdf - > %b.pdf"
+		  "pic %f | tbl | eqn | groff -mm | ps2pdf - > %b.pdf"))
+	  (function)))
 
 (defcustom org-e-groff-logfiles-extensions
   '("aux" "idx" "log" "out" "toc" "nav" "snm" "vrb")
@@ -649,7 +542,7 @@ These are the .aux, .log, .out, and .toc files."
 ;; does not execute
 
 (add-to-list 'org-element-block-name-alist
-             '("GROFF" . org-element-export-block-parser))
+	     '("GROFF" . org-element-export-block-parser))
 
 
 
@@ -674,12 +567,12 @@ For non-floats, see `org-e-groff--wrap-label'."
      ;; Option caption format with short name.
      ((cdr caption)
       (format "\\fR%s\\fP - \\fI%s\\P - %s\n"
-              (org-export-data (cdr caption) info)
-              label-str
-              (org-export-data (car caption) info)))
+	      (org-export-data (cdr caption) info)
+	      label-str
+	      (org-export-data (car caption) info)))
      ;; Standard caption format.
      (t (format "\\fR%s\\fP"
-                (org-export-data (car caption) info)))))
+		(org-export-data (car caption) info)))))
 
   )
 
@@ -691,8 +584,8 @@ For non-floats, see `org-e-groff--wrap-label'."
 This is used to choose a separator for constructs like \\verb."
   (let ((ll "~,./?;':\"|!@#%^&-_=+abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ<>()[]{}"))
     (loop for c across ll
-          when (not (string-match (regexp-quote (char-to-string c)) s))
-          return (char-to-string c))))
+	  when (not (string-match (regexp-quote (char-to-string c)) s))
+	  return (char-to-string c))))
 
 (defun org-e-groff--make-option-string (options)
   "Return a comma separated string of keywords and values.
@@ -700,24 +593,24 @@ OPTIONS is an alist where the key is the options keyword as
 a string, and the value a list containing the keyword value, or
 nil."
   (mapconcat (lambda (pair)
-               (concat ":" (first pair) " "
-                       (when (> (length (second pair)) 0)
-                         (concat (second pair)))))
-             options
-             " "))
+	       (concat ":" (first pair) " "
+		       (when (> (length (second pair)) 0)
+			 (concat (second pair)))))
+	     options
+	     " "))
 
 (defun org-e-groff--quotation-marks (text info)
   "Export quotation marks depending on language conventions.
 TEXT is a string containing quotation marks to be replaced.  INFO
 is a plist used as a communication channel."
   (mapc (lambda(l)
-          (let ((start 0))
-            (while (setq start (string-match (car l) text start))
-              (let ((new-quote (concat (match-string 1 text) (cdr l))))
-                (setq text (replace-match new-quote  t t text))))))
-        (cdr (or (assoc (plist-get info :language) org-e-groff-quotes)
-                 ;; Falls back on English.
-                 (assoc "en" org-e-groff-quotes))))
+	  (let ((start 0))
+	    (while (setq start (string-match (car l) text start))
+	      (let ((new-quote (concat (match-string 1 text) (cdr l))))
+		(setq text (replace-match new-quote  t t text))))))
+	(cdr (or (assoc (plist-get info :language) org-e-groff-quotes)
+		 ;; Falls back on English.
+		 (assoc "en" org-e-groff-quotes))))
   text)
 
 (defun org-e-groff--wrap-label (element output)
@@ -726,7 +619,7 @@ This function shouldn't be used for floats.  See
 `org-e-groff--caption/label-string'."
   (let ((label (org-element-property :name element)))
     (if (or (not output) (not label) (string= output "") (string= label ""))
-        output
+	output
       (concat (format "%s\n.br\n" label) output))))
 
 (defun org-e-groff--text-markup (text markup)
@@ -738,18 +631,18 @@ See `org-e-groff-text-markup-alist' for details."
      ((not fmt) text)
      ((string= "protectedtexttt" fmt)
       (let ((start 0)
-            (trans '(("\\" . "\\")))
-            (rtn "")
-            char)
-        (while (string-match "[\\{}$%&_#~^]" text)
-          (setq char (match-string 0 text))
-          (if (> (match-beginning 0) 0)
-              (setq rtn (concat rtn (substring text 0 (match-beginning 0)))))
-          (setq text (substring text (1+ (match-beginning 0))))
-          (setq char (or (cdr (assoc char trans)) (concat "\\" char))
-                rtn (concat rtn char)))
-        (setq text (concat rtn text) )
-        (format "\\fC%s\\fP" text)))
+	    (trans '(("\\" . "\\")))
+	    (rtn "")
+	    char)
+	(while (string-match "[\\{}$%&_#~^]" text)
+	  (setq char (match-string 0 text))
+	  (if (> (match-beginning 0) 0)
+	      (setq rtn (concat rtn (substring text 0 (match-beginning 0)))))
+	  (setq text (substring text (1+ (match-beginning 0))))
+	  (setq char (or (cdr (assoc char trans)) (concat "\\" char))
+		rtn (concat rtn char)))
+	(setq text (concat rtn text) )
+	(format "\\fC%s\\fP" text)))
      ;; Else use format string.
      (t (format fmt text)))))
 
@@ -761,57 +654,57 @@ See `org-e-groff-text-markup-alist' for details."
 CONTENTS is the transcoded contents string.  INFO is a plist
 holding export options."
   (let ((title (org-export-data (plist-get info :title) info))
-        (attr
-         (read
-          (format
-           "(%s)"
-           (mapconcat
-            #'identity
-            (list (plist-get info :groff-class-options))
-            " ")))))
+	(attr
+	 (read
+	  (format
+	   "(%s)"
+	   (mapconcat
+	    #'identity
+	    (list (plist-get info :groff-class-options))
+	    " ")))))
     (concat
      ;; 1. Insert Organization
 
      (let ((firm-option (plist-get attr :firm)))
        (cond 
-        ((stringp firm-option)
-         (format ".AF \"%s\" \n" firm-option))
-        (t (format ".AF \"%s\" \n" (or org-e-groff-organization "")) )))
+	((stringp firm-option)
+	 (format ".AF \"%s\" \n" firm-option))
+	(t (format ".AF \"%s\" \n" (or org-e-groff-organization "")) )))
 
 
      ;; 2. Title
      (let ((subtitle1 (plist-get attr :subtitle1))
-           (subtitle2 (plist-get attr :subtitle2)))
+	   (subtitle2 (plist-get attr :subtitle2)))
 
-       (cond 
-        ((string= "" title)
-         (format ".TL \"%s\" \"%s\" \n%s\n" 
-                 (or subtitle1 "")
-                 (or subtitle2 "") " ")
-         )
-        (t
-         (format ".TL \"%s\" \"%s \" \n%s\n" 
-                 (or subtitle1 "")
-                 (or subtitle2 "") title)  )))
+     (cond 
+      ((string= "" title)
+       (format ".TL \"%s\" \"%s\" \n%s\n" 
+	       (or subtitle1 "")
+	       (or subtitle2 "") " ")
+       )
+      (t
+       (format ".TL \"%s\" \"%s \" \n%s\n" 
+	       (or subtitle1 "")
+	       (or subtitle2 "") title)  )))
 
      ;; 3. Author.
      ;; In Groff, .AU *MUST* be placed after .TL
      (let ((author (and (plist-get info :with-author)
-                        (let ((auth (plist-get info :author)))
-                          (and auth (org-export-data auth info)))))
-           (email (and (plist-get info :with-email)
-                       (org-export-data (plist-get info :email) info))))
+			(let ((auth (plist-get info :author)))
+			  (and auth (org-export-data auth info)))))
+	   (email (and (plist-get info :with-email)
+		       (org-export-data (plist-get info :email) info))))
        (cond ((and author email (not (string= "" email)))
-              (format ".AU \"%s\" \"%s\"\n" author email))
-             (author (format ".AU \"%s\"\n" author))
-             (t ".AU \"\" \n")))
+	      (format ".AU \"%s\" \"%s\"\n" author email))
+	     (author (format ".AU \"%s\"\n" author))
+	     (t ".AU \"\" \n")))
      
      ;; 4. Author Title, if present
 
      (let ((at-item (plist-get attr :author-title)  ))
        (if (and at-item (stringp at-item))
-           (format ".AT \"%s\" \n" at-item )
-         ""))
+	   (format ".AT \"%s\" \n" at-item )
+	 ""))
 
      ;; 5. Date.
      (let ((date (org-export-data (plist-get info :date) info)))
@@ -820,29 +713,30 @@ holding export options."
      ;; 6. Document class. 
 
      (let ((class (plist-get info :groff-class))
-           (class-options (plist-get info :groff-class-options)))
+	   (class-options (plist-get info :groff-class-options)))
        (org-element-normalize-string
-        (let* ((header (nth 1 (assoc class org-e-groff-classes)))
-               (document-class-string (if (stringp header) header "") )) )))
+	(let* ((header (nth 1 (assoc class org-e-groff-doctype)))
+	       (document-class-string (if (stringp header) header "") )) 
+	  document-class-string)))
 
      ;; 7. Hyphenation and Right Justification
      (let ()
        (set 'hyphenate (plist-get attr :hyphenate))
        (set 'justify-right (plist-get attr :justify-right))
        (concat 
-        (if justify-right
-            (case justify-right
-              ('yes ".SA 1 \n")
-              ('no ".SA 0 \n")
-              (t ""))
-          "")
-        (if hyphenate
-            (case hyphenate 
-              ('yes ".nr Hy 1 \n")
-              ('no ".nr Hy 0 \n")
-              (t "")
-              )
-          "") ))
+	(if justify-right
+	    (case justify-right
+	      ('yes ".SA 1 \n")
+	      ('no ".SA 0 \n")
+	      (t ""))
+	  "")
+	(if hyphenate
+	    (case hyphenate 
+	      ('yes ".nr Hy 1 \n")
+	      ('no ".nr Hy 0 \n")
+	      (t "")
+	      )
+	  "") ))
 
      ;; 7. Document's body.
      
@@ -854,15 +748,15 @@ holding export options."
 
      (let ((class (plist-get info :groff-class)))
        (cond 
-        ((string= class "letter")  
-         (concat (if (setq fc-item (plist-get attr :closing) )
-                     (format ".FC \"%s\" \n" fc-item)
-                   ".FC\n")
-                 ".SG")
-         )
-        (t (if (plist-get attr :toc)
-               ".TC"
-             "")) ))
+	((string= class "letter")  
+	 (concat (if (setq fc-item (plist-get attr :closing) )
+		     (format ".FC \"%s\" \n" fc-item)
+		   ".FC\n")
+		 ".SG")
+	 )
+	(t (if (plist-get attr :toc)
+	       ".TC"
+	     "")) ))
 
      )))
 
@@ -904,9 +798,9 @@ information."
   (concat
    (format "\\fB%s\\fP " org-clock-string)
    (format org-e-groff-inactive-timestamp-format
-           (concat (org-translate-time (org-element-property :value clock))
-                   (let ((time (org-element-property :time clock)))
-                     (and time (format " (%s)" time)))))
+	   (concat (org-translate-time (org-element-property :value clock))
+		   (let ((time (org-element-property :time clock)))
+		     (and time (format " (%s)" time)))))
    "\\\\"))
 
 
@@ -936,12 +830,12 @@ channel."
 CONTENTS holds the contents of the block.  INFO is a plist
 holding contextual information."
   (let* ((name (org-element-property :drawer-name drawer))
-         (output (if (functionp org-e-groff-format-drawer-function)
-                     (funcall org-e-groff-format-drawer-function
-                              name contents)
-                   ;; If there's no user defined function: simply
-                   ;; display contents of the drawer.
-                   contents)))
+	 (output (if (functionp org-e-groff-format-drawer-function)
+		     (funcall org-e-groff-format-drawer-function
+			      name contents)
+		   ;; If there's no user defined function: simply
+		   ;; display contents of the drawer.
+		   contents)))
     (org-e-groff--wrap-label drawer output)))
 
 
@@ -973,7 +867,7 @@ information."
   (org-e-groff--wrap-label
    example-block
    (format ".DS L\n%s\n.DE"
-           (org-export-format-code-default example-block info))))
+	   (org-export-format-code-default example-block info))))
 
 
 ;;;; Export Block
@@ -1002,8 +896,8 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
   (org-e-groff--wrap-label
    fixed-width
    (format "\\fC\n%s\\fP"
-           (org-remove-indentation
-            (org-element-property :value fixed-width)))))
+	   (org-remove-indentation
+	    (org-element-property :value fixed-width)))))
 
 
 ;;;; Footnote Definition
@@ -1019,25 +913,25 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
   
   ;; Changing from info to footnote-reference
   (let ((definitions (org-export-collect-footnote-definitions
-                      (plist-get info :parse-tree) info)) )
+		      (plist-get info :parse-tree) info)) )
     ;; Insert full links right inside the footnote definition
     ;; as they have no chance to be inserted later.   
     (when definitions
       (concat
        (mapconcat
-        (lambda (ref)
-          (let ((id (format "%s" (car ref )) )
-                (ref-id  (format "%s" (plist-get (nth 1 footnote-reference) :label )))) 
-            ;; Distinguish between inline definitions and
-            ;; full-fledged definitions.
-            (org-trim
-             (let ((def (nth 2 ref)))
-               (if (string= id ref-id)
-                   (format "\\u\\s-2%s\\d\\s+2\n.FS %s\n%s.FE\n" id id (org-export-data def info) )
-                 ""
-                 )
-               ))))
-        definitions "\n"))))
+	(lambda (ref)
+	  (let ((id (format "%s" (car ref )) )
+		(ref-id  (format "%s" (plist-get (nth 1 footnote-reference) :label )))) 
+	    ;; Distinguish between inline definitions and
+	    ;; full-fledged definitions.
+	    (org-trim
+	     (let ((def (nth 2 ref)))
+	       (if (string= id ref-id)
+		   (format "\\u\\s-2%s\\d\\s+2\n.FS %s\n%s.FE\n" id id (org-export-data def info) )
+		 ""
+		 )
+	       ))))
+	definitions "\n"))))
   )
 
 ;;;; Headline
@@ -1047,75 +941,69 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 CONTENTS holds the contents of the headline.  INFO is a plist
 holding contextual information."
   (let* ((class (plist-get info :groff-class))
-         (level (org-export-get-relative-level headline info))
-         (numberedp (org-export-numbered-headline-p headline info))
-         (class-sectionning (assoc class org-e-groff-classes))
-         ;; Section formatting will set two placeholders: one for the
-         ;; title and the other for the contents.
-         (section-fmt
-          (let ((sec (if (and (symbolp (nth 2 class-sectionning))
-                              (fboundp (nth 2 class-sectionning)))
-                         (funcall (nth 2 class-sectionning) level numberedp)
-                       (nth (1+ level) class-sectionning))))
-            (cond
-             ;; No section available for that LEVEL.
-             ((not sec) nil)
-             ;; Section format directly returned by a function.
-             ((stringp sec) sec)
-             ;; (numbered-section . unnumbered-section)
-             ((not (consp (cdr sec)))
-              (concat (funcall (if numberedp #'car #'cdr) sec) "\n%s"))
-             ;; (numbered-open numbered-close)
-             ((= (length sec) 2)
-              (when numberedp (concat (car sec) "\n%s" (nth 1 sec))))
-             ;; (num-in num-out no-num-in no-num-out)
-             ((= (length sec) 4)
-              (if numberedp (concat (car sec) "\n%s" (nth 1 sec))
-                (concat (nth 2 sec) "\n%s" (nth 3 sec)))))))
-         (text (org-export-data (org-element-property :title headline) info))
-         (todo
-          (and (plist-get info :with-todo-keywords)
-               (let ((todo (org-element-property :todo-keyword headline)))
-                 (and todo (org-export-data todo info)))))
-         (todo-type (and todo (org-element-property :todo-type headline)))
-         (tags (and (plist-get info :with-tags)
-                    (org-export-get-tags headline info)))
-         (priority (and (plist-get info :with-priority)
-                        (org-element-property :priority headline)))
-         ;; Create the headline text along with a no-tag version.  The
-         ;; latter is required to remove tags from table of contents.
-         (full-text (if (functionp org-e-groff-format-headline-function)
-                        ;; User-defined formatting function.
-                        (funcall org-e-groff-format-headline-function
-                                 todo todo-type priority text tags)
-                      ;; Default formatting.
-                      (concat
-                       (when todo
-                         (format "\\fB%s\\fP " todo))
-                       (when priority (format " [\\#%c] " priority))
-                       text
-                       (when tags
-                         (format "\\fC:%s:\\fP "
-                                 (mapconcat 'identity tags ":"))))))
-         (full-text-no-tag
-          (if (functionp org-e-groff-format-headline-function)
-              ;; User-defined formatting function.
-              (funcall org-e-groff-format-headline-function
-                       todo todo-type priority text nil)
-            ;; Default formatting.
-            (concat
-             (when todo (format "\\fB%s\\fP " todo))
-             (when priority (format " [\\#%c] " priority))
-             text)))
-         ;; Associate some \label to the headline for internal links.
-         ;; 	 (headline-label 
-         ;; 	  (format "\\label{sec-%s}\n"
-         ;; 		  (mapconcat 'number-to-string
-         ;; 			     (org-export-get-headline-number headline info)
-         ;; 			     "-")))
-         (headline-label "")
-         (pre-blanks
-          (make-string (org-element-property :pre-blank headline) 10)))
+	 (level (org-export-get-relative-level headline info))
+	 (numberedp (org-export-numbered-headline-p headline info))
+	 ;; Section formatting will set two placeholders: one for the
+	 ;; title and the other for the contents.
+	 (doctype (assoc class org-e-groff-doctype))
+	 (doctype-options (car (last doctype)) )
+	 (heading-option (plist-get doctype-options :heading ) )
+	 (section-fmt
+	  (let ()
+	    (cond
+	     ((and (symbolp heading-option)
+		  (fboundp heading-option))
+	      (funcall heading-option level numberedp))
+	     ((> level 7) nil)
+	     (t (if numberedp
+		    (concat ".H " (number-to-string level) " \"%s\"\n%s")
+		  ".HU \"%s\"\n%s")))))
+;; End of section-fmt
+	 (text (org-export-data (org-element-property :title headline) info))
+	 (todo
+	  (and (plist-get info :with-todo-keywords)
+	       (let ((todo (org-element-property :todo-keyword headline)))
+		 (and todo (org-export-data todo info)))))
+	 (todo-type (and todo (org-element-property :todo-type headline)))
+	 (tags (and (plist-get info :with-tags)
+		    (org-export-get-tags headline info)))
+	 (priority (and (plist-get info :with-priority)
+			(org-element-property :priority headline)))
+	 ;; Create the headline text along with a no-tag version.  The
+	 ;; latter is required to remove tags from table of contents.
+	 (full-text (if (functionp org-e-groff-format-headline-function)
+			;; User-defined formatting function.
+			(funcall org-e-groff-format-headline-function
+				 todo todo-type priority text tags)
+		      ;; Default formatting.
+		      (concat
+		       (when todo
+			 (format "\\fB%s\\fP " todo))
+		       (when priority (format " [\\#%c] " priority))
+		       text
+		       (when tags
+			 (format " \\fC:%s:\\fP "
+				 (mapconcat 'identity tags ":"))))))
+	 (full-text-no-tag
+	  (if (functionp org-e-groff-format-headline-function)
+	      ;; User-defined formatting function.
+	      (funcall org-e-groff-format-headline-function
+		       todo todo-type priority text nil)
+	    ;; Default formatting.
+	    (concat
+	     (when todo (format "\\fB%s\\fP " todo))
+	     (when priority (format " [\\#%c] " priority))
+	     text)))
+	 ;; Associate some \label to the headline for internal links.
+	 ;; 	 (headline-label 
+	 ;; 	  (format "\\label{sec-%s}\n"
+	 ;; 		  (mapconcat 'number-to-string
+	 ;; 			     (org-export-get-headline-number headline info)
+	 ;; 			     "-")))
+	 (headline-label "")
+	 (pre-blanks
+	  (make-string (org-element-property :pre-blank headline) 10)))
+  
     (cond
      ;; Case 1: This is a footnote section: ignore it.
      ((org-element-property :footnote-section-p headline) nil)
@@ -1125,48 +1013,24 @@ holding contextual information."
      ((or (not section-fmt) (org-export-low-level-p headline info))
       ;; Build the real contents of the sub-tree.
       (let ((low-level-body
-             (concat
-              ;; If the headline is the first sibling, start a list.
-              (when (org-export-first-sibling-p headline)
-                (format "%s\n" (if numberedp ".AL 1\n" ".AL a\n")))
-              ;; Itemize headline
-              ".LI\n" full-text "\n" headline-label pre-blanks contents)))
-        ;; If headline is not the last sibling simply return
-        ;; LOW-LEVEL-BODY.  Otherwise, also close the list, before any
-        ;; blank line.
-        (if (not (org-export-last-sibling-p headline)) low-level-body
-          (replace-regexp-in-string
-           "[ \t\n]*\\'"
-           (concat "\n.LE" )
-           low-level-body))))
+	     (concat
+	      ;; If the headline is the first sibling, start a list.
+	      (when (org-export-first-sibling-p headline)
+		(format "%s\n" (if numberedp ".AL 1\n" ".DL \n")))
+	      ;; Itemize headline
+	      ".LI\n" full-text "\n" headline-label pre-blanks contents)))
+	;; If headline is not the last sibling simply return
+	;; LOW-LEVEL-BODY.  Otherwise, also close the list, before any
+	;; blank line.
+	(if (not (org-export-last-sibling-p headline)) low-level-body
+	  (replace-regexp-in-string
+	   "[ \t\n]*\\'"
+	   (concat "\n.LE" )
+	   low-level-body))))
      ;; Case 3. Standard headline.  Export it as a section.
      (t
-      (cond
-       ((not (and tags (eq (plist-get info :with-tags) 'not-in-toc)))
-        ;; Regular section.  Use specified format string.
-        (format section-fmt full-text
-                (concat headline-label pre-blanks contents)))
-       ((string-match "\\`\\\\\\(.*?\\){" section-fmt)
-        ;; If tags should be removed from table of contents, insert
-        ;; title without tags as an alternative heading in sectioning
-        ;; command.
-        (format (replace-match (concat (match-string 1 section-fmt) "[%s]")
-                               nil nil section-fmt 1)
-                ;; Replace square brackets with parenthesis since
-                ;; square brackets are not supported in optional
-                ;; arguments.
-                (replace-regexp-in-string
-                 "\\[" "("
-                 (replace-regexp-in-string
-                  "\\]" ")"
-                  full-text-no-tag))
-                full-text
-                (concat headline-label pre-blanks contents)))
-       (t
-        ;; Impossible to add an alternative heading.  Fallback to
-        ;; regular sectioning format string.
-        (format section-fmt full-text
-                (concat headline-label pre-blanks contents))))))))
+	(format section-fmt full-text
+		(concat headline-label pre-blanks contents)) ))))
 
 
 ;;;; Horizontal Rule
@@ -1186,40 +1050,40 @@ holding contextual information."
 CONTENTS holds the contents of the item.  INFO is a plist holding
 contextual information."
   (let* ((code (org-element-property :value inline-src-block))
-         (separator (org-e-groff--find-verb-separator code)))
+	 (separator (org-e-groff--find-verb-separator code)))
     (cond
      (org-e-groff-source-highlight
       (let* ((tmpdir (if (featurep 'xemacs)
-                         temp-directory 
-                       temporary-file-directory ))
-             (in-file  (make-temp-name 
-                        (expand-file-name "srchilite" tmpdir))  )
-             (out-file (make-temp-name 
-                        (expand-file-name "reshilite" tmpdir)) )
-             (org-lang (org-element-property :language inline-src-block))
-             (lst-lang (cadr (assq (intern org-lang)
-                                   org-e-groff-source-highlight-langs)))
-             
-             (cmd (concat (expand-file-name "source-highlight")
-                          " -s " lst-lang
-                          " -f groff_mm_color "
-                          " -i " in-file
-                          " -o " out-file
-                          )
-                  ))
+			 temp-directory 
+		       temporary-file-directory ))
+	     (in-file  (make-temp-name 
+			(expand-file-name "srchilite" tmpdir))  )
+	     (out-file (make-temp-name 
+			(expand-file-name "reshilite" tmpdir)) )
+	     (org-lang (org-element-property :language inline-src-block))
+	     (lst-lang (cadr (assq (intern org-lang)
+				   org-e-groff-source-highlight-langs)))
+	     
+	     (cmd (concat (expand-file-name "source-highlight")
+			  " -s " lst-lang
+			  " -f groff_mm_color "
+			  " -i " in-file
+			  " -o " out-file
+			  )
+		  ))
 
-        (if lst-lang
-            (let ((code-block "" ))
-              (with-temp-file in-file (insert code))
-              (shell-command cmd)
-              (setq code-block  (org-file-contents out-file) )
-              (delete-file in-file)
-              (delete-file out-file)
-              code-block)
-          (format ".DS I\n\\fC\\m[black]%s\\m[]\\fP\n.DE\n"
-                  code))
+	(if lst-lang
+	    (let ((code-block "" ))
+	      (with-temp-file in-file (insert code))
+	      (shell-command cmd)
+	      (setq code-block  (org-file-contents out-file) )
+	      (delete-file in-file)
+	      (delete-file out-file)
+	      code-block)
+	  (format ".DS I\n\\fC\\m[black]%s\\m[]\\fP\n.DE\n"
+		  code))
 
-        ))
+	))
 
      ;; Do not use a special package: transcode it verbatim.
      (t
@@ -1235,35 +1099,35 @@ contextual information."
 CONTENTS holds the contents of the block.  INFO is a plist
 holding contextual information."
   (let ((title (org-export-data (org-element-property :title inlinetask) info))
-        (todo (and (plist-get info :with-todo-keywords)
-                   (let ((todo (org-element-property :todo-keyword inlinetask)))
-                     (and todo (org-export-data todo info)))))
-        (todo-type (org-element-property :todo-type inlinetask))
-        (tags (and (plist-get info :with-tags)
-                   (org-export-get-tags inlinetask info)))
-        (priority (and (plist-get info :with-priority)
-                       (org-element-property :priority inlinetask))))
+	(todo (and (plist-get info :with-todo-keywords)
+		   (let ((todo (org-element-property :todo-keyword inlinetask)))
+		     (and todo (org-export-data todo info)))))
+	(todo-type (org-element-property :todo-type inlinetask))
+	(tags (and (plist-get info :with-tags)
+		   (org-export-get-tags inlinetask info)))
+	(priority (and (plist-get info :with-priority)
+		       (org-element-property :priority inlinetask))))
     ;; If `org-e-groff-format-inlinetask-function' is provided, call it
     ;; with appropriate arguments.
     (if (functionp org-e-groff-format-inlinetask-function)
-        (funcall org-e-groff-format-inlinetask-function
-                 todo todo-type priority title tags contents)
+	(funcall org-e-groff-format-inlinetask-function
+		 todo todo-type priority title tags contents)
       ;; Otherwise, use a default template.
       (org-e-groff--wrap-label
        inlinetask
        (let ((full-title
-              (concat
-               (when todo (format "\\fB%s\\fP " todo))
-               (when priority (format " [\\#%c] " priority))
-               title
-               (when tags (format " \\fC:%s:\\fP "
-                                  (mapconcat 'identity tags ":"))))))
-         (format (concat ".DS C\n"
-                         "%s\n\n"
-                         ".P"
-                         "%s"
-                         ".DE")
-                 full-title contents))))))
+	      (concat
+	       (when todo (format "\\fB%s\\fP " todo))
+	       (when priority (format " [\\#%c] " priority))
+	       title
+	       (when tags (format " \\fC:%s:\\fP "
+				  (mapconcat 'identity tags ":"))))))
+	 (format (concat ".DS C\n"
+			 "%s\n\n"
+			 ".P"
+			 "%s"
+			 ".DE")
+		 full-title contents))))))
 
 
 ;;;; Italic
@@ -1283,34 +1147,27 @@ contextual information."
 CONTENTS holds the contents of the item.  INFO is a plist holding
 contextual information."
   (let* ((counter
-          (let ((count (org-element-property :counter item))
-                (level
-                 (loop for parent in (org-export-get-genealogy item)
-                       count (eq (org-element-type parent) 'plain-list)
-                       until (eq (org-element-type parent) 'headline))))
-            (and count
-                 (< level 5)
-                 (concat ".VL 2.0i \n"))))
+	  (let ((count (org-element-property :counter item))
+		(level
+		 (loop for parent in (org-export-get-genealogy item)
+		       count (eq (org-element-type parent) 'plain-list)
+		       until (eq (org-element-type parent) 'headline))))))
 
-         (checkbox (case (org-element-property :checkbox item)
-                     (on "\\o'\\(sq\\(mu'")			;; 
-                     (off "\\(sq ")					;;
-                     (trans "\\o'\\(sq\\(mi'"   ))) ;;
+	 (checkbox (case (org-element-property :checkbox item)
+		     (on "\\o'\\(sq\\(mu'")			;; 
+		     (off "\\(sq ")					;;
+		     (trans "\\o'\\(sq\\(mi'"   ))) ;;
 
-         (tag (let ((tag (org-element-property :tag item)))
-                ;; Check-boxes must belong to the tag.
-                (and tag (format "[%s] "
-                                 (concat checkbox
-                                         (org-export-data tag info)))))))
+	 (tag (let ((tag (org-element-property :tag item)))
+		;; Check-boxes must belong to the tag.
+		(and tag (format "[%s]"
+				 (concat checkbox
+					 (org-export-data tag info)))))))
 
 	(if (or checkbox tag)
 		(concat ".LI " "\"" (or tag (concat " " checkbox)) "\""
 				"\n"
-				(org-trim (or contents " " ) )
-				;; If there are footnotes references in tag, be sure to
-				;; add their definition at the end of the item.  This
-				)
-
+				(org-trim (or contents " " ) ))
 	  (concat ".LI"
 			  "\n"
 			  (org-trim (or contents " " ) )
@@ -1327,7 +1184,7 @@ contextual information."
   "Transcode a KEYWORD element from Org to Groff.
 CONTENTS is nil.  INFO is a plist holding contextual information."
   (let ((key (org-element-property :key keyword))
-        (value (org-element-property :value keyword)))
+	(value (org-element-property :value keyword)))
     (cond
      ((string= key "GROFF") value)
      ((string= key "INDEX") nil)
@@ -1342,18 +1199,18 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
   "Transcode a GROFF-ENVIRONMENT element from Org to Groff.
 CONTENTS is nil.  INFO is a plist holding contextual information."
   (let ((label (org-element-property :name groff-environment))
-        (value (org-remove-indentation
-                (org-element-property :value groff-environment))))
+	(value (org-remove-indentation
+		(org-element-property :value groff-environment))))
     (if (not (org-string-nw-p label)) value
       ;; Environment is labelled: label must be within the environment
       ;; (otherwise, a reference pointing to that element will count
       ;; the section instead).
       (with-temp-buffer
-        (insert value)
-        (goto-char (point-min))
-        (forward-line)
-        (insert (format "%s\n" label))
-        (buffer-string)))))
+	(insert value)
+	(goto-char (point-min))
+	(forward-line)
+	(insert (format "%s\n" label))
+	(buffer-string)))))
 
 
 ;;;; Groff Fragment
@@ -1384,47 +1241,47 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 LINK is the link pointing to the inline image.  INFO is a plist
 used as a communication channel."
   (let* ((parent (org-export-get-parent-element link))
-         (path (let ((raw-path (org-element-property :path link)))
-                 (if (not (file-name-absolute-p raw-path)) raw-path
-                   (expand-file-name raw-path))))
-         
-         (attr
-          (read
-           (format
-            "(%s)"
-            (mapconcat
-             #'identity
-             (org-element-property :attr_groff parent)
-             " "))))
+	 (path (let ((raw-path (org-element-property :path link)))
+		 (if (not (file-name-absolute-p raw-path)) raw-path
+		   (expand-file-name raw-path))))
+	 
+	 (attr
+	  (read
+	   (format
+	    "(%s)"
+	    (mapconcat
+	     #'identity
+	     (org-element-property :attr_groff parent)
+	     " "))))
 
-         ;; Retrieve groff attributes from the element around.
+	 ;; Retrieve groff attributes from the element around.
 
-         ;; Attributes are going to be
-         ;; :position (left|center|right)
-         ;; :width id
-         ;; :height id
+	 ;; Attributes are going to be
+	 ;; :position (left|center|right)
+	 ;; :width id
+	 ;; :height id
 
-         )
+	 )
 
     ;; Now clear ATTR from any special keyword and set a default
     ;; value if nothing is left.
 
     (setq placement
-          (case (plist-get attr :position)
-            ('center "")
-            ('left "-L")
-            ('right "-R")
-            (t "")))
+	  (case (plist-get attr :position)
+	    ('center "")
+	    ('left "-L")
+	    ('right "-R")
+	    (t "")))
 
     (setq width  (or  (plist-get attr :width) "")  )
     (setq height  (or  (plist-get attr :height) "" )  )
 
     (setq caption 
-          (org-e-groff--caption/label-string
-           (org-element-property :caption parent)
-           (org-element-property :name parent)
-           info)
-          )
+	  (org-e-groff--caption/label-string
+	   (org-element-property :caption parent)
+	   (org-element-property :name parent)
+	   info)
+	  )
 
     ;; Return proper string, depending on DISPOSITION.
     ;;
@@ -1446,77 +1303,77 @@ INFO is a plist holding contextual information.  See
 `org-export-data'."
   
   (let* ((type (org-element-property :type link))
-         (raw-path (org-element-property :path link))
-         ;; Ensure DESC really exists, or set it to nil.
-         (desc (and (not (string= desc "")) desc))
-         (imagep (org-export-inline-image-p
-                  link org-e-groff-inline-image-rules))
-         (path (cond
-                ((member type '("http" "https" "ftp" "mailto"))
-                 (concat type ":" raw-path))
-                ((string= type "file")
-                 (when (string-match "\\(.+\\)::.+" raw-path)
-                   (setq raw-path (match-string 1 raw-path)))
-                 (if (file-name-absolute-p raw-path)
-                     (concat "file://" (expand-file-name raw-path))
-                   (concat "file://" raw-path)))
-                (t raw-path)))
-         protocol)
+	 (raw-path (org-element-property :path link))
+	 ;; Ensure DESC really exists, or set it to nil.
+	 (desc (and (not (string= desc "")) desc))
+	 (imagep (org-export-inline-image-p
+		  link org-e-groff-inline-image-rules))
+	 (path (cond
+		((member type '("http" "https" "ftp" "mailto"))
+		 (concat type ":" raw-path))
+		((string= type "file")
+		 (when (string-match "\\(.+\\)::.+" raw-path)
+		   (setq raw-path (match-string 1 raw-path)))
+		 (if (file-name-absolute-p raw-path)
+		     (concat "file://" (expand-file-name raw-path))
+		   (concat "file://" raw-path)))
+		(t raw-path)))
+	 protocol)
     (cond
      ;; Image file.
      (imagep (org-e-groff-link--inline-image link info))
      ;; import groff files
      ((and (string= type "file") 
-           (string-match ".\.groff$" raw-path))
+	   (string-match ".\.groff$" raw-path))
       (concat ".so " raw-path "\n"))
      ;; Radio link: Transcode target's contents and use them as link's
      ;; description.
      ((string= type "radio")
       (let ((destination (org-export-resolve-radio-link link info)))
-        (when destination
-          (format "\\fI [%s] \\fP"
-                  (org-export-solidify-link-text path) ))))
+	(when destination
+	  (format "\\fI [%s] \\fP"
+		  (org-export-solidify-link-text path) ))))
      ;; Links pointing to an headline: Find destination and build
      ;; appropriate referencing command.
      ((member type '("custom-id" "fuzzy" "id"))
       (let ((destination (if (string= type "fuzzy")
-                             (org-export-resolve-fuzzy-link link info)
-                           (org-export-resolve-id-link link info))))
-        (case (org-element-type destination)
-          ;; Id link points to an external file.
-          (plain-text
-           (if desc (format "%s \\fBat\\fP \\fIfile://%s\\fP" desc destination)
-             (format "\\fI file://%s \\fP" destination)))
-          ;; Fuzzy link points nowhere.
-          ('nil
-           (format org-e-groff-link-with-unknown-path-format
-                   (or desc
-                       (org-export-data
-                        (org-element-property :raw-link link) info))))
-          ;; Fuzzy link points to an invisible target.
-          (keyword nil)
-          ;; LINK points to an headline.  If headlines are numbered
-          ;; and the link has no description, display headline's
-          ;; number.  Otherwise, display description or headline's
-          ;; title.
-          (headline
-           (let ((label ""))
-             (if (and (plist-get info :section-numbers) (not desc))
-                 (format "\\fI%s\\fP" label)
-               (format "\\fI%s\\fP"
-                       (or desc
-                           (org-export-data
-                            (org-element-property :title destination) info))))))
+			     (org-export-resolve-fuzzy-link link info)
+			   (org-export-resolve-id-link link info))))
+	(case (org-element-type destination)
+	  ;; Id link points to an external file.
+	  (plain-text
+	   (if desc (format "%s \\fBat\\fP \\fIfile://%s\\fP" desc destination)
+	     (format "\\fI file://%s \\fP" destination)))
+	  ;; Fuzzy link points nowhere.
+	  ('nil
+	   (format org-e-groff-link-with-unknown-path-format
+		   (or desc
+		       (org-export-data
+			(org-element-property :raw-link link) info))))
+	  ;; Fuzzy link points to an invisible target.
+	  (keyword nil)
+	  ;; LINK points to an headline.  If headlines are numbered
+	  ;; and the link has no description, display headline's
+	  ;; number.  Otherwise, display description or headline's
+	  ;; title.
+	  (headline
+	   (let ((label ""))
+	     (if (and (plist-get info :section-numbers) (not desc))
+		 (format "\\fI%s\\fP" label)
+	       (format "\\fI%s\\fP"
+		       (or desc
+			   (org-export-data
+			    (org-element-property :title destination) info))))))
           ;; Fuzzy link points to a target.  Do as above.
-          (otherwise
-           (let ((path (org-export-solidify-link-text path)))
-             (if (not desc) (format "\\fI%s\\fP" path)
-               (format "%s \\fBat\\fP \\fI%s\\fP" desc path)))))))
+	  (otherwise
+	   (let ((path (org-export-solidify-link-text path)))
+	     (if (not desc) (format "\\fI%s\\fP" path)
+	       (format "%s \\fBat\\fP \\fI%s\\fP" desc path)))))))
      ;; Coderef: replace link with the reference name or the
      ;; equivalent line number.
      ((string= type "coderef")
       (format (org-export-get-coderef-format path desc)
-              (org-export-resolve-coderef path info)))
+	      (org-export-resolve-coderef path info)))
      ;; Link type is handled by a special function.
      ((functionp (setq protocol (nth 2 (assoc type org-link-protocols))))
       (funcall protocol (org-link-unescape path) desc 'groff))
@@ -1546,16 +1403,16 @@ the plist used as a communication channel."
   (setq parent (plist-get (nth 1 paragraph) :parent))
   (when parent
     (let ((parent-type (car parent)) 
-          (fixed-paragraph ""))
+	  (fixed-paragraph ""))
       (cond ((and (eq parent-type 'item)
-                  (plist-get (nth 1 parent) :bullet ) )
-             (setq fixed-paragraph (concat "" contents)) )
-            ((eq parent-type 'section)
-             (setq fixed-paragraph (concat ".P\n" contents) ) )
-            ((eq parent-type 'footnote-definition)
-             (setq fixed-paragraph (concat "" contents) ))
-            (t (setq fixed-paragraph (concat "" contents)) ) 
-            )
+		  (plist-get (nth 1 parent) :bullet ) )
+	     (setq fixed-paragraph (concat "" contents)) )
+	    ((eq parent-type 'section)
+	     (setq fixed-paragraph (concat ".P\n" contents) ) )
+	    ((eq parent-type 'footnote-definition)
+	     (setq fixed-paragraph (concat "" contents) ))
+	    (t (setq fixed-paragraph (concat "" contents)) ) 
+	    )
       fixed-paragraph)
     )
   )
@@ -1568,32 +1425,18 @@ the plist used as a communication channel."
 CONTENTS is the contents of the list.  INFO is a plist holding
 contextual information."
   (let* ((type (org-element-property :type plain-list))
-         (paralist-types '("inparaenum" "asparaenum" "inparaitem" "asparaitem"
-                           "inparadesc" "asparadesc"))
-         (paralist-regexp (concat
-                           "\\("
-                           (mapconcat 'identity paralist-types "\\|")
-                           "\\)"))
-         (attr (mapconcat #'identity
-                          (org-element-property :attr_groff plain-list)
-                          " "))
-         (groff-type (cond
-                      ((eq type 'ordered) ".AL")
-                      ((eq type 'unordered) ".BL")
-                      ((eq type 'descriptive) ".VL 2.0i"))))
+	 (attr (mapconcat #'identity
+			  (org-element-property :attr_groff plain-list)
+			  " "))
+	 (groff-type (cond
+		      ((eq type 'ordered) ".AL")
+		      ((eq type 'unordered) ".BL")
+		      ((eq type 'descriptive) ".VL 2.0i"))))
     (org-e-groff--wrap-label
      plain-list
-     (format "%s%s\n%s\n.LE"
-             groff-type
-             ;; Once special environment, if any, has been removed, the
-             ;; rest of the attributes will be optional arguments.
-             ;; They will be put inside square brackets if necessary.
-             (let ((opt (replace-regexp-in-string
-                         (format " *%s *" paralist-regexp) "" attr)))
-               (cond ((string= opt "") "")
-                     ((string-match "\\`\\[[^][]+\\]\\'" opt) opt)
-                     (t (format "[%s]" opt))))
-             contents ))))
+     (format "%s\n%s\n.LE"
+	     groff-type
+	     contents ))))
 
 
 ;;;; Plain Text
@@ -1603,21 +1446,21 @@ contextual information."
 TEXT is the string to transcode.  INFO is a plist holding
 contextual information."
   ;; Protect 
-  (setq text (replace-regexp-in-string
-              "\\(?:[^\\]\\|^\\)\\(\\\\\\)\\(?:[^%$#&{}~^_\\]\\|$\\)"
-              "$\\" text nil t 1))
+    (setq text (replace-regexp-in-string
+  	      "\\(?:[^\\]\\|^\\)\\(\\\\\\)\\(?:[^%$#&{}~^_\\]\\|$\\)"
+  	      "$\\" text nil t 1))
 
-  ;; Protect leading dots and quotes
+    ;; Protect leading dots and quotes
 
-  ;;    (setq text (replace-regexp-in-string  "^[.']" 
-  ;;					  "\\\\&\\&" text nil t 1))
+;;    (setq text (replace-regexp-in-string  "^[.']" 
+;;					  "\\\\&\\&" text nil t 1))
   ;; Handle quotation marks
-  (setq text (org-e-groff--quotation-marks text info))
+   (setq text (org-e-groff--quotation-marks text info))
 
   ;; Handle break preservation if required.
-  (when (plist-get info :preserve-breaks)
-    (setq text (replace-regexp-in-string "\\(\\\\\\\\\\)?[ \t]*\n" " \\\\\\\\\n"
-                                         text)))
+    (when (plist-get info :preserve-breaks)
+      (setq text (replace-regexp-in-string "\\(\\\\\\\\\\)?[ \t]*\n" " \\\\\\\\\n"
+  					 text)))
   ;; Return value.
   text)
 
@@ -1633,25 +1476,25 @@ information."
    (mapconcat
     'identity
     (delq nil
-          (list
-           (let ((closed (org-element-property :closed planning)))
-             (when closed
-               (concat
-                (format "\\fR %s \\fP" org-closed-string)
-                (format org-e-groff-inactive-timestamp-format
-                        (org-translate-time closed)))))
-           (let ((deadline (org-element-property :deadline planning)))
-             (when deadline
-               (concat
-                (format "\\fB %s \\fP" org-deadline-string)
-                (format org-e-groff-active-timestamp-format
-                        (org-translate-time deadline)))))
-           (let ((scheduled (org-element-property :scheduled planning)))
-             (when scheduled
-               (concat
-                (format "\\fR %s \\fP" org-scheduled-string)
-                (format org-e-groff-active-timestamp-format
-                        (org-translate-time scheduled)))))))
+	  (list
+	   (let ((closed (org-element-property :closed planning)))
+	     (when closed
+	       (concat
+		(format "\\fR %s \\fP" org-closed-string)
+		(format org-e-groff-inactive-timestamp-format
+			(org-translate-time closed)))))
+	   (let ((deadline (org-element-property :deadline planning)))
+	     (when deadline
+	       (concat
+		(format "\\fB %s \\fP" org-deadline-string)
+		(format org-e-groff-active-timestamp-format
+			(org-translate-time deadline)))))
+	   (let ((scheduled (org-element-property :scheduled planning)))
+	     (when scheduled
+	       (concat
+		(format "\\fR %s \\fP" org-scheduled-string)
+		(format org-e-groff-active-timestamp-format
+			(org-translate-time scheduled)))))))
     "")
    ""))
 
@@ -1684,7 +1527,7 @@ holding contextual information."
   "Transcode a QUOTE-SECTION element from Org to Groff.
 CONTENTS is nil.  INFO is a plist holding contextual information."
   (let ((value (org-remove-indentation
-                (org-element-property :value quote-section))))
+		(org-element-property :value quote-section))))
     (when value (format ".DS L\n\\fI%s\\fP\n.DE\n" value))))
 
 
@@ -1695,9 +1538,9 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 TEXT is the text of the target.  INFO is a plist holding
 contextual information."
   (format "%s - %s"
-          (org-export-solidify-link-text
-           (org-element-property :value radio-target))
-          text))
+	  (org-export-solidify-link-text
+	   (org-element-property :value radio-target))
+	  text))
 
 
 ;;;; Section
@@ -1729,67 +1572,67 @@ CONTENTS holds the contents of the item.  INFO is a plist holding
 contextual information."
 
   (let* ((lang (org-element-property :language src-block))
-         (caption (org-element-property :caption src-block))
-         (label (org-element-property :name src-block))
-         (code (org-element-property :value src-block))
-         (custom-env (and lang
-                          (cadr (assq (intern lang)
-                                      org-e-groff-custom-lang-environments))))
-         (num-start (case (org-element-property :number-lines src-block)
-                      (continued (org-export-get-loc src-block info))
-                      (new 0)))
-         (retain-labels (org-element-property :retain-labels src-block)))
+	 (caption (org-element-property :caption src-block))
+	 (label (org-element-property :name src-block))
+	 (code (org-element-property :value src-block))
+	 (custom-env (and lang
+			  (cadr (assq (intern lang)
+				      org-e-groff-custom-lang-environments))))
+	 (num-start (case (org-element-property :number-lines src-block)
+		      (continued (org-export-get-loc src-block info))
+		      (new 0)))
+	 (retain-labels (org-element-property :retain-labels src-block)))
     (cond
      ;; Case 1.  No source fontification.
      ((not org-e-groff-source-highlight)
       (let ((caption-str (org-e-groff--caption/label-string caption label info))
-            (float-env (when caption ".DS I\n\\fC%s\\fP\n.DE\n")))
-        (format
-         (or float-env "%s")
-         (concat 
-          (format ".DS I\n\\fC%s\\fP\n.DE\n.EX \"%s\"\n"
-                  (org-export-format-code-default src-block info) 
-                  (or caption-str ""))))))
+	    (float-env (when caption ".DS I\n\\fC%s\\fP\n.DE\n")))
+	(format
+	 (or float-env "%s")
+	 (concat 
+	  (format ".DS I\n\\fC%s\\fP\n.DE\n.EX \"%s\"\n"
+		  (org-export-format-code-default src-block info) 
+		  (or caption-str ""))))))
      ( (and org-e-groff-source-highlight) 
        (let* ((tmpdir (if (featurep 'xemacs)
-                          temp-directory 
-                        temporary-file-directory ))
-              
-              (in-file  (make-temp-name 
-                         (expand-file-name "srchilite" tmpdir))  )
-              (out-file (make-temp-name 
-                         (expand-file-name "reshilite" tmpdir)) )
+			  temp-directory 
+			temporary-file-directory ))
+	      
+	      (in-file  (make-temp-name 
+			 (expand-file-name "srchilite" tmpdir))  )
+	      (out-file (make-temp-name 
+			 (expand-file-name "reshilite" tmpdir)) )
 
-              (org-lang (org-element-property :language src-block))
-              (lst-lang (cadr (assq (intern org-lang)
-                                    org-e-groff-source-highlight-langs)) )
-              
-              (cmd (concat "source-highlight"
-                           " -s " lst-lang
-                           " -f groff_mm_color "
-                           " -i " in-file
-                           " -o " out-file
-                           )
-                   ))
-         
-         (if lst-lang
-             (let ((code-block "" ))
-               (with-temp-file in-file (insert code))
-               (shell-command cmd)
-               (setq code-block  (org-file-contents out-file) )
-               (delete-file in-file)
-               (delete-file out-file)
-               code-block)
-           (format ".DS I\n\\fC\\m[black]%s\\m[]\\fP\n.DE"
-                   code))
+	      (org-lang (org-element-property :language src-block))
+	      (lst-lang (cadr (assq (intern org-lang)
+				    org-e-groff-source-highlight-langs)) )
+	      
+	      (cmd (concat "source-highlight"
+			   " -s " lst-lang
+			   " -f groff_mm_color "
+			   " -i " in-file
+			   " -o " out-file
+			   )
+		   ))
+	 
+	 (if lst-lang
+	     (let ((code-block "" ))
+	       (with-temp-file in-file (insert code))
+	       (shell-command cmd)
+	       (setq code-block  (org-file-contents out-file) )
+	       (delete-file in-file)
+	       (delete-file out-file)
+	       code-block)
+	   (format ".DS I\n\\fC\\m[black]%s\\m[]\\fP\n.DE"
+		   code))
 
-         )
+	 )
        )
 
      (custom-env (format ".DS I\n\\fC%s\\fP\n.DE"
-                         custom-env
-                         (src-block)
-                         custom-env))
+			 custom-env
+			 (src-block)
+			 custom-env))
 
      )))
 
@@ -1845,22 +1688,22 @@ contextual information."
   (cond
    ;; Case 1: verbatim table.
    ((or org-e-groff-tables-verbatim
-        (let ((attr
-               (read
-                (format
-                 "(%s)"
-                 (mapconcat
-                  #'identity
-                  (org-element-property :attr_groff table)
-                  " ")))) )
+	(let ((attr
+	       (read
+		(format
+		 "(%s)"
+		 (mapconcat
+		  #'identity
+		  (org-element-property :attr_groff table)
+		  " ")))) )
 
-          (and attr (plist-get attr :verbatim))))
+	  (and attr (plist-get attr :verbatim))))
 
     (format ".DS L\n\\fC%s\\fP\n.DE"
-            ;; Re-create table, without affiliated keywords.
-            (org-trim
-             (org-element-interpret-data
-              `(table nil ,@(org-element-contents table))))))
+	    ;; Re-create table, without affiliated keywords.
+	    (org-trim
+	     (org-element-interpret-data
+	      `(table nil ,@(org-element-contents table))))))
    ;; Case 2: Standard table.
    (t (org-e-groff-table--org-table table contents info))))
 
@@ -1869,47 +1712,47 @@ contextual information."
 TABLE is the considered table.  INFO is a plist used as
 a communication channel."
   (let ((attr
-         (read
-          (format
-           "(%s)"
-           (mapconcat
-            #'identity
-            (org-element-property :attr_groff table)
-            " ")))))
+	 (read
+	  (format
+	   "(%s)"
+	   (mapconcat
+	    #'identity
+	    (org-element-property :attr_groff table)
+	    " ")))))
 
     (setq align 	
-          (case (plist-get  attr :align)
-            ('center "c")
-            ('left "l")
-            ('right "r")))
+	  (case (plist-get  attr :align)
+	    ('center "c")
+	    ('left "l")
+	    ('right "r")))
 
     (let (alignment)
       ;; Extract column groups and alignment from first (non-rule)
       ;; row.
       (org-element-map
        (org-element-map
-        table 'table-row
-        (lambda (row)
-          (and (eq (org-element-property :type row) 'standard) row))
-        info 'first-match)
+	table 'table-row
+	(lambda (row)
+	  (and (eq (org-element-property :type row) 'standard) row))
+	info 'first-match)
        'table-cell
        (lambda (cell)
-         (let* ((borders (org-export-table-cell-borders cell info))
-                (raw-width (org-export-table-cell-width cell info))
-                (width-cm (when raw-width (/ raw-width 5)))
-                (width (if raw-width (format "w(%dc)" (if (< width-cm 1) 1 width-cm)) "") ))
-           ;; Check left border for the first cell only.
-           (when (and (memq 'left borders) (not alignment))
-             (push "|" alignment))
-           (push 
-            (if (not align)
-                (case (org-export-table-cell-alignment cell info)
-                  (left (concat "l" width divider) )
-                  (right (concat "r" width divider))
-                  (center (concat "c" width divider)))
-              (concat align divider))
-            alignment)
-           (when (memq 'right borders) (push "|" alignment))))
+	 (let* ((borders (org-export-table-cell-borders cell info))
+		(raw-width (org-export-table-cell-width cell info))
+		(width-cm (when raw-width (/ raw-width 5)))
+		(width (if raw-width (format "w(%dc)" (if (< width-cm 1) 1 width-cm)) "") ))
+	   ;; Check left border for the first cell only.
+	   (when (and (memq 'left borders) (not alignment))
+	     (push "|" alignment))
+	   (push 
+	    (if (not align)
+		(case (org-export-table-cell-alignment cell info)
+		  (left (concat "l" width divider) )
+		  (right (concat "r" width divider))
+		  (center (concat "c" width divider)))
+	      (concat align divider))
+	    alignment)
+	   (when (memq 'right borders) (push "|" alignment))))
        info)
       (apply 'concat (reverse alignment)))
 
@@ -1924,74 +1767,74 @@ channel.
 
 This function assumes TABLE has `org' as its `:type' attribute."
   (let* ((label (org-element-property :name table))
-         (caption (org-e-groff--caption/label-string
-                   (org-element-property :caption table) label info))
-         (attr
-          (read
-           (format
-            "(%s)"
-            (mapconcat
-             #'identity
-             (org-element-property :attr_groff table)
-             " "))))
+	 (caption (org-e-groff--caption/label-string
+		   (org-element-property :caption table) label info))
+	 (attr
+	  (read
+	   (format
+	    "(%s)"
+	    (mapconcat
+	     #'identity
+	     (org-element-property :attr_groff table)
+	     " "))))
 
-         (divider (if (plist-get attr :divider)
-                      "|"
-                    " "))
+	 (divider (if (plist-get attr :divider)
+		      "|"
+		    " "))
 
-         ;; Determine alignment string.
-         (alignment (org-e-groff-table--align-string divider table info))
-         ;; Extract others display options.
+	 ;; Determine alignment string.
+	 (alignment (org-e-groff-table--align-string divider table info))
+	 ;; Extract others display options.
 
-         )
+	 )
     ;; Prepare the final format string for the table.
 
     (setq lines (org-split-string contents "\n"))
 
     (setq attr-list
-          (let ((result-list '()))
-            (dolist (attr-item 
-                     (list 
-                      (if (plist-get attr :expand) 
-                          "expand"
-                        nil
-                        )
+	  (let ((result-list '()))
+	    (dolist (attr-item 
+		     (list 
+		      (if (plist-get attr :expand) 
+			  "expand"
+			nil
+			)
 
-                      (case (plist-get attr :placement)
-                        ('center "center")
-                        ('left nil)
-                        (t 
-                         (if org-e-groff-tables-centered  
-                             "center" 
-                           "" )))
+		      (case (plist-get attr :placement)
+			('center "center")
+			('left nil)
+			(t 
+			 (if org-e-groff-tables-centered  
+			     "center" 
+			   "" )))
 
-                      (case (plist-get attr :boxtype)
-                        ('box "box")
-                        ('doublebox "doublebox")
-                        ('allbox "allbox")
-                        ('none nil)
-                        (t "box"))
-                      ))
+		      (case (plist-get attr :boxtype)
+			('box "box")
+			('doublebox "doublebox")
+			('allbox "allbox")
+			('none nil)
+			(t "box"))
+		      ))
 
-              (if (not (null attr-item))
-                  (add-to-list 'result-list attr-item)
-                ))
-            result-list ))
+	      (if (not (null attr-item))
+		  (add-to-list 'result-list attr-item)
+		))
+	    result-list ))
 
 
     (setq title-line  (plist-get attr :title-line))
     (setq disable-caption (plist-get attr :disable-caption)) 
 
     (setq table-format (concat 
-                        (format "%s"
-                                (or (car attr-list) "" ))
-                        (or 
-                         (let ((output-list '()))
-                           (when (cdr attr-list)
-                             (dolist (attr-item (cdr attr-list))
-                               (setq output-list (concat output-list  (format ",%s" attr-item )) ) ))
-                           output-list)
-                         "") ))
+			(format "%s"
+				(or (car attr-list) "" ))
+			(or 
+			 (let ((output-list '()))
+			   (when (cdr attr-list)
+			     (dolist (attr-item (cdr attr-list))
+			       (setq output-list (concat output-list  (format ",%s" attr-item )) ) ))
+			   output-list)
+			 "") ))
 
     
     (when lines
@@ -2000,40 +1843,40 @@ This function assumes TABLE has `org' as its `:type' attribute."
     (cond
      ;; Others.
      (lines (concat ".TS\n " table-format ";\n" 
-                    
-                    (format "%s.\n"
-                            (let ((final-line ""))
+		    
+		    (format "%s.\n"
+			    (let ((final-line ""))
 
-                              (when title-line
-                                (dotimes (i (length first-line))
-                                  (setq final-line (concat final-line "cb" divider))
-                                  ))
+			      (when title-line
+				(dotimes (i (length first-line))
+				  (setq final-line (concat final-line "cb" divider))
+				  ))
 
-                              (setq final-line (concat final-line "\n"))
-                              (if alignment
-                                  (setq final-line (concat final-line alignment))
-                                (dotimes (i (length first-line))
-                                  (setq final-line (concat final-line "c" divider))))
-                              final-line ))
+			      (setq final-line (concat final-line "\n"))
+			      (if alignment
+				  (setq final-line (concat final-line alignment))
+				(dotimes (i (length first-line))
+				  (setq final-line (concat final-line "c" divider))))
+			      final-line ))
 
-                    (format "%s.TE\n"
-                            (let ((final-line ""))
-                              (dolist (line-item lines)
-                                (cond 
-                                 (t	
-                                  (setq lines (org-split-string contents "\n"))
+		    (format "%s.TE\n"
+			    (let ((final-line ""))
+			      (dolist (line-item lines)
+				(cond 
+				 (t	
+				  (setq lines (org-split-string contents "\n"))
 
-                                  (setq final-line (concat final-line 
-                                                           (car (org-split-string line-item "\\\\")) "\n"))
-                                  )
-                                 )
-                                
-                                )  final-line))
+				  (setq final-line (concat final-line 
+							   (car (org-split-string line-item "\\\\")) "\n"))
+				  )
+				 )
+				
+				)  final-line))
 
-                    (if (not disable-caption)
-                        (format ".TB \"%s\""
-                                caption)
-                      "") )))))
+		    (if (not disable-caption)
+			(format ".TB \"%s\""
+				caption)
+		      "") )))))
 
 ;;;; Table Cell
 
@@ -2042,15 +1885,15 @@ This function assumes TABLE has `org' as its `:type' attribute."
 CONTENTS is the cell contents.  INFO is a plist used as
 a communication channel."
   (concat (if (and contents
-                   org-e-groff-table-scientific-notation
-                   (string-match orgtbl-exp-regexp contents))
-              ;; Use appropriate format string for scientific
-              ;; notation.
-              (format org-e-groff-table-scientific-notation
-                      (match-string 1 contents)
-                      (match-string 2 contents))
-            contents)
-          (when (org-export-get-next-element table-cell) " \t ")))
+		   org-e-groff-table-scientific-notation
+		   (string-match orgtbl-exp-regexp contents))
+	      ;; Use appropriate format string for scientific
+	      ;; notation.
+	      (format org-e-groff-table-scientific-notation
+		      (match-string 1 contents)
+		      (match-string 2 contents))
+	    contents)
+	  (when (org-export-get-next-element table-cell) " \t ")))
 
 
 ;;;; Table Row
@@ -2063,22 +1906,22 @@ a communication channel."
   ;; borders of the current row.
   (when (eq (org-element-property :type table-row) 'standard)
     (let* ((attr (mapconcat 'identity
-                            (org-element-property
-                             :attr_groff (org-export-get-parent table-row))
-                            " "))
-           ;; TABLE-ROW's borders are extracted from its first cell.
-           (borders
-            (org-export-table-cell-borders
-             (car (org-element-contents table-row)) info)))
+			    (org-element-property
+			     :attr_groff (org-export-get-parent table-row))
+			    " "))
+	   ;; TABLE-ROW's borders are extracted from its first cell.
+	   (borders
+	    (org-export-table-cell-borders
+	     (car (org-element-contents table-row)) info)))
       (concat
        ;; Mark "hline" for horizontal lines.
        (cond  ((and (memq 'top borders) (memq 'above borders)) "_\n"))
        contents "\\\\\n"
        (cond
-        ;; When BOOKTABS are activated enforce bottom rule even when
-        ;; no hline was specifically marked.
-        ((and (memq 'bottom borders) (memq 'below borders)) "_\n")
-        ((memq 'below borders) "_"))))))
+	;; When BOOKTABS are activated enforce bottom rule even when
+	;; no hline was specifically marked.
+	((and (memq 'bottom borders) (memq 'below borders)) "_\n")
+	((memq 'below borders) "_"))))))
 
 
 
@@ -2090,7 +1933,7 @@ a communication channel."
 CONTENTS is nil.  INFO is a plist holding contextual
 information."
   (format "\\fI%s\\fP"
-          (org-export-solidify-link-text (org-element-property :value target))))
+	  (org-export-solidify-link-text (org-element-property :value target))))
 
 
 ;;;; Timestamp
@@ -2100,12 +1943,12 @@ information."
 CONTENTS is nil.  INFO is a plist holding contextual
 information."
   (let ((value (org-translate-time (org-element-property :value timestamp)))
-        (type (org-element-property :type timestamp)))
+	(type (org-element-property :type timestamp)))
     (cond ((memq type '(active active-range))
-           (format org-e-groff-active-timestamp-format value))
-          ((memq type '(inactive inactive-range))
-           (format org-e-groff-inactive-timestamp-format value))
-          (t (format org-e-groff-diary-timestamp-format value)))))
+	   (format org-e-groff-active-timestamp-format value))
+	  ((memq type '(inactive inactive-range))
+	   (format org-e-groff-inactive-timestamp-format value))
+	  (t (format org-e-groff-diary-timestamp-format value)))))
 
 
 ;;;; Underline
@@ -2210,53 +2053,53 @@ done through the command specified in `org-e-groff-pdf-process'.
 
 Return PDF file name or an error if it couldn't be produced."
   (let* ((wconfig (current-window-configuration))
-         (grofffile (file-truename grofffile))
-         (base (file-name-sans-extension grofffile))
-         errors)
+	 (grofffile (file-truename grofffile))
+	 (base (file-name-sans-extension grofffile))
+	 errors)
     (message (format "Processing Groff file %s ..." grofffile))
     (unwind-protect
-        (progn
-          (cond
-           ;; A function is provided: Apply it.
-           ((functionp org-e-groff-pdf-process)
-            (funcall org-e-groff-pdf-process (shell-quote-argument grofffile)))
-           ;; A list is provided: Replace %b, %f and %o with appropriate
-           ;; values in each command before applying it.  Output is
-           ;; redirected to "*Org PDF Groff Output*" buffer.
-           ((consp org-e-groff-pdf-process)
-            (let* ((out-dir (or (file-name-directory grofffile) "./"))
-                   (outbuf (get-buffer-create "*Org PDF Groff Output*")))
-              (mapc
-               (lambda (command)
-                 (shell-command
-                  (replace-regexp-in-string
-                   "%b" (shell-quote-argument base)
-                   (replace-regexp-in-string
-                    "%f" (shell-quote-argument grofffile)
-                    (replace-regexp-in-string
-                     "%o" (shell-quote-argument out-dir) command t t) t t) t t)
-                  outbuf))
-               org-e-groff-pdf-process)
-              ;; Collect standard errors from output buffer.
-              (setq errors (org-e-groff-collect-errors outbuf))))
-           (t (error "No valid command to process to PDF")))
-          (let ((pdffile (concat base ".pdf")))
-            ;; Check for process failure.  Provide collected errors if
-            ;; possible.
-            (if (not (file-exists-p pdffile))
-                (error (concat (format "PDF file %s wasn't produced" pdffile)
-                               (when errors (concat ": " errors))))
-              ;; Else remove log files, when specified, and signal end of
-              ;; process to user, along with any error encountered.
-              (when org-e-groff-remove-logfiles
-                (dolist (ext org-e-groff-logfiles-extensions)
-                  (let ((file (concat base "." ext)))
-                    (when (file-exists-p file) (delete-file file)))))
-              (message (concat "Process completed"
-                               (if (not errors) "."
-                                 (concat " with errors: " errors)))))
-            ;; Return output file name.
-            pdffile))
+	(progn
+	  (cond
+	   ;; A function is provided: Apply it.
+	   ((functionp org-e-groff-pdf-process)
+	    (funcall org-e-groff-pdf-process (shell-quote-argument grofffile)))
+	   ;; A list is provided: Replace %b, %f and %o with appropriate
+	   ;; values in each command before applying it.  Output is
+	   ;; redirected to "*Org PDF Groff Output*" buffer.
+	   ((consp org-e-groff-pdf-process)
+	    (let* ((out-dir (or (file-name-directory grofffile) "./"))
+		   (outbuf (get-buffer-create "*Org PDF Groff Output*")))
+	      (mapc
+	       (lambda (command)
+		 (shell-command
+		  (replace-regexp-in-string
+		   "%b" (shell-quote-argument base)
+		   (replace-regexp-in-string
+		    "%f" (shell-quote-argument grofffile)
+		    (replace-regexp-in-string
+		     "%o" (shell-quote-argument out-dir) command t t) t t) t t)
+		  outbuf))
+	       org-e-groff-pdf-process)
+	      ;; Collect standard errors from output buffer.
+	      (setq errors (org-e-groff-collect-errors outbuf))))
+	   (t (error "No valid command to process to PDF")))
+	  (let ((pdffile (concat base ".pdf")))
+	    ;; Check for process failure.  Provide collected errors if
+	    ;; possible.
+	    (if (not (file-exists-p pdffile))
+		(error (concat (format "PDF file %s wasn't produced" pdffile)
+			       (when errors (concat ": " errors))))
+	      ;; Else remove log files, when specified, and signal end of
+	      ;; process to user, along with any error encountered.
+	      (when org-e-groff-remove-logfiles
+		(dolist (ext org-e-groff-logfiles-extensions)
+		  (let ((file (concat base "." ext)))
+		    (when (file-exists-p file) (delete-file file)))))
+	      (message (concat "Process completed"
+			       (if (not errors) "."
+				 (concat " with errors: " errors)))))
+	    ;; Return output file name.
+	    pdffile))
       (set-window-configuration wconfig))))
 
 (defun org-e-groff-collect-errors (buffer)
