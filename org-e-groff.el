@@ -143,15 +143,14 @@ structure of the values.")
     ("letter" ".MT 5" 
      (:heading 'default :type "memo" :last-section "toc"))
     ("custom" ".so file" 
-     (:heading custom-function :type "custom") :last-section "toc")
+     (:heading custom-function :type "custom" :last-section "toc")  ) 
     ("dummy" "" 
      (:heading 'default :type "memo"))
-    ("se_ms" "se_ms" 
-     (:heading 'default :type "cover" :last-section "toc"))
     ("ms" "ms" 
      (:heading 'default :type "cover" :last-section "toc"))
-    ("none" "" 
-     (:heading 'default :type "custom"))) 
+    ("se_ms" "se_ms" 
+     (:heading 'default :type "cover" :last-section "toc"))
+    ("none" "" '(:heading 'default :type "custom")))
   ;; none means, no Memorandum Type but AU, AT, ND and TL
   ;; gets populated. This is to facilitate the creation of
   ;; abstract blocks. 
@@ -697,7 +696,7 @@ holding export options."
        (let ()
          (concat
           (when (and (stringp document-class-string)
-                     (string= type-option "cover") )
+                     (string= type-option "cover"))
             (format ".COVER %s\n" document-class-string))
           ;; 1. Insert Organization
           (let ((firm-option (plist-get attr :firm)))
@@ -715,6 +714,9 @@ holding export options."
                       (or subtitle1 "")
                       (or subtitle2 "") " ")
               )
+             ((not (or subtitle1 subtitle2))
+              (format ".TL\n%s\n" 
+                      (or title "" )) )
              (t
               (format ".TL \"%s\" \"%s \" \n%s\n" 
                       (or subtitle1 "")
@@ -733,7 +735,6 @@ holding export options."
                   (t ".AU \"\" \n")))
           
           ;; 4. Author Title, if present
-
           (let ((at-item (plist-get attr :author-title)  ))
             (if (and at-item (stringp at-item))
                 (format ".AT \"%s\" \n" at-item )
@@ -886,7 +887,7 @@ holding contextual information.  See `org-export-data'."
   "Transcode an ENTITY object from Org to Groff.
 CONTENTS are the definition itself.  INFO is a plist holding
 contextual information."
-  (let ((ent (org-element-property :groff entity)))
+  (let ((ent (org-element-property :utf8 entity)))
     (if (org-element-property :groff-math-p entity) (format "$%s$" ent) ent)))
 
 
