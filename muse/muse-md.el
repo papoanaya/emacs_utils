@@ -31,23 +31,23 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; Muse Publishing Using groff -mom -mwww
+;; Muse Publishing Using Github Markup
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (require 'muse-publish)
 
 (defgroup muse-md nil
-  "Rules for marking up a Muse file with groff -mm macros."
+  "Rules for marking up a Muse file with github markup"
   :group 'muse-publish)
 
 (defcustom muse-md-extension ".md"
-  "Default file extension for publishing mm -mom -mwww files."
+  "Default file extension for publishing file with github markup"
   :type 'string
   :group 'muse-md)
 
-(defcustom muse-md-pdf-extension ".md"
-  "Default file extension for publishing mm -mm files to PDF."
+(defcustom muse-md-pdf-extension nil
+  "Default file extension for publishing with github markup"
   :type 'string
   :group 'muse-md)
 
@@ -93,8 +93,8 @@ For more on the structure of this list, see
   :group 'muse-md)
 
 (defcustom muse-md-markup-strings
-  `(;(image-with-desc . "\n.MPIMG -R %s.%s\n")
-    ;(image           . "\n.MPIMG -R %s.%s\n")
+  `((image-with-desc . ". ![%s](%s)")
+    (image           . "![](%s)")
     (image-link      . "|[%s](%s)")
     (url             . "%s")
     (link            . "%s")
@@ -123,6 +123,7 @@ For more on the structure of this list, see
     (begin-underline . "_")
     (end-underline   . "_")
     (begin-literal   . "    ")
+    (begin-literal-item . "    ")
     (end-literal     . "    ")
     (begin-emph      . "*")
     (end-emph        . "*")
@@ -137,8 +138,8 @@ For more on the structure of this list, see
     (end-center      . "      ")
     (begin-example   . "```")
     (end-example     . "```")
-    (begin-quote     . "")
-    (begin-quote-item . "> ")
+    (begin-quote     . "> ")
+    (begin-quote-item . "")
     (end-quote       . "")
     (begin-cite     . " ")
     (begin-cite-author . "")
@@ -164,7 +165,7 @@ differs little between the various styles."
   :group 'muse-md)
 
 (defcustom muse-md-markup-specials
-  '((?\\ . "\\e"))
+  nil
   "A table of characters which must be represented specially."
   :type '(alist :key-type character :value-type string)
   :group 'muse-md)
@@ -176,17 +177,12 @@ differs little between the various styles."
     (muse-insert-markup "\n")
 ))
 
-(defun muse-md-protect-leading-chars ()
-  "Protect leading periods and apostrophes from being interpreted as
-command characters."
-  (while (re-search-forward "^[.']" nil t)
-    (replace-match "\\\\&\\&" t)))
 
 (defun muse-md-concat-lists ()
   "Join like lists."
   (let ((type "")
         arg begin)
-    (while (re-search-forward "^\.LI[ \t]+\\(.*\\)\n" nil t)
+    (while (re-search-forward "^\-[ \t]+\\(.*\\)\n" nil t)
       (setq arg (match-string 1))
       (if (string= arg "OFF")
           (setq begin (match-beginning 0))
@@ -210,15 +206,14 @@ command characters."
           (setq open t))))))
 
 (defun muse-md-prepare-buffer ()
-  (goto-char (point-min))
-  (muse-md-protect-leading-chars))
+  (goto-char (point-min)))
 
 (defun muse-md-munge-buffer ()
   (goto-char (point-min))
   (muse-md-concat-lists))
 
 (defun muse-md-pdf-browse-file (file)
-  (shell-command (concat "open " file)))
+  file)
 
 (defun muse-md-pdf-generate (file output-path final-target)
   (muse-publish-transform-output
