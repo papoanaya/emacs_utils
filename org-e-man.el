@@ -32,8 +32,8 @@
 ;; export.  See contrib/lisp/org-export.el for more details on how
 ;; this exporter works.
 ;;
-;; It introduces three new buffer keywords: "MAN_CLASS",
-;; "MAN_CLASS_OPTIONS" and "MAN_HEADER".
+;; It introduces one new buffer keywords: 
+;; "MAN_CLASS_OPTIONS". 
 
 ;;; Code:
 
