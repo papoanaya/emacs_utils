@@ -454,7 +454,6 @@ channel."
 
 ;;;; Drawer
 
-;; Drawers are ignored
 (defun org-e-man-drawer (drawer contents info)
   "Transcode a DRAWER element from Org to Man.
    DRAWER holds the drawer information
@@ -527,10 +526,9 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 ;;
 ;; Footnote Definitions are ignored.
 
-;; 
-;; Footnotes are handled automatically in MAN. Although
-;; manual references can be added, not really required.
-;; 
+;;;; Footnote References
+;;
+;; Footnote References are Ignored
 
 
 ;;;; Headline
@@ -545,12 +543,12 @@ holding contextual information."
 		 ;; title and the other for the contents.
 		 (section-fmt
 		  (case level
-			(0 ".SH \"%s\"\n%s")
 			(1 ".SH \"%s\"\n%s")
 			(2 ".SS \"%s\"\n%s")
 			(3 ".SS \"%s\"\n%s") 
 			(t nil)) )
 		 (text (org-export-data (org-element-property :title headline) info)) )
+
     (cond
      ;; Case 1: This is a footnote section: ignore it.
      ((org-element-property :footnote-section-p headline) nil)
