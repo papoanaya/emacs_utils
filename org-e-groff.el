@@ -22,18 +22,18 @@
 
 ;;; Commentary:
 ;;
-;; This library implements a Groff back-end for Org generic exporter.
+;; This library implements a Man Pages back-end for Org generic exporter.
 ;;
 ;; To test it, run
 ;;
-;;   M-: (org-export-to-buffer 'e-groff "*Test e-Groff*") RET
+;;   M-: (org-export-to-buffer 'e-man "*Test e-Man*") RET
 ;;
 ;; in an org-mode buffer then switch to the buffer to see the Groff
 ;; export.  See contrib/lisp/org-export.el for more details on how
 ;; this exporter works.
 ;;
-;; It introduces three new buffer keywords: "GROFF_CLASS",
-;; "GROFF_CLASS_OPTIONS" and "GROFF_HEADER".
+;; It introduces three new buffer keywords: "MAN_CLASS" and
+;; "MAN_CLASS_OPTIONS".
 
 ;;; Code:
 
