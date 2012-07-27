@@ -137,11 +137,6 @@ structure of the values.")
   :type 'boolean)
 
 
-(defcustom org-e-man-table-caption-above nil
-  "When non-nil, place caption string at the beginning of the table.
-Otherwise, place it near the end."
-  :group 'org-export-e-man
-  :type 'boolean)
 
 (defcustom org-e-man-table-scientific-notation "%sE%s"
   "Format string to display numbers in scientific notation.
@@ -197,29 +192,6 @@ in this list - but it does not hurt if it is present."
            (symbol :tag "Major mode       ")
            (string :tag "Listings language"))))
 
-(defcustom org-e-man-source-highlight-options nil
-  "Association list of options for the man listings package.
-
-These options are supplied as a comma-separated list to the
-\\lstset command.  Each element of the association list should be
-a list containing two strings: the name of the option, and the
-value.  For example,
-
-  (setq org-e-man-source-highlight-options
-    '((\"basicstyle\" \"\\small\")
-      (\"keywordstyle\" \"\\color{black}\\bfseries\\underbar\")))
-
-will typeset the code in a small size font with underlined, bold
-black keywords.
-
-Note that the same options will be applied to blocks of all
-languages."
-  :group 'org-export-e-man
-  :type '(repeat
-	  (list
-	   (string :tag "Listings option name ")
-	   (string :tag "Listings option value"))))
-
 
 
 (defvar org-e-man-custom-lang-environments nil
@@ -232,7 +204,7 @@ man packages.  For example,
      '\(\(python \"pythoncode\"\)\)\)
 
 would have the effect that if org encounters begin_src python
-during man export it will output"
+during man export."
 )
 
 
@@ -288,25 +260,12 @@ shell as a command.  %f in the command will be replaced by the
 full file name, %b by the file base name \(i.e. without
 extension) and %o by the base directory of the file.
 
-The reason why this is a list is that it usually takes several
-runs of `pdfgroff', maybe mixed with a call to `bibtex'.  Org
-does not have a clever mechanism to detect which of these
-commands have to be run to get to a stable result, and it also
-does not do any error checking.
 
-By default, Org uses 3 runs of `pdfgroff' to do the processing.
-If you have texi2dvi on your system and if that does not cause
-the infamous egrep/locale bug:
-
-     http://lists.gnu.org/archive/html/bug-texinfo/2010-03/msg00031.html
-
-then `texi2dvi' is the superior choice.  Org does offer it as one
-of the customize options.
+By default, Org uses 3 runs of to do the processing.
 
 Alternatively, this may be a Lisp function that does the
-processing, so you could use this to apply the machinery of
-AUCTeX or the Emacs Man mode.  This function should accept the
-file name as its single argument."
+processing.  This function should accept the file name as 
+its single argument."
   :group 'org-export-pdf
   :type '(choice
 	  (repeat :tag "Shell command sequence"
@@ -321,7 +280,7 @@ file name as its single argument."
 	  (function)))
 
 (defcustom org-e-man-logfiles-extensions
-  '("aux" "idx" "log" "out" "toc" "nav" "snm" "vrb")
+  '("log" "out" "toc")
   "The list of file extensions to consider as Man logfiles."
   :group 'org-export-e-man
   :type '(repeat (string :tag "Extension")))
@@ -332,6 +291,7 @@ These are the .aux, .log, .out, and .toc files."
   :group 'org-export-e-man
   :type 'boolean)
 
+
 
 ;; Preamble
 
@@ -414,14 +374,23 @@ holding export options."
 	    #'identity
 	    (list (plist-get info :man-class-options))
 	    " ")))) )
+
+    (setq section-item (plist-get attr :section-id))
+
     (concat
 
      (cond 
-      ((string= "" title)
-       (format ".TH \"%s\" \"%s\" \n" " " "1" )
+      ((and title (stringp section-item))
+       (format ".TH \"%s\" \"%s\" \n" title section-item )
+       )
+      ((and (string= "" title) (stringp section-item))
+       (format ".TH \"%s\" \"%s\" \n" " " section-item )
+       )
+      (title
+       (format ".TH \"%s\" \"1\" \n" title )
        )
       (t
-       (format ".TH \"%s\" \"%s\" \n" title "1" )))
+       ".TH \" \" \"1\" "))
 
      contents )))
 
