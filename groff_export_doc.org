@@ -225,7 +225,7 @@ this feature are as follows:
     one in the configuration directory. If you have custom outlang.map
     entries, they have to be merged with the ones from the Groff
     language files. 
- 4. Set the custom variable =org-e-groff-source-highlight-langs= to
+ 4. Set the custom variable =org-e-groff-source-highlight= to
     *t*. 
      
 
