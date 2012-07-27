@@ -13,7 +13,7 @@ There is only one type of document available to create man pages,
 therefore there are no classes. However the following customizations are available:
 - The =#+TITLE:= line is used to set the name of the command in the Man page's 
 title line.  
-- The #+MAN_CLASS_OPTIONS: line contains one available option:
+- The =#+MAN_CLASS_OPTIONS:= line contains one available option:
    - :section-id :: Defines the section id to be placed in the Man Page. 
                     Defaults to "1". /(string)/
 *** Man export commands
@@ -66,7 +66,7 @@ exports.
                  pages commands to use these. 
 *** Embedded Groff commands for Man exports. 
 Groff commands can be exported literally by surrounding the text on a
-pair of #+BEGIN_MAN/#+END_MAN lines.  These are a couple of 
+pair of =#+BEGIN_MAN/#+END_MAN= lines.  These are a couple of 
 commands that can be useful during export to control the output. 
 
 #+begin_src dummy
@@ -102,5 +102,5 @@ statements must be placed between .EQ and .EN.
 #+end_src
 
 Example start and end. Text must be placed between .EX and
-.EE. Using #+BEGIN_EXAMPLE/#+END_EXAMPLE does the same with compatible
-commands. or #+begin_src dummy/#+end_src 
+.EE. Using =#+BEGIN_EXAMPLE/#+END_EXAMPLE= or =#+begin_src dummy/#+end_src= 
+does the same with commands that are compatible on all platforms.
