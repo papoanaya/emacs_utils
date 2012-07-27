@@ -588,8 +588,7 @@ holding contextual information."
   "Transcode an INLINE-SRC-BLOCK element from Org to Man.
 CONTENTS holds the contents of the item.  INFO is a plist holding
 contextual information."
-  (let* ((code (org-element-property :value inline-src-block))
-	 (separator (org-e-man--find-verb-separator code)))
+  (let* ((code (org-element-property :value inline-src-block)))
     (cond
      (org-e-man-source-highlight
       (let* ((tmpdir (if (featurep 'xemacs)
@@ -626,7 +625,7 @@ contextual information."
 
      ;; Do not use a special package: transcode it verbatim.
      (t
-      (concat ".RS\n.nf\n" "\\fC" separator "\n" code "\n" separator 
+      (concat ".RS\n.nf\n" "\\fC" "\n" code "\n"
 	      "\\fP\n.fi\n.RE\n"))
      )))
 
@@ -708,7 +707,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
      ((string= key "INDEX") nil)
      ;; Invisible targets.
      ((string= key "TARGET") nil)
-     ((string= key "TOC"   ) nil  ))))
+     ((string= key "TOC"   ) nil))))
 
 
 ;;;; Man Environment
@@ -838,12 +837,9 @@ contextual information."
   	      "\\(?:[^\\]\\|^\\)\\(\\\\\\)\\(?:[^%$#&{}~^_\\]\\|$\\)"
   	      "$\\" text nil t 1))
 
-    ;; Protect leading dots and quotes
-
-;;    (setq text (replace-regexp-in-string  "^[.']" 
-;;                                          "\\\\&\\&" text nil t 1))
     ;; Handle quotation marks
     (setq text (org-e-man--quotation-marks text info))
+
     ;; Handle break preservation if required.
 
     (when (plist-get info :preserve-breaks)
@@ -886,10 +882,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
   "Transcode a RADIO-TARGET object from Org to Man.
 TEXT is the text of the target.  INFO is a plist holding
 contextual information."
-  (format "%s - %s"
-	  (org-export-solidify-link-text
-	   (org-element-property :value radio-target))
-	  text))
+  text )
 
 
 ;;;; Section
