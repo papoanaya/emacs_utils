@@ -64,6 +64,9 @@ exports.
                          commands to use these. 
   - .SY/OP/YS :: These are not used on export. Use embedded Man
                  pages commands to use these. 
+*** Source highlight in Man export
+Man export supports source highlight. See /Source highlight in Groff
+export/ for details. 
 *** Embedded Groff commands for Man exports. 
 Groff commands can be exported literally by surrounding the text on a
 pair of =#+BEGIN_MAN/#+END_MAN= lines.  These are a couple of 
