@@ -10,8 +10,12 @@ editing and facilities are available to facilitate the creation of these
 pages. 
 *** Header and sectioning structure
 There is only one type of document available to create man pages,
-therefore there are no classes. However, the =#+TITLE:= line is used to
-set the name of the command in the Man page's title line.  
+therefore there are no classes. However the following customizations are available:
+- The =#+TITLE:= line is used to set the name of the command in the Man page's 
+title line.  
+- The #+MAN_CLASS_OPTIONS: line contains one available option:
+   - :section-id :: Defines the section id to be placed in the Man Page. 
+                    Defaults to "1". /(string)/
 *** Man export commands
   - M-x org-e-man-export-to-man :: Converts buffer to a man page
        the assumptions that it was Org mode syntax. For an Org file like
