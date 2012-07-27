@@ -33,7 +33,7 @@
 ;; export.  See contrib/lisp/org-export.el for more details on how
 ;; this exporter works.
 ;;
-;; It introduces three new buffer keywords: "GROFF_CLASS" and
+;; It introduces two new buffer keywords: "GROFF_CLASS" and
 ;; "GROFF_CLASS_OPTIONS".
 
 ;;; Code:
