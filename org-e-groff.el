@@ -1,4 +1,4 @@
-;; org-e-groff.el --- GRoff Back-End For Org Export Engine
+; org-e-groff.el --- GRoff Back-End For Org Export Engine
 
 ;; Copyright (C) 2011-2012  Free Software Foundation, Inc.
 
@@ -951,29 +951,12 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 ;; 
 
 (defun org-e-groff-footnote-reference (footnote-reference contents info)
-  
   ;; Changing from info to footnote-reference
-  (let ((definitions (org-export-collect-footnote-definitions
-                      (plist-get info :parse-tree) info)) )
-    ;; Insert full links right inside the footnote definition
-    ;; as they have no chance to be inserted later.   
-    (when definitions
-      (concat
-       (mapconcat
-        (lambda (ref)
-          (let ((id (format "%s" (car ref )) )
-                (ref-id  (format "%s" (plist-get (nth 1 footnote-reference) :label )))) 
-            ;; Distinguish between inline definitions and
-            ;; full-fledged definitions.
-            (org-trim
-             (let ((def (nth 2 ref)))
-               (if (string= id ref-id)
-                   (format "\\u\\s-2%s\\d\\s+2\n.FS %s\n%s.FE\n" id id (org-export-data def info) )
-                 ""
-                 )
-               ))))
-        definitions "\n"))))
-  )
+  (let* (( raw (org-export-get-footnote-definition footnote-reference info))
+		 (n (org-export-get-footnote-number footnote-reference info))
+		 (data (org-trim (org-export-data raw info))))
+	(format "\\u\\s-2%s\\d\\s+2\n.FS %s\n%s\n.FE\n" n n data)
+	))
 
 ;;;; Headline
 
