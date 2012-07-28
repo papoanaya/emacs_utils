@@ -9,7 +9,10 @@ Groff is commonly installed because it is needed for the generation of
 
 The Groff export follows the sequence of macros calls needed for the 
 Memorandum Type covers. 
-
+*** To use this feature
+Include =(require 'org-e-groff)= in your =.emacs= file, after the
+invocation of =(org-install)=. This feature only works with the new
+=org-export= facility.
 *** Groff MM macro summary
 For the purpose of context, the following table describes some of the
 macros used during export. These are built from data stored by your org

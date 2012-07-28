@@ -8,6 +8,10 @@ Groff is used for the generation of =man= pages. But writing those pages
 may be an intimidating task. With this export mode, Org mode structured 
 editing and facilities are available to facilitate the creation of these
 pages. 
+*** To use this feature
+Include =(require 'org-e-man)= in your =.emacs= file, after the
+invocation for =(org-install)=.  This feature only works with the new
+=org-export= facility. 
 *** Header and sectioning structure
 There is only one type of document available to create man pages,
 therefore there are no classes. However the following customizations are available:
@@ -52,18 +56,6 @@ table in Org mode and propagates those definitions as =tbl= commands.
 Man pages do support the use of tables, however the definition in
 /man.conf/ needs to invoke =tbl= when the =man= command is
 executed. This is to ensure that tables are rendered correctly
-*** Man export limitations
-The following items are partially or not supported during Man pages
-exports. 
-  - Images :: Images are not supported.
-  - .EX/.EQ :: These are not used on export. They are implemented using
-               .nf/.fi pairs for compatibility with legacy systems. Use
-               embedded Man Pages commands to use these. 
-  - .UR/UE and .MT/ME :: These are not used on export to ensure 
-                         support with legacy systems. Use embedded Man Pages
-                         commands to use these. 
-  - .SY/OP/YS :: These are not used on export. Use embedded Man
-                 pages commands to use these. 
 *** Source highlight in Man export
 Man export supports source highlight. See /Source highlight in Groff
 export/ for details on how to configure this feature in your
@@ -113,3 +105,15 @@ statements must be placed between .EQ and .EN.
 Example start and end. Text must be placed between .EX and
 .EE. Using =#+BEGIN_EXAMPLE/#+END_EXAMPLE= or =#+begin_src dummy/#+end_src= 
 does the same with commands that are compatible on all platforms.
+*** Man export limitations
+The following items are partially or not supported during Man pages
+exports. 
+  - Images :: Images are not supported.
+  - .EX/.EQ :: These are not used on export. They are implemented using
+               .nf/.fi pairs for compatibility with legacy systems. Use
+               embedded Man Pages commands to use these. 
+  - .UR/UE and .MT/ME :: These are not used on export to ensure 
+                         support with legacy systems. Use embedded Man Pages
+                         commands to use these. 
+  - .SY/OP/YS :: These are not used on export. Use embedded Man
+                 pages commands to use these. 
