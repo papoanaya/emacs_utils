@@ -152,9 +152,12 @@ structure of the values.")
     ("se_ms" "se_ms" 
      (:heading 'default :type "cover" :last-section "toc"))
     ("none" "" '(:heading 'default :type "custom")))
-  ;; none means, no Memorandum Type but AU, AT, ND and TL
-  ;; gets populated. This is to facilitate the creation of
-  ;; abstract blocks. 
+
+  ;; none means, no Cover or Memorandum Type and no calls to AU, AT, ND and TL
+  ;; This is to facilitate the creation of custom pages. 
+
+  ;; dummy means, no Cover or Memorandum Type but calls to AU, AT, ND and TL 
+  ;; are made. This is to facilitate Abstract Insertion. 
 
   "This list describes the attributes for the documents being created.
    It allows for the creation of new "
@@ -227,15 +230,6 @@ order to reproduce the default set-up:
 
 ;;;; Links
 
-(defcustom org-e-groff-image-default-option nil
-  "Default option for images."
-  :group 'org-export-e-groff
-  :type 'string)
-
-(defcustom org-e-groff-default-figure-position nil
-  "Default position for groff figures."
-  :group 'org-export-e-groff
-  :type 'string)
 
 (defcustom org-e-groff-inline-image-rules
   '(
@@ -275,12 +269,6 @@ default we use here encompasses both."
   :group 'org-export-e-groff
   :type 'boolean)
 
-
-(defcustom org-e-groff-table-caption-above nil
-  "When non-nil, place caption string at the beginning of the table.
-Otherwise, place it near the end."
-  :group 'org-export-e-groff
-  :type 'boolean)
 
 (defcustom org-e-groff-table-scientific-notation "%sE%s"
   "Format string to display numbers in scientific notation.
@@ -455,12 +443,8 @@ groff packages.  For example,
      '\(\(python \"pythoncode\"\)\)\)
 
 would have the effect that if org encounters begin_src python
-during groff export it will output
-
-  \\begin{pythoncode}
-  <src block body>
-  \\end{pythoncode}")
-
+during groff export it will use pythoncode as the source-highlight
+language.")
 
 
 
@@ -511,27 +495,8 @@ string defines the replacement string for this quote."
 This is a list of strings, each of them will be given to the
 shell as a command.  %f in the command will be replaced by the
 full file name, %b by the file base name \(i.e. without
-extension) and %o by the base directory of the file.
+extension) and %o by the base directory of the file."
 
-The reason why this is a list is that it usually takes several
-runs of `pdfgroff', maybe mixed with a call to `bibtex'.  Org
-does not have a clever mechanism to detect which of these
-commands have to be run to get to a stable result, and it also
-does not do any error checking.
-
-By default, Org uses 3 runs of `pdfgroff' to do the processing.
-If you have texi2dvi on your system and if that does not cause
-the infamous egrep/locale bug:
-
-     http://lists.gnu.org/archive/html/bug-texinfo/2010-03/msg00031.html
-
-then `texi2dvi' is the superior choice.  Org does offer it as one
-of the customize options.
-
-Alternatively, this may be a Lisp function that does the
-processing, so you could use this to apply the machinery of
-AUCTeX or the Emacs Groff mode.  This function should accept the
-file name as its single argument."
   :group 'org-export-pdf
   :type '(choice
           (repeat :tag "Shell command sequence"
@@ -563,6 +528,7 @@ These are the .aux, .log, .out, and .toc files."
   :group 'org-export-e-groff
   :type 'string)
 
+
 ;; Preamble
 
 ;; Adding GROFF as a block parser to make sure that its contents
@@ -593,7 +559,7 @@ For non-floats, see `org-e-groff--wrap-label'."
      ((not caption) (format "\\fI%s\\fP" label))
      ;; Option caption format with short name.
      ((cdr caption)
-      (format "\\fR%s\\fP - \\fI%s\\P - %s\n"
+      (format "%s\n.br\n%s - %s\n"
               (org-export-data (cdr caption) info)
               label-str
               (org-export-data (car caption) info)))
@@ -603,28 +569,6 @@ For non-floats, see `org-e-groff--wrap-label'."
 
   )
 
-
-
-
-(defun org-e-groff--find-verb-separator (s)
-  "Return a character not used in string S.
-This is used to choose a separator for constructs like \\verb."
-  (let ((ll "~,./?;':\"|!@#%^&-_=+abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ<>()[]{}"))
-    (loop for c across ll
-          when (not (string-match (regexp-quote (char-to-string c)) s))
-          return (char-to-string c))))
-
-(defun org-e-groff--make-option-string (options)
-  "Return a comma separated string of keywords and values.
-OPTIONS is an alist where the key is the options keyword as
-a string, and the value a list containing the keyword value, or
-nil."
-  (mapconcat (lambda (pair)
-               (concat ":" (first pair) " "
-                       (when (> (length (second pair)) 0)
-                         (concat (second pair)))))
-             options
-             " "))
 
 (defun org-e-groff--quotation-marks (text info)
   "Export quotation marks depending on language conventions.
@@ -842,8 +786,7 @@ information."
    (format org-e-groff-inactive-timestamp-format
            (concat (org-translate-time (org-element-property :value clock))
                    (let ((time (org-element-property :time clock)))
-                     (and time (format " (%s)" time)))))
-   "\\\\"))
+                     (and time (format " (%s)" time)))))))
 
 
 ;;;; Code
@@ -1062,8 +1005,6 @@ holding contextual information."
 ;; Not supported
 
 
-
-
 ;;;; Inline Babel Call
 ;;
 ;; Inline Babel Calls are ignored.
@@ -1074,8 +1015,7 @@ holding contextual information."
   "Transcode an INLINE-SRC-BLOCK element from Org to Groff.
 CONTENTS holds the contents of the item.  INFO is a plist holding
 contextual information."
-  (let* ((code (org-element-property :value inline-src-block))
-         (separator (org-e-groff--find-verb-separator code)))
+  (let* ((code (org-element-property :value inline-src-block)))
     (cond
      (org-e-groff-source-highlight
       (let* ((tmpdir (if (featurep 'xemacs)
@@ -1112,7 +1052,7 @@ contextual information."
 
      ;; Do not use a special package: transcode it verbatim.
      (t
-      (concat ".DS I\n" "\\fC" separator "\n" code "\n" separator "\\fP\n.DE\n"))
+      (concat ".DS I\n" "\\fC" code "\\fP\n.DE\n"))
      )))
 
 
@@ -1147,10 +1087,10 @@ holding contextual information."
                title
                (when tags (format " \\fC:%s:\\fP "
                                   (mapconcat 'identity tags ":"))))))
-         (format (concat ".DS C\n"
-                         "%s\n\n"
-                         ".P"
-                         "%s"
+         (format (concat "\n.DS I\n"
+                         "%s\n"
+                         ".sp"
+                         "%s\n"
                          ".DE")
                  full-title contents))))))
 
@@ -1178,10 +1118,14 @@ contextual information."
                        count (eq (org-element-type parent) 'plain-list)
                        until (eq (org-element-type parent) 'headline))))))
 
+
+		 (bullet (org-element-property :bullet item))
+		 (type (org-element-property :type (org-element-property :parent item)))
+
          (checkbox (case (org-element-property :checkbox item)
-                     (on "\\o'\\(sq\\(mu'")			;; 
-                     (off "\\(sq ")					;;
-                     (trans "\\o'\\(sq\\(mi'"   ))) ;;
+                     (on "\\o'\\(sq\\(mu'")			
+                     (off "\\(sq ")					
+                     (trans "\\o'\\(sq\\(mi'"   )))
 
          (tag (let ((tag (org-element-property :tag item)))
                 ;; Check-boxes must belong to the tag.
@@ -1189,16 +1133,23 @@ contextual information."
                                  (concat checkbox
                                          (org-export-data tag info)))))))
 
-    (if (or checkbox tag)
-        (concat ".LI " "\"" (or tag (concat " " checkbox)) "\""
+	(cond 
+	 ((or checkbox tag)
+	  (concat ".LI " "\"" (or tag (concat " " checkbox)) "\""
                 "\n"
-                (org-trim (or contents " " ) ))
-      (concat ".LI"
-              "\n"
-              (org-trim (or contents " " ) )
-              ;; If there are footnotes references in tag, be sure to
-              ;; add their definition at the end of the item.  This
-              )) ))
+                (org-trim (or contents " " ) ))  )
+	  ((eq type 'ordered)
+	   (concat ".LI"
+			   "\n"
+			   (org-trim (or contents " " ) )))
+	   (t 
+		(let* ((bullet (org-trim bullet))
+			   (marker (cond  ((string= "-" bullet) "\\(em")
+							  ((string= "*" bullet) "\\(bu")
+							  (t "\\(dg") ) ))
+		  (concat ".LI " marker
+				  (org-trim (or contents " " ) )))))
+))
 
 
 
@@ -1212,10 +1163,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
         (value (org-element-property :value keyword)))
     (cond
      ((string= key "GROFF") value)
-     ((string= key "INDEX") nil)
-     ;; Invisible targets.
-     ((string= key "TARGET") nil)
-     ((string= key "TOC"   ) nil  ))))
+	 t nil)))
 
 
 ;;;; Groff Environment
@@ -1394,14 +1342,6 @@ INFO is a plist holding contextual information.  See
            (let ((path (org-export-solidify-link-text path)))
              (if (not desc) (format "\\fI%s\\fP" path)
                (format "%s \\fBat\\fP \\fI%s\\fP" desc path)))))))
-     ;; Coderef: replace link with the reference name or the
-     ;; equivalent line number.
-     ((string= type "coderef")
-      (format (org-export-get-coderef-format path desc)
-              (org-export-resolve-coderef path info)))
-     ;; Link type is handled by a special function.
-     ((functionp (setq protocol (nth 2 (assoc type org-link-protocols))))
-      (funcall protocol (org-link-unescape path) desc 'groff))
      ;; External link with a description part.
      ((and path desc) (format "%s \\fBat\\fP \\fI%s\\fP" path desc))
      ;; External link without a description part.
@@ -1475,10 +1415,7 @@ contextual information."
               "\\(?:[^\\]\\|^\\)\\(\\\\\\)\\(?:[^%$#&{}~^_\\]\\|$\\)"
               "$\\" text nil t 1))
 
-  ;; Protect leading dots and quotes
 
-  ;;    (setq text (replace-regexp-in-string  "^[.']" 
-  ;;					  "\\\\&\\&" text nil t 1))
   ;; Handle quotation marks
   (setq text (org-e-groff--quotation-marks text info))
 
@@ -1543,7 +1480,7 @@ CONTENTS holds the contents of the block.  INFO is a plist
 holding contextual information."
   (org-e-groff--wrap-label
    quote-block
-   (format ".DS I\n.ft H\n%s\\fP\n.ft\n.DE" contents)))
+   (format ".DS I\n.I\n%s\n.R\n.DE" contents)))
 
 
 ;;;; Quote Section
@@ -1699,9 +1636,8 @@ contextual information."
 ;;
 ;; `org-e-groff-table' is the entry point for table transcoding.  It
 ;; takes care of tables with a "verbatim" attribute.  Otherwise, it
-;; delegates the job to either `org-e-groff-table--table.el-table' or
-;; `org-e-groff-table--org-table' functions, depending of the type of
-;; the table.
+;; delegates the job to  `org-e-groff-table--org-table' function, 
+;; depending of the type of the table.
 ;;
 ;; `org-e-groff-table--align-string' is a subroutine used to build
 ;; alignment string for Org tables.

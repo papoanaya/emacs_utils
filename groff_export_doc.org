@@ -32,7 +32,7 @@ In such order:
         to the date at the moment of export. 
 - MT :: Memorandum Type. It defines the structure of the document. The
         Groff supports the use of the different Memorandum Types as well
-        as Cover Pages. 
+        as Cover Pages (COVER/COVEND pairs).
 
 *** Groff export commands
   - M-x org-e-groff-export-to-groff :: Converts buffer to Groff under
@@ -95,7 +95,7 @@ list. The element of the list are:
                  heading. Options are 'default for the MM defaults and a
                  pointer to a function that will return a format string
                  containing the heading command. The format string takes
-                 the level and the result of the numberp predicate that
+                 the =level= and the result of the =numberp= predicate that
                  indicates if the heading is a numbered one or not. 
    - :last-section :: Defines what is the last item to print. Options
                       are "toc" for table of content and "sign" for
@@ -128,7 +128,6 @@ Example:
 #+end_src
 
 
-
 The =#+GROFF_CLASS_OPTIONS= option is used to add additional information
 that changes the document structure or adds additional information that 
 gets exported.  The following options are supported:
@@ -137,10 +136,11 @@ gets exported.  The following options are supported:
            =org-e-groff-organization=. /(string)/
 - :author-title :: Adds the title for the author. If not available, the
                    .AT macro will not be used. /(string)/
-- :hyphernate :: Enables or disables hyphernation support. /(yes/no)/
-- :justify-right :: Enables or disables right justification /(yes/no)/
+- :hyphernate :: Enables or disables hyphernation support. /("yes"/"no")/
+- :justify-right :: Enables or disables right justification /("yes"/"no")/
 - :closing :: Changes the final closing from "Sincerely
-              yours,". /(string)/
+              yours,". The string is used as part of a call to .FC.  
+              /(string)/
 - :subtitle1 :: Defines a subtitle that maps to the "Charge Case"
                 line. /(string)/
 - :subtitle2 :: Defines a subtitle that maps to the "File Case"
@@ -183,7 +183,7 @@ for export  are:[1]
 - Groff Pic (pic)
 
 [1] Although the MPIMG macro is available in the -mwww  set, it
-conflicts with the definition of list items in the -mm one. At 
+conflicts with the definition of list items (LI) in the -mm one. At 
 the end, these macros convert images to EPS. 
 
 Other types need to be converted into either of these for its use in
@@ -192,7 +192,7 @@ Groff.
 Images that are linked to without description part in the line like
 =[[file:img.eps]]= or =[[img.pic]]= will be inserted into the PDF output file
 resulting from Groff processing. Org will use a .PSPIC (for eps and ps) 
-or PS/PE (for pic) macro to insert the image. If you have specified a
+or PS/PE (for pic) macro to insert the image during export. If you have specified a
 caption or label, it will be included in the export through a call to
 the .FG macro. You can use an =#+ATTR_GROFF:= line to specify other
 options, but these only affect postscript types ones (eps and ps). This
@@ -226,7 +226,7 @@ this feature are as follows:
     entries, they have to be merged with the ones from the Groff
     language files. 
  4. Set the custom variable =org-e-groff-source-highlight= to
-    *t*. 
+    *t* in your .emacs file (i. e. =(setq org-e-groff-source-highlight t)=)
      
 
 When the #+begin_src line is used with a supported language, the Groff

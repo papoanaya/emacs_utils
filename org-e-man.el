@@ -681,10 +681,7 @@ contextual information."
 							   (format "%s " (org-trim bullet)))
 							  (t "\\(dg") ) ))
 		  (concat ".IP " marker " 4\n"
-				  (org-trim (or contents " " ) )
-		;; If there are footnotes references in tag, be sure to
-		;; add their definition at the end of the item.  This
-		))
+				  (org-trim (or contents " " ) )))
 ; else
 	(concat ".TP\n" (or tag (concat " " checkbox)) "\n"
 		(org-trim (or contents " " ) )
