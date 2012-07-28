@@ -1,4 +1,4 @@
-; org-e-groff.el --- GRoff Back-End For Org Export Engine
+                                        ; org-e-groff.el --- GRoff Back-End For Org Export Engine
 
 ;; Copyright (C) 2011-2012  Free Software Foundation, Inc.
 
@@ -1136,20 +1136,20 @@ contextual information."
 	(cond 
 	 ((or checkbox tag)
 	  (concat ".LI " "\"" (or tag (concat " " checkbox)) "\""
-                "\n"
-                (org-trim (or contents " " ) ))  )
-	  ((eq type 'ordered)
-	   (concat ".LI"
-			   "\n"
-			   (org-trim (or contents " " ) )))
-	   (t 
-		(let* ((bullet (org-trim bullet))
-			   (marker (cond  ((string= "-" bullet) "\\(em")
-							  ((string= "*" bullet) "\\(bu")
-							  (t "\\(dg") ) ))
-		  (concat ".LI " marker
-				  (org-trim (or contents " " ) )))))
-))
+              "\n"
+              (org-trim (or contents " " ) ))  )
+     ((eq type 'ordered)
+      (concat ".LI"
+              "\n"
+              (org-trim (or contents " " ) )))
+     (t 
+      (let* ((bullet (org-trim bullet))
+             (marker (cond  ((string= "-" bullet) "\\(em")
+                            ((string= "*" bullet) "\\(bu")
+                            (t "\\(dg") ) ))
+        (concat ".LI " marker "\n"  
+                (org-trim (or contents " " ) )))))
+    ))
 
 
 
