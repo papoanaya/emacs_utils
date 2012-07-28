@@ -350,3 +350,61 @@ Used with the dummy document class, it can be used to add an abstract block to
 any of the memorandum type. The internal type is presented for
 reference. Absract text must be placed betwen .AS and .AE. 
 
+*** Known Limitations
+The following limitations are known at the time of release. They will be
+looked at and addressed  in subsequent releases if they are technically 
+solvable. 
+
+  - Long Tables :: Long tables are supported by =tbl=, but long table
+                   markers (T%{}%T) are not in use. This will result in
+                   a warning and a table running out of space. To solve
+                   this issue, partition the table in Org or fix the groff file
+                   to include them.  A fix is planned for a future release.
+  - Images :: Image support is limited to PIC, PS and EPS. 
+  - Links :: There is no support for document linking or grefer. Most
+             links will be just written. The only exception are for
+             supported image and files with a .groff extension. The
+             former will be embedded in the exported file, the later
+             will be included through the use of a .so command. 
+  - Abstracts :: Abstract support is only available through the use of
+                 embedded Groff.
+  - Equations :: Equations support is only available through the use of
+                 embedded Groff.
+  - Alternate Macro Set :: There are plans to create export for MOM
+       macros. No plans for the MS set unless there is enough
+       interest. The reason is that MOM seems to be the up and coming
+       substitute for MM and its similarities with LaT_eX makes it a
+       very attractive alternative to MM. It also allows the use of the
+       macros available in the WWW set. 
+  - Gnuplot :: Gnuplot plots can be included if the following conditions
+               are met:
+      1. Output type  must be set to =gpic= (GnuPIC). Using Lat_eX EPS
+         will result in an incomplete graph. 
+      2. For images generated directly from an Org mode table will have
+         to be included afterwards after its generation.  For example:
+#+BEGIN_EXAMPLE
+  #+PLOT: title "X" ... set:"term gpic" "set:output 'table.pic'"
+  | a | b | c |
+  | 1 | 2 | 3 |
+  [[file:table.pic]]
+#+END_EXAMPLE
+      3. While using Org Babel, gpic output specification needs to be
+         stated. Otherwise, the image will not be included on export.
+#+BEGIN_EXAMPLE
+  #+begin_src gnuplot :file salida.pic
+    set term gpic
+    plot sin(x)
+  #+end_src
+#+END_EXAMPLE
+  - PlantUML :: Plantuml is supported but the output type must be
+                EPS. This is done by using /.eps/ as the file suffix.
+#+BEGIN_EXAMPLE
+   #+begin_src plantuml :file x.eps
+      [A] --> [B]
+   #+end_src
+#+END_EXAMPLE
+  - Other Babel Graphics :: Other babel graphics should be supported if
+       either PS, EPS or GnuPIC are used as their output format.
+
+
+
