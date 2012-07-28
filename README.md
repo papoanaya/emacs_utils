@@ -27,21 +27,6 @@ colorization during export for org-e-groff.el and org-e-man.el. These are:
 - groff_man.outlang : GNU Source Highlight definition file for black and
   white output for man pages.
 
-The muse directory contains drivers for Emacs Muse mode:
-
-- muse-mm.el : MUSE driver for groff Memorandum Macros (-mm).  Even though
-  muse already has a groff mode, that mode  uses the MOM and WWW macros
-  which seems to be geared to literary works (i. e. books).
-  The MM macros are catered for professional communications
-  (Memorandum, White Papers, Business Letters, etc.)
-  This MUSE driver may be rough around the edges but it works good
-  enough for me.
-- muse-man.el : MUSE driver for groff manual pages (-man). 
-- muse-groff.el : MUSE driver for groff MOM macros. (-mom) This is my personal
-  version that matches the latest version of the MOM macros. One is
-  included in the muse distribution.
-
-  
 The org-old directory contains deprecated items in org mode
 
 - org-groff.el : Org Export for groff using groff's Memorandum
