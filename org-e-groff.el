@@ -1163,7 +1163,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
         (value (org-element-property :value keyword)))
     (cond
      ((string= key "GROFF") value)
-	 t nil)))
+     (t nil))))
 
 
 ;;;; Groff Environment
