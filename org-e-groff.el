@@ -1372,16 +1372,25 @@ the plist used as a communication channel."
   (setq parent (plist-get (nth 1 paragraph) :parent))
   (when parent
     (let ((parent-type (car parent)) 
-          (fixed-paragraph ""))
-      (cond ((and (eq parent-type 'item)
-                  (plist-get (nth 1 parent) :bullet ) )
-             (setq fixed-paragraph (concat "" contents)) )
-            ((eq parent-type 'section)
-             (setq fixed-paragraph (concat ".P\n" contents) ) )
-            ((eq parent-type 'footnote-definition)
-             (setq fixed-paragraph (concat "" contents) ))
-            (t (setq fixed-paragraph (concat "" contents)) ) 
-            )
+          (fixed-paragraph "")
+          (paragraph-option (plist-get classes-options :paragraph ) ))
+      (cond 
+       ((and (symbolp paragraph-option)
+             (fboundp paragraph-option))
+        (funcall paragraph-option parent-type parent contents))
+
+       ((and (eq parent-type 'item)
+             (plist-get (nth 1 parent) :bullet ) )
+        (setq fixed-paragraph (concat "" contents)) )
+
+       ((eq parent-type 'section)
+        (setq fixed-paragraph (concat ".P\n" contents) ) )
+
+       ((eq parent-type 'footnote-definition)
+        (setq fixed-paragraph (concat "" contents) ))
+
+       (t (setq fixed-paragraph (concat "" contents)) ) 
+       )
       fixed-paragraph)
     )
   )
