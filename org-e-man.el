@@ -500,8 +500,6 @@ information."
      (format ".RS\n.nf\n%s\n.fi\n.RE"
              (org-export-format-code-default example-block info)))
 ))
-
-
 ;;;; Export Block
 
 (defun org-e-man-export-block (export-block contents info)
@@ -780,14 +778,19 @@ INFO is a plist holding contextual information.  See
                 (t raw-path)))
          protocol)
     (cond
-     ;; Coderef: replace link with the reference name or the
-     ;; equivalent line number.
+      ( (and org-e-man-non-legacy-constructs
+       path desc )
+       (if (string= type "mailto")
+           (format ".MT  \"%s\"\n%s\n.ME\n" path desc)
+         (format ".UR  \"%s\"\n%s\n.UE\n" path desc)))
      ;; External link with a description part.
      ((and path desc) (format "%s \\fBat\\fP \\fI%s\\fP" path desc))
      ;; External link without a description part.
      (path (format "\\fI%s\\fP" path))
      ;; No path, only description.  Try to do something useful.
-     (t (format "\\fI%s\\fP" desc)))))
+     (t (format "\\fI%s\\fP" desc))
+     )
+    ))
 
 
 ;;;; Macro
