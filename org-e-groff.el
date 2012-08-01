@@ -1371,8 +1371,12 @@ CONTENTS is the contents of the paragraph, as a string.  INFO is
 the plist used as a communication channel."
   (setq parent (plist-get (nth 1 paragraph) :parent))
   (when parent
-    (let ((parent-type (car parent)) 
+    (let* ((parent-type (car parent)) 
           (fixed-paragraph "")
+          (class (plist-get info :groff-class))
+          (class-options (plist-get info :groff-class-options))
+          (classes (assoc class org-e-groff-classes))
+          (classes-options (car (last classes)) )
           (paragraph-option (plist-get classes-options :paragraph ) ))
       (cond 
        ((and (symbolp paragraph-option)
