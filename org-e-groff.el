@@ -1845,27 +1845,16 @@ This function assumes TABLE has `org' as its `:type' attribute."
   "Transcode a TABLE-CELL element from Org to Groff
 CONTENTS is the cell contents.  INFO is a plist used as
 a communication channel."
-
-  (let* ((attr
-          (read (format "(%s)"
-                        (mapconcat
-                         #'identity
-                         (org-element-property :attr_groff table)
-                         " "))))
-         (longcells (plist-get attr :longcells))
-         (next-element (org-export-get-next-element table-cell))
-         (cell-start (if (and longcells next-element ) "T{\n" ""))
-         (cell-end (if (and longcells next-element) "\nT}" "")))
-
-    (concat cell-start (if (and contents
-                                org-e-groff-table-scientific-notation
-                                (string-match orgtbl-exp-regexp contents))
-                           ;; Use appropriate format string for scientific
-                           ;; notation.
-                           (format org-e-groff-table-scientific-notation
-                                   (match-string 1 contents)
-                                   (match-string 2 contents))
-                         contents cell-end)
+  (let* ()
+    (concat (if (and contents
+                     org-e-groff-table-scientific-notation
+                     (string-match orgtbl-exp-regexp contents))
+                ;; Use appropriate format string for scientific
+                ;; notation.
+                (format org-e-groff-table-scientific-notation
+                        (match-string 1 contents)
+                        (match-string 2 contents))
+              contents )
             (when (org-export-get-next-element table-cell) " \t "))
     )
 )
