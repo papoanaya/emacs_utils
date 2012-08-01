@@ -1217,7 +1217,6 @@ used as a communication channel."
          (path (let ((raw-path (org-element-property :path link)))
                  (if (not (file-name-absolute-p raw-path)) raw-path
                    (expand-file-name raw-path))))
-         
          (attr
           (read
            (format
@@ -1548,7 +1547,15 @@ contextual information."
          (num-start (case (org-element-property :number-lines src-block)
                       (continued (org-export-get-loc src-block info))
                       (new 0)))
-         (retain-labels (org-element-property :retain-labels src-block)))
+         (retain-labels (org-element-property :retain-labels src-block))
+         (attr
+          (read
+           (format "(%s)"
+            (mapconcat #'identity
+                       (org-element-property :attr_groff src-block)
+                       " ")))))
+    
+    (setq disable-caption (plist-get attr :disable-caption))
 
     (cond
      ;; Case 1.  No source fontification.
@@ -1557,7 +1564,7 @@ contextual information."
         (concat 
          (format ".DS I\n\\fC%s\\fP\n.DE\n"
                  (org-export-format-code-default src-block info))
-         (unless  (string= caption-str "" ) (format ".EX \"%s\" "  caption-str )))))
+         (unless  disable-caption (format ".EX \"%s\" "  caption-str )))))
 
      ( (and org-e-groff-source-highlight)
        (let* ((tmpdir (if (featurep 'xemacs)
@@ -1592,7 +1599,7 @@ contextual information."
                 (format "%s\n"  code-block))
            (format ".DS I\n\\fC\\m[black]%s\\m[]\\fP\n.DE\n"
                    code))
-          (unless (string= caption-str "" ) (format ".EX \"%s\" " caption-str) )          
+          (unless disable-caption (format ".EX \"%s\" " caption-str) )          
           )
          
          ))
