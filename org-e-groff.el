@@ -1249,24 +1249,29 @@ used as a communication channel."
     (setq width  (or  (plist-get attr :width) "")  )
     (setq height  (or  (plist-get attr :height) "" )  )
 
+    (setq disable-caption (plist-get attr :disable-caption))
+
     (setq caption 
           (org-e-groff--caption/label-string
            (org-element-property :caption parent)
            (org-element-property :name parent)
            info)
           )
-
-    ;; Return proper string, depending on DISPOSITION.
     ;;
-    ;; TODO Needs to be expanded with attributes
-    ;; Caption needs to be added
-    ;; by adding .FG "caption"
+    ;; Return proper string.
+    ;;
 
-    (cond
-     ((string-match ".\.pic$" raw-path) 
-      (format "\n.PS\ncopy \"%s\"\n.PE\n.FG \"%s\" " raw-path caption))
-     (t (format "\n.DS L F\n.PSPIC %s \"%s\" %s %s\n.FG \"%s\"\n.DE " 
-                placement raw-path width height caption)))))
+
+    (concat 
+     (cond
+      ((string-match ".\.pic$" raw-path) 
+       (format "\n.PS\ncopy \"%s\"\n.PE" raw-path ))
+      (t (format "\n.DS L F\n.PSPIC %s \"%s\" %s %s\n.DE " 
+                 placement raw-path width height )))
+     (unless disable-caption (format "\n.FG \"%s\"" caption )))
+  ))
+    
+
 
 (defun org-e-groff-link (link desc info)
   "Transcode a LINK object from Org to Groff.
@@ -1544,22 +1549,21 @@ contextual information."
                       (continued (org-export-get-loc src-block info))
                       (new 0)))
          (retain-labels (org-element-property :retain-labels src-block)))
+
     (cond
      ;; Case 1.  No source fontification.
      ((not org-e-groff-source-highlight)
-      (let ((caption-str (org-e-groff--caption/label-string caption label info))
-            (float-env (when caption ".DS I\n\\fC%s\\fP\n.DE\n")))
-        (format
-         (or float-env "%s")
-         (concat 
-          (format ".DS I\n\\fC%s\\fP\n.DE\n.EX \"%s\"\n"
-                  (org-export-format-code-default src-block info) 
-                  (or caption-str ""))))))
-     ( (and org-e-groff-source-highlight) 
+      (let ((caption-str (org-e-groff--caption/label-string caption label info)))
+        (concat 
+         (format ".DS I\n\\fC%s\\fP\n.DE\n"
+                 (org-export-format-code-default src-block info))
+         (unless  (string= caption-str "" ) (format ".EX \"%s\" "  caption-str )))))
+
+     ( (and org-e-groff-source-highlight)
        (let* ((tmpdir (if (featurep 'xemacs)
                           temp-directory 
                         temporary-file-directory ))
-              
+              (caption-str (org-e-groff--caption/label-string caption label info))
               (in-file  (make-temp-name 
                          (expand-file-name "srchilite" tmpdir))  )
               (out-file (make-temp-name 
@@ -1577,25 +1581,21 @@ contextual information."
                            )
                    ))
          
-         (if lst-lang
-             (let ((code-block "" ))
-               (with-temp-file in-file (insert code))
-               (shell-command cmd)
-               (setq code-block  (org-file-contents out-file) )
-               (delete-file in-file)
-               (delete-file out-file)
-               code-block)
-           (format ".DS I\n\\fC\\m[black]%s\\m[]\\fP\n.DE"
+         (concat 
+          (if lst-lang
+              (let ((code-block "" ))
+                (with-temp-file in-file (insert code))
+                (shell-command cmd)
+                (setq code-block  (org-file-contents out-file) )
+                (delete-file in-file)
+                (delete-file out-file)
+                (format "%s\n"  code-block))
+           (format ".DS I\n\\fC\\m[black]%s\\m[]\\fP\n.DE\n"
                    code))
-
-         )
-       )
-
-     (custom-env (format ".DS I\n\\fC%s\\fP\n.DE"
-                         custom-env
-                         (src-block)
-                         custom-env))
-
+          (unless (string= caption-str "" ) (format ".EX \"%s\" " caption-str) )          
+          )
+         
+         ))
      )))
 
 
