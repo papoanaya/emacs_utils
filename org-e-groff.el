@@ -1785,6 +1785,7 @@ This function assumes TABLE has `org' as its `:type' attribute."
 
     (setq title-line  (plist-get attr :title-line))
     (setq disable-caption (plist-get attr :disable-caption)) 
+    (setq long-cells (plist-get attr :long-cells))
 
     (setq table-format (concat 
                         (format "%s"
@@ -1825,14 +1826,24 @@ This function assumes TABLE has `org' as its `:type' attribute."
                               (dolist (line-item lines)
                                 (setq long-line "")
 
-                                (if (or (string= line-item "_\n")
-                                        (string= line-item "_")) 
-                                    (setq long-line (format "%s\n" line-item))
-                                  (dolist (cell-item (org-split-string line-item "\t"))
-                                    (setq long-line (concat long-line (format "T{\n%s\nT}\t"  cell-item ) ))))
+                                (if long-cells 
+                                    (if (string= line-item "_")
+                                        (setq long-line (format "%s\n" line-item))
+                                      ;; else
+                                      (let ((cell-item-list (org-split-string line-item "\t") ))
+                                        (dolist (cell-item cell-item-list)
 
-                                (setq final-line (concat final-line long-line ))
-                               
+                                          (cond  ((eq cell-item (car (last cell-item-list)))
+                                                  (setq long-line (concat long-line (format "T{\n%s\nT}\t\n"  cell-item ) )))
+                                                 (t
+                                                  (setq long-line (concat long-line (format "T{\n%s\nT}\t"  cell-item ) ))
+                                                  )))
+                                        long-line)
+                                      (setq final-line (concat final-line long-line )))
+
+                                  ;; else
+                                  (setq final-line (concat final-line line-item "\n"))
+                                  )
                                 )  final-line))
 
                     (if (not disable-caption)
@@ -1886,8 +1897,8 @@ a communication channel."
        (cond
         ;; When BOOKTABS are activated enforce bottom rule even when
         ;; no hline was specifically marked.
-        ((and (memq 'bottom borders) (memq 'below borders)) "_\n")
-        ((memq 'below borders) "_"))))))
+        ((and (memq 'bottom borders) (memq 'below borders)) "\n_")
+        ((memq 'below borders) "\n_"))))))
 
 
 
