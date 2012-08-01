@@ -778,11 +778,13 @@ INFO is a plist holding contextual information.  See
                 (t raw-path)))
          protocol)
     (cond
-      ( (and org-e-man-non-legacy-constructs
-       path desc )
-       (if (string= type "mailto")
-           (format ".MT  \"%s\"\n%s\n.ME\n" path desc)
-         (format ".UR  \"%s\"\n%s\n.UE\n" path desc)))
+      ( (and org-e-man-non-legacy-constructs path desc )
+        (cond ( (string= type "mailto")
+                (format ".MT  \"%s\"\n%s\n.ME\n" path desc))
+              (t
+               (format ".UR  \"%s\"\n%s\n.UE\n" path desc)) )
+
+        )
      ;; External link with a description part.
      ((and path desc) (format "%s \\fBat\\fP \\fI%s\\fP" path desc))
      ;; External link without a description part.
