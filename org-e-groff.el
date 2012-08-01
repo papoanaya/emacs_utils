@@ -1807,7 +1807,6 @@ This function assumes TABLE has `org' as its `:type' attribute."
                     
                     (format "%s.\n"
                             (let ((final-line ""))
-
                               (when title-line
                                 (dotimes (i (length first-line))
                                   (setq final-line (concat final-line "cb" divider))
@@ -1820,18 +1819,20 @@ This function assumes TABLE has `org' as its `:type' attribute."
                                   (setq final-line (concat final-line "c" divider))))
                               final-line ))
 
-                    (format "%s.TE\n"
+                    (format "%s\n.TE\n"
                             (let ((final-line ""))
+                              (setq lines (org-split-string contents "\n"))
                               (dolist (line-item lines)
-                                (cond 
-                                 (t	
-                                  (setq lines (org-split-string contents "\n"))
+                                (setq long-line "")
 
-                                  (setq final-line (concat final-line 
-                                                           (car (org-split-string line-item "\\\\")) "\n"))
-                                  )
-                                 )
-                                
+                                (if (or (string= line-item "_\n")
+                                        (string= line-item "_")) 
+                                    (setq long-line (format "%s\n" line-item))
+                                  (dolist (cell-item (org-split-string line-item "\t"))
+                                    (setq long-line (concat long-line (format "T{\n%s\nT}\t"  cell-item ) ))))
+
+                                (setq final-line (concat final-line long-line ))
+                               
                                 )  final-line))
 
                     (if (not disable-caption)
@@ -1855,7 +1856,7 @@ a communication channel."
                         (match-string 1 contents)
                         (match-string 2 contents))
               contents )
-            (when (org-export-get-next-element table-cell) " \t "))
+            (when (org-export-get-next-element table-cell) "\t"))
     )
 )
 
@@ -1880,7 +1881,8 @@ a communication channel."
       (concat
        ;; Mark "hline" for horizontal lines.
        (cond  ((and (memq 'top borders) (memq 'above borders)) "_\n"))
-       contents "\\\\\n"
+       contents 
+;;; "\\\\\n"
        (cond
         ;; When BOOKTABS are activated enforce bottom rule even when
         ;; no hline was specifically marked.
