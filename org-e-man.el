@@ -137,7 +137,6 @@ structure of the values.")
   :type 'boolean)
 
 
-
 (defcustom org-e-man-table-scientific-notation "%sE%s"
   "Format string to display numbers in scientific notation.
 The format should have \"%s\" twice, for mantissa and exponent
@@ -489,9 +488,8 @@ information."
   (org-e-man--wrap-label
    example-block
    (format ".RS\n.nf\n%s\n.fi\n.RE"
-           (org-export-format-code-default example-block info))))
-
-
+           (org-export-format-code-default example-block info))
+))
 ;;;; Export Block
 
 (defun org-e-man-export-block (export-block contents info)
@@ -770,14 +768,14 @@ INFO is a plist holding contextual information.  See
                 (t raw-path)))
          protocol)
     (cond
-     ;; Coderef: replace link with the reference name or the
-     ;; equivalent line number.
      ;; External link with a description part.
      ((and path desc) (format "%s \\fBat\\fP \\fI%s\\fP" path desc))
      ;; External link without a description part.
      (path (format "\\fI%s\\fP" path))
      ;; No path, only description.  Try to do something useful.
-     (t (format "\\fI%s\\fP" desc)))))
+     (t (format "\\fI%s\\fP" desc))
+     )
+    ))
 
 
 ;;;; Macro
