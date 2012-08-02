@@ -902,7 +902,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
     (setq ref-id (plist-get (nth 1 footnote-reference) :label))
 
      (if (string-match "fn:rl" ref-id)
-         (format "\\u\\s-2[%s]\\d\\s+2\n.RS \"%s\" \n%s\n.RF\n" n n data)
+         (format "\\*(Rf\n.RS \"%s\" \n%s\n.RF\n" ref-id  data)
        (format "\\u\\s-2%s\\d\\s+2\n.FS %s\n%s\n.FE\n" n n data))
  	
     	))
