@@ -899,8 +899,13 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
   (let* (( raw (org-export-get-footnote-definition footnote-reference info))
 		 (n (org-export-get-footnote-number footnote-reference info))
 		 (data (org-trim (org-export-data raw info))))
-	(format "\\u\\s-2%s\\d\\s+2\n.FS %s\n%s\n.FE\n" n n data)
-	))
+    (setq ref-id (plist-get (nth 1 footnote-reference) :label))
+
+     (if (string-match "fn:rl" ref-id)
+         (format "\\u\\s-2[%s]\\d\\s+2\n.RS \"%s\" \n%s\n.RF\n" n n data)
+       (format "\\u\\s-2%s\\d\\s+2\n.FS %s\n%s\n.FE\n" n n data))
+ 	
+    	))
 
 ;;;; Headline
 
