@@ -136,12 +136,6 @@ structure of the values.")
   :group 'org-export-e-man
   :type 'boolean)
 
-(defcustom org-e-man-non-legacy-constructs nil
-  "When non-nil, newer functions like .EX and .UR are used"
-  :group 'org-export-e-man
-  :type 'boolean)
-
-
 
 (defcustom org-e-man-table-scientific-notation "%sE%s"
   "Format string to display numbers in scientific notation.
@@ -493,12 +487,8 @@ CONTENTS is nil.  INFO is a plist holding contextual
 information."
   (org-e-man--wrap-label
    example-block
-   (if org-e-man-non-legacy-constructs 
-       (format ".EX\n%s\n.EE"
-               (org-export-format-code-default example-block info))
-
-     (format ".RS\n.nf\n%s\n.fi\n.RE"
-             (org-export-format-code-default example-block info)))
+   (format ".RS\n.nf\n%s\n.fi\n.RE"
+           (org-export-format-code-default example-block info))
 ))
 ;;;; Export Block
 
