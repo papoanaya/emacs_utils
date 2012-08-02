@@ -232,7 +232,15 @@ of Contents.
 Footnotes markers with the same tag will refer to the same reference in
 the list. 
 
+*** Special Characters
+Special character substitution can be enabled if there is a list
+specified in the =org-e-groff-special-char= variable. This variable
+consists of a list of cons pairs in which the first value is the item to
+substitute and the second value is the value to be substituted with. By
+default it will substitute (c) for copyright notice, (tm) for trademark
+and (rg) for registered mark. 
 
+Character substitution can be disabled by setting this variable to *nil*.
 *** Source highlight in Groff export
 There are no packages or processors for syntax highlight in
 Groff. However this feature is available for Groff export with the use
