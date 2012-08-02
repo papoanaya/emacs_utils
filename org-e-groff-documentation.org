@@ -363,11 +363,6 @@ The following limitations are known at the time of release. They will be
 looked at and addressed  in subsequent releases if they are technically 
 solvable. 
 
-  - Long Tables :: Long tables are supported by =tbl=, but long table
-                   markers (T%{}%T) are not in use. This will result in
-                   a warning and a table running out of space. To solve
-                   this issue, partition the table in Org or fix the groff file
-                   to include them.  A fix is planned for a future release.
   - Images :: Image support is limited to PIC, PS and EPS. 
   - Links :: There is no support for document linking or grefer. Most
              links will be just written. The only exception are for
