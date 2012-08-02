@@ -537,6 +537,7 @@ These are the .aux, .log, .out, and .toc files."
 (add-to-list 'org-element-block-name-alist
              '("GROFF" . org-element-export-block-parser))
 
+(setq registered-references '())
 
 
 ;;; Internal Functions
@@ -901,8 +902,19 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 		 (data (org-trim (org-export-data raw info))))
     (setq ref-id (plist-get (nth 1 footnote-reference) :label))
 
+    ;;
+    ;; It is a reference
+    ;;
+
      (if (string-match "fn:rl" ref-id)
-         (format "\\*(Rf\n.RS \"%s\" \n%s\n.RF\n" ref-id  data)
+         (if (member ref-id registered-references)
+             (format "\\*[%s]" ref-id)
+           (let ()
+             (push ref-id registered-references)
+             (format "\\*(Rf\n.RS \"%s\" \n%s\n.RF\n" ref-id  data)) )
+       ;;
+       ;; else it is a footnote
+       ;;
        (format "\\u\\s-2%s\\d\\s+2\n.FS %s\n%s\n.FE\n" n n data))
  	
     	))
@@ -1999,9 +2011,6 @@ first.
 When optional argument VISIBLE-ONLY is non-nil, don't export
 contents of hidden elements.
 
-When optional argument BODY-ONLY is non-nil, only write code
-between \"\\begin{document}\" and \"\\end{document}\".
-
 EXT-PLIST, when provided, is a property list with external
 parameters overriding Org default settings, but still inferior to
 file-local settings.
@@ -2010,6 +2019,9 @@ When optional argument PUB-DIR is set, use it as the publishing
 directory.
 
 Return output file's name."
+
+  (setq registered-references '())
+
   (interactive)
   (let ((outfile (org-export-output-file-name ".groff" subtreep pub-dir)))
     (org-export-to-file
@@ -2030,9 +2042,6 @@ first.
 
 When optional argument VISIBLE-ONLY is non-nil, don't export
 contents of hidden elements.
-
-When optional argument BODY-ONLY is non-nil, only write code
-between \"\\begin{document}\" and \"\\end{document}\".
 
 EXT-PLIST, when provided, is a property list with external
 parameters overriding Org default settings, but still inferior to
