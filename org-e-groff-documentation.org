@@ -213,6 +213,26 @@ The following options are available:
             example :width 1.0i or :width 2.0c  /(symbol)/
 - :heigth :: Defines the hight of the image in Groff units. For
              example :heigth 1.0i or :height 2.0c.  /(symbol)/
+*** Footnotes and References
+The Groff export uses the same footnote mechanism to identify footnotes
+and bibliographic references. Adding a =\[1\]= or a =\[fn:123\]= marker with its
+appropriate reference will create a footnote at the end of the page.
+However adding a reference with a /"rl"/ tag, creates a Reference to the
+end of the page. 
+
+For example:
+#+BEGIN_EXAMPLE
+This is a refered text\[fn:rl1\]. 
+\[fn:rl1\] Author, Title (c) 2010. 
+#+END_EXAMPLE
+
+Will place "Author, Title (c) 2010" in the reference list in the Table
+of Contents.
+
+Footnotes markers with the same tag will refer to the same reference in
+the list. 
+
+
 *** Source highlight in Groff export
 There are no packages or processors for syntax highlight in
 Groff. However this feature is available for Groff export with the use
