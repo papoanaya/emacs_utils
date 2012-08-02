@@ -486,9 +486,9 @@ string defines the replacement string for this quote."
 
 (defcustom org-e-groff-special-char
   '(
-    ("(c)" . "\\(co") 
-    ("(tm)" . "\\(tm") 
-    ("(rg)" . "\\(rg")
+    ("(c)" . "\\\\(co") 
+    ("(tm)" . "\\\\(tm") 
+    ("(rg)" . "\\\\(rg")
     )
   "CONS list in which the value of the car 
   is replace on the value of the CDR. "
@@ -1468,6 +1468,14 @@ contextual information."
   ;; Handle quotation marks
   (setq text (org-e-groff--quotation-marks text info))
 
+  (if org-e-groff-special-char
+      (dolist (special-char-list org-e-groff-special-char)
+        (setq text
+              (replace-regexp-in-string (car special-char-list) 
+                                            (cdr special-char-list) text ))
+                )
+    )
+  
   ;; Handle Special Characters
     
   ;; Handle break preservation if required.
