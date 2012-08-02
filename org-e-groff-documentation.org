@@ -103,7 +103,11 @@ list. The element of the list are:
    - :last-section :: Defines what is the last item to print. Options
                       are "toc" for table of content and "sign" for
                       signature. 
-                   
+   - :paragraph :: Defines the command to invoke each of the paragraph
+                   commands. Options are 'default or a pointer to a
+                   function that will return a format string containing
+                   the paragraph formatting commands before writing the
+                   paragraph.                    
 
 [2] All memorandum types are defined by default. This command is useful
 for new types of covers or when a custom file is being invoked. 
@@ -172,7 +176,8 @@ are available to modify table behavior.
 - :diable-caption :: Captions are placed by default. This will disable
      its creation. /(boolean)/
 - :expand :: Expands the table across the width of the page. 
-
+- :long-cells :: Encloses all cells in T{ }T to allow the use of multi
+                 line cells. /(boolean)/
 The Groff export will honor columns definitions placed on top of a given
 table in Org mode and propagates those definitions as =tbl= commands. 
 
