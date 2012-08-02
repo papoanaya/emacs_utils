@@ -483,6 +483,21 @@ string defines the replacement string for this quote."
                 (string :tag "Replacement quote     "))))
 
 
+
+(defcustom org-e-groff-special-char
+  '(
+    ("(c)" . "\\(co") 
+    ("(tm)" . "\\(tm") 
+    ("(rg)" . "\\(rg")
+    )
+  "CONS list in which the value of the car 
+  is replace on the value of the CDR. "
+  :group 'org-export-e-groff
+  :type '(list
+          (cons :tag "Character Subtitute"
+                (string :tag "Original Character Group")
+                (string :tag "Replacement Character"))))
+
 ;;;; Compilation
 
 (defcustom org-e-groff-pdf-process
@@ -1453,6 +1468,8 @@ contextual information."
   ;; Handle quotation marks
   (setq text (org-e-groff--quotation-marks text info))
 
+  ;; Handle Special Characters
+    
   ;; Handle break preservation if required.
   (when (plist-get info :preserve-breaks)
     (setq text (replace-regexp-in-string "\\(\\\\\\\\\\)?[ \t]*\n" " \\\\\\\\\n"
