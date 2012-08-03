@@ -1015,7 +1015,7 @@ holding contextual information."
       (let ((low-level-body
              (concat
               ;; If the headline is the first sibling, start a list.
-              (when (org-export-first-sibling-p headline)
+              (when (org-export-first-sibling-p headline info)
                 (format "%s\n" (if numberedp ".AL 1\n" ".DL \n")))
               ;; Itemize headline
               ".LI\n" full-text "\n" headline-label pre-blanks contents)))
