@@ -558,7 +558,7 @@ holding contextual information."
       (let ((low-level-body
 			 (concat
 			  ;; If the headline is the first sibling, start a list.
-			  (when (org-export-first-sibling-p headline)
+			  (when (org-export-first-sibling-p headline info)
 				(format "%s\n" ".RS"))
 			  ;; Itemize headline
 			  ".TP\n.ft I\n" text "\n.ft\n" 
@@ -566,7 +566,7 @@ holding contextual information."
 		;; If headline is not the last sibling simply return
 		;; LOW-LEVEL-BODY.  Otherwise, also close the list, before any
 		;; blank line.
-		(if (not (org-export-last-sibling-p headline)) low-level-body
+		(if (not (org-export-last-sibling-p headline info)) low-level-body
 		  (replace-regexp-in-string
 		   "[ \t\n]*\\'" ""
 		   low-level-body))))
@@ -1219,7 +1219,7 @@ a communication channel."
                       (match-string 1 contents)
                       (match-string 2 contents))
             contents)
-          (when (org-export-get-next-element table-cell) " \t ")))
+          (when (org-export-get-next-element table-cell info) " \t ")))
 
 
 ;;;; Table Row
