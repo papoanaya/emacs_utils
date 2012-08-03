@@ -1022,7 +1022,7 @@ holding contextual information."
         ;; If headline is not the last sibling simply return
         ;; LOW-LEVEL-BODY.  Otherwise, also close the list, before any
         ;; blank line.
-        (if (not (org-export-last-sibling-p headline)) low-level-body
+        (if (not (org-export-last-sibling-p headline info)) low-level-body
           (replace-regexp-in-string
            "[ \t\n]*\\'"
            (concat "\n.LE" )
