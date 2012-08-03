@@ -1,6 +1,9 @@
 2012-08-03  Luis Anaya  <papoanaya@gmail.com>
 
-	* org-e-groff.el (org-e-groff-headline): Fixed call to org-export-last-sibling-p
+	* contrib/lisp/org-e-man.el (org-e-man-headline): Fixed call to org-export-first-sibling-p and org-export-last-sibling-p
+	(org-e-man-table-cell): Fixed call to org-export-get-next-element
+
+	* contrib/lisp/org-e-groff.el (org-e-groff-headline): Fixed call to org-export-last-sibling-p
 
 	* contrib/lisp/org-e-groff.el (org-e-groff-headline): Fixed call to org-export-first-sibling-p
 
