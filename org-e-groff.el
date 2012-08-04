@@ -194,11 +194,11 @@ structure of the values.")
 
 ;;;; Headline
 
-(defcustom org-e-groff-special-tags
+(defconst org-e-groff-special-tags
   " "
-  '("FROM" "TO" "ABSTRACT")  
-  :group 'org-export-e-groff
-  :type '(list (string :tag "Special Process Tag"))  
+  '("FROM" "TO" "ABSTRACT" "APPENDIX")
+;;  :group 'org-export-e-groff
+;;  :type '(list (string :tag "Special Process Tag"))  
 )
 
 
@@ -654,6 +654,84 @@ See `org-e-groff-text-markup-alist' for details."
      ;; Else use format string.
      (t (format fmt text)))))
 
+(defun org-e-groff--mt-head (title contents attr info)
+  (concat
+
+   ;; 1. Insert Organization
+   (let ((firm-option (plist-get attr :firm)))
+     (cond 
+      ((stringp firm-option)
+       (format ".AF \"%s\" \n" firm-option))
+      (t (format ".AF \"%s\" \n" (or org-e-groff-organization "")) )))
+   ;; 2. Title
+   (let ((subtitle1 (plist-get attr :subtitle1))
+         (subtitle2 (plist-get attr :subtitle2)))
+
+     (cond 
+      ((string= "" title)
+       (format ".TL \"%s\" \"%s\" \n%s\n" 
+               (or subtitle1 "")
+               (or subtitle2 "") " ")
+       )
+      ((not (or subtitle1 subtitle2))
+       (format ".TL\n%s\n" 
+               (or title "" )) )
+      (t
+       (format ".TL \"%s\" \"%s \" \n%s\n" 
+               (or subtitle1 "")
+               (or subtitle2 "") title)  )))
+
+   ;; 3. Author.
+   ;; In Groff, .AU *MUST* be placed after .TL
+   ;; If From, populate with data from From else
+   ;; 
+   (let ((author (and (plist-get info :with-author)
+                      (let ((auth (plist-get info :author)))
+                        (and auth (org-export-data auth info)))))
+         (email (and (plist-get info :with-email)
+                     (org-export-data (plist-get info :email) info))))
+     (cond ((and author email (not (string= "" email)))
+            (format ".AU \"%s\" \"%s\"\n" author email))
+           (author (format ".AU \"%s\"\n" author))
+           (t ".AU \"\" \n")))
+          
+   ;; 4. Author Title, if present
+   (let ((at-item (plist-get attr :author-title)  ))
+     (if (and at-item (stringp at-item))
+         (format ".AT \"%s\" \n" at-item )
+       ""))
+
+   ;; 5. Date.
+   (let ((date (org-export-data (plist-get info :date) info)))
+     (and date (format ".ND \"%s\"\n" date)))
+
+   ;;
+   ;; If Abstract, then Populate Abstract
+   ;; 
+   (format ".AS \"%s\"\n%s\n.AE" data)
+   ))
+
+
+(defun org-e-groff--letter-head (contents info attr)
+  (concat 
+   (let ((author (and (plist-get info :with-author)
+                      (let ((auth (plist-get info :author)))
+                        (and auth (org-export-data auth info)))))
+         (email (and (plist-get info :with-email)
+                     (org-export-data (plist-get info :email) info))))
+;; If FROM then get data from FROM
+
+     (cond ((and author email (not (string= "" email)))
+            (format ".WA \"%s\"\n \"%s\"\n.WE\n" author email))
+           (author (format ".WA \"%s\"\n.WE\n" author))
+           (t ".WA \"\" \n.WE\n"))
+
+;; If TO then get data from TO
+     (format ".IA \"%s\"\n%s\n.IE\n" data)
+     (format ".LO SJ \"%s\"" title)
+)
+))
+
 
 ;;; Template
 
@@ -681,107 +759,61 @@ holding export options."
              (let* ((header (nth 1 (assoc class org-e-groff-classes)))
                     (document-class-item (if (stringp header) header "") )) 
                document-class-item)))))
+
+    (set 'hyphenate (plist-get attr :hyphenate))
+    (set 'justify-right (plist-get attr :justify-right))
+
     (concat
-     (unless (string= type-option "custom")
-       (let ()
-         (concat
-          (when (and (stringp document-class-string)
-                     (string= type-option "cover"))
-            (format ".COVER %s\n" document-class-string))
-          ;; 1. Insert Organization
-          (let ((firm-option (plist-get attr :firm)))
-            (cond 
-             ((stringp firm-option)
-              (format ".AF \"%s\" \n" firm-option))
-             (t (format ".AF \"%s\" \n" (or org-e-groff-organization "")) )))
-          ;; 2. Title
-          (let ((subtitle1 (plist-get attr :subtitle1))
-                (subtitle2 (plist-get attr :subtitle2)))
+     (if justify-right
+         (case justify-right
+           ('yes ".SA 1 \n")
+           ('no ".SA 0 \n")
+           (t ""))
+       "")
 
-            (cond 
-             ((string= "" title)
-              (format ".TL \"%s\" \"%s\" \n%s\n" 
-                      (or subtitle1 "")
-                      (or subtitle2 "") " ")
-              )
-             ((not (or subtitle1 subtitle2))
-              (format ".TL\n%s\n" 
-                      (or title "" )) )
-             (t
-              (format ".TL \"%s\" \"%s \" \n%s\n" 
-                      (or subtitle1 "")
-                      (or subtitle2 "") title)  )))
-
-          ;; 3. Author.
-          ;; In Groff, .AU *MUST* be placed after .TL
-          (let ((author (and (plist-get info :with-author)
-                             (let ((auth (plist-get info :author)))
-                               (and auth (org-export-data auth info)))))
-                (email (and (plist-get info :with-email)
-                            (org-export-data (plist-get info :email) info))))
-            (cond ((and author email (not (string= "" email)))
-                   (format ".AU \"%s\" \"%s\"\n" author email))
-                  (author (format ".AU \"%s\"\n" author))
-                  (t ".AU \"\" \n")))
-          
-          ;; 4. Author Title, if present
-          (let ((at-item (plist-get attr :author-title)  ))
-            (if (and at-item (stringp at-item))
-                (format ".AT \"%s\" \n" at-item )
-              ""))
-
-          ;; 5. Date.
-          (let ((date (org-export-data (plist-get info :date) info)))
-            (and date (format ".ND \"%s\"\n" date)))
-
-          (when (string= type-option "cover")
-            ".COVEND\n"
-            ) )))
-
-     ;;6. Hyphenation and Right Justification
-     (let ()
-       (set 'hyphenate (plist-get attr :hyphenate))
-       (set 'justify-right (plist-get attr :justify-right))
-       (concat 
-        (if justify-right
-            (case justify-right
-              ('yes ".SA 1 \n")
-              ('no ".SA 0 \n")
-              (t ""))
-          "")
-        (if hyphenate
-            (case hyphenate 
-              ('yes ".nr Hy 1 \n")
-              ('no ".nr Hy 0 \n")
-              (t "")
-              )
-          "") ))
-
-     (when (string= type-option "memo")
-       document-class-string)
-
-     ;; 7. Document's body.
-     
-     contents
-
-     ;; 8. Table of Content must be placed at the end being
-     ;; that it gets collected from all the headers. 
-     ;; In the case of letters, signature will be placed instead.
-
+     (if hyphenate
+         (case hyphenate 
+           ('yes ".nr Hy 1 \n")
+           ('no ".nr Hy 0 \n")
+           (t ""))
+       "")
 
      (cond 
-      ((string= last-option "toc")
-       ".TC")
-      ((string= last-option "sign")
-       (let ((fc-item (plist-get attr :closing)))
-         (concat (if (stringp fc-item)
-                     (format ".FC \"%s\" \n" fc-item)
-                   ".FC\n")
-                 ".SG")))
+       ((string= type-option "custom") "")
 
-      (t ""))
+       ((and (stringp document-class-string)
+                     (string= type-option "cover"))
+
+        (concat 
+         (format ".COVER %s\n" document-class-string)
+         (org-e-groff--mt-head title content attr info)
+         ".COVEND\n"))
+
+       ((string= type-option "memo")
+        (concat
+         (org-e-groff-mt-head title contents attr info)
+         document-class-string))
+
+        ((string= type-option "letter")
+         (org-e-groff--letter-head title contents attr info))
+        (concat ".LT " document-class-string)
+
+       (t "")))
+
+    contents
+
+    (cond 
+     ((string= last-option "toc")
+      ".TC")
+     ((string= last-option "sign")
+      (let ((fc-item (plist-get attr :closing)))
+        (concat (if (stringp fc-item)
+                    (format ".FC \"%s\" \n" fc-item)
+                  ".FC\n")
+                ".SG")))
+     (t ""))
      )
-    ))
+)
 
 
 
