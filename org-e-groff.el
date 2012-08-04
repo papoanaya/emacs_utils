@@ -151,8 +151,20 @@ structure of the values.")
      (:heading 'default :type "cover" :last-section "toc"))
     ("se_ms" "se_ms" 
      (:heading 'default :type "cover" :last-section "toc"))
-    ("none" "" '(:heading 'default :type "custom")))
+    ("none" "" '(:heading 'default :type "custom"))
+    ("block" "BL" '(:type "letter"))
+    ("semiblock" "SB" '(:type "letter"))
+    ("fullblock" "FB" '(:type "letter"))
+    ("simplified" "SP"  '(:type "letter")) )
 
+;;; Letter Options
+;;; for type "letter" using .LO macro
+;;; CN = Confidencial
+;;; RN = Reference
+;;; AT = Attention
+;;; SJ = Subject
+;;; SA = Salutation
+;;;  
   ;; none means, no Cover or Memorandum Type and no calls to AU, AT, ND and TL
   ;; This is to facilitate the creation of custom pages. 
 
@@ -178,7 +190,16 @@ structure of the values.")
   :type 'boolean)
 
 
+
+
 ;;;; Headline
+
+(defcustom org-e-groff-special-tags
+  " "
+  '("FROM" "TO" "ABSTRACT")  
+  :group 'org-export-e-groff
+  :type '(list (string :tag "Special Process Tag"))  
+)
 
 
 (defcustom org-e-groff-format-headline-function nil
@@ -1005,9 +1026,12 @@ holding contextual information."
           (make-string (org-element-property :pre-blank headline) 10)))
     
     (cond
-     ;; Case 1: This is a footnote section: ignore it.
+     ;; Case 1: Special Tag, do not process. 
+     ((member (org-export-get-tags headline info) 
+              org-e-groff-special-tags) nil)
+     ;; Case 2: This is a footnote section: ignore it.
      ((org-element-property :footnote-section-p headline) nil)
-     ;; Case 2. This is a deep sub-tree: export it as a list item.
+     ;; Case 3: This is a deep sub-tree: export it as a list item.
      ;;         Also export as items headlines for which no section
      ;;         format has been found.
      ((or (not section-fmt) (org-export-low-level-p headline info))
@@ -1027,7 +1051,7 @@ holding contextual information."
            "[ \t\n]*\\'"
            (concat "\n.LE" )
            low-level-body))))
-     ;; Case 3. Standard headline.  Export it as a section.
+     ;; Case 4. Standard headline.  Export it as a section.
      (t
       (format section-fmt full-text
               (concat headline-label pre-blanks contents)) ))))
