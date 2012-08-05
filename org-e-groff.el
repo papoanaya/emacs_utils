@@ -846,7 +846,7 @@ holding export options."
         document-class-string))
       ((string= type-option "letter")
        (concat 
-        (org-e-groff--letter-head title contents attr info) "\n"
+        (org-e-groff--letter-head title contents attr info)
         (let ((sa-item (plist-get attr :salutation))
               (cn-item (plist-get attr :confidential))
               (sj-item (plist-get attr :subject))
@@ -873,7 +873,7 @@ holding export options."
              (format ".LO SJ \"%s\" \n"  sj-item))
 
           
-        ".LT " document-class-string ))
+        ".LT " document-class-string  "\n"))
        ))
       
       (t ""))
