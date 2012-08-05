@@ -1217,7 +1217,7 @@ contextual information."
 
          (tag (let ((tag (org-element-property :tag item)))
                 ;; Check-boxes must belong to the tag.
-                (and tag (format "[%s]"
+                (and tag (format "%s"
                                  (concat checkbox
                                          (org-export-data tag info)))))))
 
