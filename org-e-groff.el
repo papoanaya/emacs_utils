@@ -706,13 +706,16 @@ See `org-e-groff-text-markup-alist' for details."
 
      (cond 
       ((and author from-data) 
-       (let (au-line
+       (let ((au-line
              (mapconcat 
               (lambda (from-line)
-                (format " \"%s\" " from-line))) 
-             (parse from-data "\n") "" )
+                (format " \"%s\" " from-line))
+              (split-string  
+               (setq from-data 
+                     (replace-regexp-in-string "\\.P\n" "" from-data)) "\n") "" )))
+
          (concat 
-          (format ".AU \"%s\"\n" author) au-line)))
+          (format ".AU \"%s\" " author) au-line "\n")))
 
       ((and author email (not (string= "" email)))
        (format ".AU \"%s\" \"%s\"\n" author email))
