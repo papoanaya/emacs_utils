@@ -144,18 +144,22 @@ structure of the values.")
     ("letter" ".MT 5" 
      (:heading 'default :type "memo" :last-section "sign"))
     ("custom" ".so file" 
-     (:heading custom-function :type "custom" :last-section "toc")  ) 
+     (:heading custom-function :type "custom" :last-section "toc") ) 
     ("dummy" "" 
      (:heading 'default :type "memo"))
     ("ms" "ms" 
      (:heading 'default :type "cover" :last-section "toc"))
     ("se_ms" "se_ms" 
      (:heading 'default :type "cover" :last-section "toc"))
-    ("none" "" '(:heading 'default :type "custom"))
-    ("block" "BL" '(:type "letter"))
-    ("semiblock" "SB" '(:type "letter"))
-    ("fullblock" "FB" '(:type "letter"))
-    ("simplified" "SP"  '(:type "letter")) )
+    ("block" "BL"
+     (:heading 'default :type "letter" :last-section "sign"))
+    ("semiblock" "SB" 
+     (:heading 'default :type "letter" :last-section "sign") )
+    ("fullblock" "FB" 
+     (:heading 'default :type "letter" :last-section "sign"))
+    ("simplified" "SP"  
+     (:heading 'default :type "letter" :last-section "sign"))
+    ("none" "" (:heading 'default :type "custom")))
 
 ;;; Letter Options
 ;;; for type "letter" using .LO macro
@@ -574,6 +578,7 @@ These are the .aux, .log, .out, and .toc files."
              '("GROFF" . org-element-export-block-parser))
 
 (setq registered-references '())
+(setq special-content '())
 
 
 ;;; Internal Functions
@@ -656,15 +661,8 @@ See `org-e-groff-text-markup-alist' for details."
 
 
 (defun org-e-groff--get-tagged-content  (tag info)
-  (let ((headline-list 
-         (org-element-map 
-          (plist-get info :parse-tree) 'headline 
-          (lambda (h) (and
-                       (member tag (org-export-get-tags h info)) h)) 
-          info) ))
-    (mapconcat (lambda (h) (org-export-data h info))
-               ;; List of "appendix" headlines 
-               headline-list "")))
+  (cdr  (assoc tag special-content) ) 
+)
 
 
 (defun org-e-groff--mt-head (title contents attr info)
@@ -730,11 +728,10 @@ See `org-e-groff-text-markup-alist' for details."
    (let ((abstract-data (org-e-groff--get-tagged-content "ABSTRACT" info))
          (to-data (org-e-groff--get-tagged-content "TO" info)))
      (cond 
-      ((not (string= abstract-data "" ))
+      (abstract-data
        (format ".AS\n%s\n.AE\n" abstract-data))
-      ((not (string= to-data "" ))
+      (to-data
        (format ".AS\n%s\n.AE\n" to-data))))
-   
 ))
 
 
@@ -790,6 +787,9 @@ holding export options."
              (let* ((header (nth 1 (assoc class org-e-groff-classes)))
                     (document-class-item (if (stringp header) header "") )) 
                document-class-item)))))
+    (message "%s" class)
+    (message "%s" classes)
+    (message "%s" classes-options)
 
     (set 'hyphenate (plist-get attr :hyphenate))
     (set 'justify-right (plist-get attr :justify-right))
@@ -817,20 +817,20 @@ holding export options."
 
         (concat 
          (format ".COVER %s\n" document-class-string)
-         (org-e-groff--mt-head title content attr info)
+         (org-e-groff--mt-head title contents attr info)
          ".COVEND\n"))
 
        ((string= type-option "memo")
         (concat
          (org-e-groff--mt-head title contents attr info)
          document-class-string))
-
         ((string= type-option "letter")
          (org-e-groff--letter-head title contents attr info)
          (concat ".LT " document-class-string))
        (t ""))
 
-    contents
+
+     contents
 
     (cond 
      ((string= last-option "toc")
@@ -1089,7 +1089,12 @@ holding contextual information."
     (cond
      ;; Case 1: Special Tag, do not process. 
      ((member (car  (org-export-get-tags headline info) ) 
-              org-e-groff-special-tags) nil)
+              org-e-groff-special-tags)
+      (let ()
+        (push (cons  
+               (car  (org-export-get-tags headline info) )
+                     contents) special-content)
+        nil))
      ;; Case 2: This is a footnote section: ignore it.
      ((org-element-property :footnote-section-p headline) nil)
      ;; Case 3: This is a deep sub-tree: export it as a list item.
@@ -2131,6 +2136,7 @@ directory.
 Return output file's name."
 
   (setq registered-references '())
+  (setq special-content '())
 
   (interactive)
   (let ((outfile (org-export-output-file-name ".groff" subtreep pub-dir)))
