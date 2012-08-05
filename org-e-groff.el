@@ -654,6 +654,19 @@ See `org-e-groff-text-markup-alist' for details."
      ;; Else use format string.
      (t (format fmt text)))))
 
+
+(defun org-e-groff--get-tagged-content  (tag info)
+  (let ((headline-list 
+         (org-element-map 
+          (plist-get info :parse-tree) 'headline 
+          (lambda (h) (and
+                       (member tag (org-export-get-tags h info)) h)) 
+          info) ))
+    (mapconcat (lambda (h) (org-export-data h info))
+               ;; List of "appendix" headlines 
+               headline-list "")))
+
+
 (defun org-e-groff--mt-head (title contents attr info)
   (concat
 
@@ -663,6 +676,7 @@ See `org-e-groff-text-markup-alist' for details."
       ((stringp firm-option)
        (format ".AF \"%s\" \n" firm-option))
       (t (format ".AF \"%s\" \n" (or org-e-groff-organization "")) )))
+
    ;; 2. Title
    (let ((subtitle1 (plist-get attr :subtitle1))
          (subtitle2 (plist-get attr :subtitle2)))
@@ -689,7 +703,11 @@ See `org-e-groff-text-markup-alist' for details."
                       (let ((auth (plist-get info :author)))
                         (and auth (org-export-data auth info)))))
          (email (and (plist-get info :with-email)
-                     (org-export-data (plist-get info :email) info))))
+                     (org-export-data (plist-get info :email) info)))
+         (from-data  (org-e-groff--get-tagged-content "FROM" info))
+         (to-data  (org-e-groff--get-tagged-content "TO" info))
+         (abstract-data (org-e-groff--get-tagged-content "ABSTRACT" info)))
+
      (cond ((and author email (not (string= "" email)))
             (format ".AU \"%s\" \"%s\"\n" author email))
            (author (format ".AU \"%s\"\n" author))
@@ -708,7 +726,16 @@ See `org-e-groff-text-markup-alist' for details."
    ;;
    ;; If Abstract, then Populate Abstract
    ;; 
-   (format ".AS \"%s\"\n%s\n.AE" data)
+
+   (cond 
+    (abstract-data 
+     (format ".AS \"%s\"\n%s\n.AE" abstract-data))
+    (from-data
+     (format ".AS \"%s\"\n%s\n.AE" from-data)
+)
+         
+)
+   
    ))
 
 
@@ -718,18 +745,23 @@ See `org-e-groff-text-markup-alist' for details."
                       (let ((auth (plist-get info :author)))
                         (and auth (org-export-data auth info)))))
          (email (and (plist-get info :with-email)
-                     (org-export-data (plist-get info :email) info))))
+                     (org-export-data (plist-get info :email) info)))
+         (from-data  (org-e-groff--get-tagged-content "FROM" info))
+         (to-data  (org-e-groff--get-tagged-content "TO" info)))
 ;; If FROM then get data from FROM
-
-     (cond ((and author email (not (string= "" email)))
+     (cond 
+      (from-data 
+       (format ".WA \"%s\"\n%s\n.WE\n" author from-data))
+      ((and author email (not (string= "" email)))
             (format ".WA \"%s\"\n \"%s\"\n.WE\n" author email))
            (author (format ".WA \"%s\"\n.WE\n" author))
            (t ".WA \"\" \n.WE\n"))
 
 ;; If TO then get data from TO
-     (format ".IA \"%s\"\n%s\n.IE\n" data)
-     (format ".LO SJ \"%s\"" title)
-)
+
+     (when to-data
+       (format ".IA \"%s\"\n%s\n.IE\n" data))
+     (format ".LO SJ \"%s\"" title))
 ))
 
 
@@ -1071,14 +1103,14 @@ holding contextual information."
       (let ((low-level-body
              (concat
               ;; If the headline is the first sibling, start a list.
-              (when (org-export-first-sibling-p headline)
+              (when (org-export-first-sibling-p headline info)
                 (format "%s\n" (if numberedp ".AL 1\n" ".DL \n")))
               ;; Itemize headline
               ".LI\n" full-text "\n" headline-label pre-blanks contents)))
         ;; If headline is not the last sibling simply return
         ;; LOW-LEVEL-BODY.  Otherwise, also close the list, before any
         ;; blank line.
-        (if (not (org-export-last-sibling-p headline)) low-level-body
+        (if (not (org-export-last-sibling-p headline info)) low-level-body
           (replace-regexp-in-string
            "[ \t\n]*\\'"
            (concat "\n.LE" )
@@ -1985,7 +2017,7 @@ a communication channel."
                         (match-string 1 contents)
                         (match-string 2 contents))
               contents )
-            (when (org-export-get-next-element table-cell) "\t"))
+            (when (org-export-get-next-element table-cell info) "\t"))
     )
 )
 
