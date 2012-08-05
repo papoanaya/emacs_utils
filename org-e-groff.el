@@ -780,8 +780,6 @@ See `org-e-groff-text-markup-alist' for details."
 
      (when to-data
        (format ".IA \n%s\n.IE\n" to-data))
-     (when title 
-       (format ".LO SJ \"%s\"" title))
      )
     ))
 
@@ -851,33 +849,34 @@ holding export options."
         (org-e-groff--letter-head title contents attr info) "\n"
         (let ((sa-item (plist-get attr :salutation))
               (cn-item (plist-get attr :confidential))
+              (sj-item (plist-get attr :subject))
               (rn-item (plist-get attr :reference))
               (at-item (plist-get attr :attention) ))
 
           (concat
 
            (if (stringp sa-item)
-               (format ".LO SA \"%s\""  sa-item)
+               (format ".LO SA \"%s\" \n"  sa-item)
              ".LO SA\n")
-           (when cn-item ".LO CN\n")
-           (when (and at-item (stringp at-item) ) 
-             (format ".LO AT \"%s\""  at-item)
 
-           (when (and rn-item (stringp rn-item) ) 
-             (format ".LO RN \"%s\""  rn-item)
+           (when cn-item 
+             (if (stringp cn-item)
+                 (format ".LO CN \"%s\"\n" cn-item)
+               ".LO CN\n"))
 
-)
-)
+           (when (and at-item (stringp at-item) )
+             (format ".LO AT \"%s\" \n"  at-item))
+           (when (and title rn-item)
+             (format ".LO RN \"%s\"\n" title))
 
-)
-        
-        
- 
-        ".LT " document-class-string)
-       )
+           (when (and sj-item (stringp sj-item) ) 
+             (format ".LO SJ \"%s\" \n"  sj-item))
+
+          
+        ".LT " document-class-string ))
+       ))
       
       (t ""))
-
 
      contents
 
