@@ -199,8 +199,7 @@ structure of the values.")
 ;;;; Headline
 
 (defconst org-e-groff-special-tags
-  '("FROM" "TO" "ABSTRACT" "APPENDIX"
-    FROM TO ABSTRACT APPENDIX)
+  '("FROM" "TO" "ABSTRACT" "APPENDIX" "BODY")
 ;;  :group 'org-export-e-groff
 ;;  :type '(list (string :tag "Special Process Tag"))  
 )
@@ -735,30 +734,42 @@ See `org-e-groff-text-markup-alist' for details."
 ))
 
 
-(defun org-e-groff--letter-head (contents info attr)
-  (concat 
-   (let ((author (and (plist-get info :with-author)
-                      (let ((auth (plist-get info :author)))
-                        (and auth (org-export-data auth info)))))
-         (email (and (plist-get info :with-email)
-                     (org-export-data (plist-get info :email) info)))
-         (from-data  (org-e-groff--get-tagged-content "FROM" info))
-         (to-data  (org-e-groff--get-tagged-content "TO" info)))
-;; If FROM then get data from FROM
+(defun org-e-groff--letter-head (title contents attr info)
+  (let ((author (and (plist-get info :with-author)
+                     (let ((auth (plist-get info :author)))
+                       (and auth (org-export-data auth info)))))
+        (email (and (plist-get info :with-email)
+                    (org-export-data (plist-get info :email) info)))
+        (from-data  (org-e-groff--get-tagged-content "FROM" info))
+        (to-data  (org-e-groff--get-tagged-content "TO" info)))
+
+
+    ;; If FROM then get data from FROM
+    (setq from-data 
+          (replace-regexp-in-string "\\.P\n" "" from-data))
+
+    (setq to-data 
+          (replace-regexp-in-string "\\.P\n" "" to-data))
+
+
+    (concat 
      (cond 
       (from-data 
        (format ".WA \"%s\"\n%s\n.WE\n" author from-data))
       ((and author email (not (string= "" email)))
-            (format ".WA \"%s\"\n \"%s\"\n.WE\n" author email))
-           (author (format ".WA \"%s\"\n.WE\n" author))
-           (t ".WA \"\" \n.WE\n"))
+       (format ".WA \"%s\"\n \"%s\"\n.WE\n" author email))
+      (author (format ".WA \"%s\"\n.WE\n" author))
+      (t ".WA \"\" \n.WE\n"))
 
-;; If TO then get data from TO
+     ;; If TO then get data from TO
 
      (when to-data
-       (format ".IA \"%s\"\n%s\n.IE\n" data))
-     (format ".LO SJ \"%s\"" title))
-))
+       (format ".IA \n%s\n.IE\n" to-data))
+     (when title 
+       (format ".LO SJ \"%s\"" title))
+     ".LO SA"
+     )
+ ))
 
 
 ;;; Template
@@ -787,13 +798,10 @@ holding export options."
              (let* ((header (nth 1 (assoc class org-e-groff-classes)))
                     (document-class-item (if (stringp header) header "") )) 
                document-class-item)))))
-    (message "%s" class)
-    (message "%s" classes)
-    (message "%s" classes-options)
 
     (set 'hyphenate (plist-get attr :hyphenate))
     (set 'justify-right (plist-get attr :justify-right))
-
+    
     (concat
      (if justify-right
          (case justify-right
@@ -825,8 +833,11 @@ holding export options."
          (org-e-groff--mt-head title contents attr info)
          document-class-string))
         ((string= type-option "letter")
-         (org-e-groff--letter-head title contents attr info)
-         (concat ".LT " document-class-string))
+         (concat 
+          (org-e-groff--letter-head title contents attr info) "\n"
+          ".LT " document-class-string)
+          )
+         
        (t ""))
 
 
@@ -1088,13 +1099,14 @@ holding contextual information."
 
     (cond
      ;; Case 1: Special Tag, do not process. 
-     ((member (car  (org-export-get-tags headline info) ) 
-              org-e-groff-special-tags)
-      (let ()
-        (push (cons  
-               (car  (org-export-get-tags headline info) )
-                     contents) special-content)
-        nil))
+     ((member (car  tags)  org-e-groff-special-tags)
+      (if (string= (car tags) "BODY")
+          contents
+        ;; else
+        (let ()
+          (push (cons  (car tags) contents) special-content)
+          nil))
+      )
      ;; Case 2: This is a footnote section: ignore it.
      ((org-element-property :footnote-section-p headline) nil)
      ;; Case 3: This is a deep sub-tree: export it as a list item.
