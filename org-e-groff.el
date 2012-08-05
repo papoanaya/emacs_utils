@@ -707,12 +707,12 @@ See `org-e-groff-text-markup-alist' for details."
      (cond 
       ((and author from-data) 
        (let ((au-line
-             (mapconcat 
-              (lambda (from-line)
-                (format " \"%s\" " from-line))
-              (split-string  
-               (setq from-data 
-                     (replace-regexp-in-string "\\.P\n" "" from-data)) "\n") "" )))
+              (mapconcat 
+               (lambda (from-line)
+                 (format " \"%s\" " from-line))
+               (split-string  
+                (setq from-data 
+                      (replace-regexp-in-string "\\.P\n" "" from-data)) "\n") "" )))
 
          (concat 
           (format ".AU \"%s\" " author) au-line "\n")))
@@ -872,9 +872,9 @@ holding export options."
            (when (and sj-item (stringp sj-item) ) 
              (format ".LO SJ \"%s\" \n"  sj-item))
 
-          
-        ".LT " document-class-string  "\n"))
-       ))
+           
+           ".LT " document-class-string  "\n"))
+        ))
       
       (t ""))
 
@@ -891,11 +891,7 @@ holding export options."
                  ".SG\n")))
       (t ""))
 
-     (mapconcat 
-      (lambda (item)
-        (when (string= (car item) "NS")
-          (replace-regexp-in-string "\\.P\n" "" (cdr item)) )) 
-      special-content "\n")
+     
      )))
 
 
@@ -1145,37 +1141,12 @@ holding contextual information."
      ((member (car  tags)  org-e-groff-special-tags)
       (cond 
        ((string= (car tags) "BODY") contents )
-;;  Copy To
-;; 1 Copy to with att
-;; 2 Copy to without att
-;; 3 Att. 
-;; 4.Atts 
-;; 5 Enc
-;; 6 Encs
-;; 7 Under separate cover
-;; 8 Letter to
-;; 9 Memorandum To
-;; 12 Abstract Only to
-;; 13 Complete Memorandum to
-;; 14 CC
-
-       ((string= (car tags) "NS") 
-        (let ()
-          (message "%s" tags)
-          (if (nth 1 tags)
-              (push 
-               (cons
-                "NS"
-                (concat ".NS " ns-type "\n" contents)) special-content )
-            ;; else
-            (push (cons "NS" (concat ".NS\n" contents)) special-content ) )
-          nil))
-        ;; else
+       ;; else
        (t 
         (let ()
           (push (cons  (car tags) contents) special-content)
           nil))
-      ))
+       ))
      ;; Case 2: This is a footnote section: ignore it.
      ((org-element-property :footnote-section-p headline) nil)
      ;; Case 3: This is a deep sub-tree: export it as a list item.
