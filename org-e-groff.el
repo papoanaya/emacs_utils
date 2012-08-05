@@ -200,9 +200,9 @@ structure of the values.")
 
 (defconst org-e-groff-special-tags
   '("FROM" "TO" "ABSTRACT" "APPENDIX" "BODY")
-;;  :group 'org-export-e-groff
-;;  :type '(list (string :tag "Special Process Tag"))  
-)
+  ;;  :group 'org-export-e-groff
+  ;;  :type '(list (string :tag "Special Process Tag"))  
+  )
 
 
 (defcustom org-e-groff-format-headline-function nil
@@ -661,7 +661,7 @@ See `org-e-groff-text-markup-alist' for details."
 
 (defun org-e-groff--get-tagged-content  (tag info)
   (cdr  (assoc tag special-content) ) 
-)
+  )
 
 
 (defun org-e-groff--mt-head (title contents attr info)
@@ -704,12 +704,24 @@ See `org-e-groff-text-markup-alist' for details."
          (from-data  (org-e-groff--get-tagged-content "FROM" info))
          (to-data  (org-e-groff--get-tagged-content "TO" info)))
 
-         (cond ((and author email (not (string= "" email)))
-                (format ".AU \"%s\" \"%s\"\n" author email))
-               (author (format ".AU \"%s\"\n" author))
-               (t ".AU \"\" \n")))
+     (cond 
+      ((and author from-data) 
+       (let (au-line
+             (mapconcat 
+              (lambda (from-line)
+                (format " \"%s\" " from-line))) 
+             (parse from-data "\n") "" )
+         (concat 
+          (format ".AU \"%s\"\n" author) au-line)))
 
-               
+      ((and author email (not (string= "" email)))
+       (format ".AU \"%s\" \"%s\"\n" author email))
+
+      (author (format ".AU \"%s\"\n" author))
+
+      (t ".AU \"\" \n")))
+
+   
    ;; 4. Author Title, if present
    (let ((at-item (plist-get attr :author-title)  ))
      (if (and at-item (stringp at-item))
@@ -731,7 +743,7 @@ See `org-e-groff-text-markup-alist' for details."
        (format ".AS\n%s\n.AE\n" abstract-data))
       (to-data
        (format ".AS\n%s\n.AE\n" to-data))))
-))
+   ))
 
 
 (defun org-e-groff--letter-head (title contents attr info)
@@ -769,7 +781,7 @@ See `org-e-groff-text-markup-alist' for details."
        (format ".LO SJ \"%s\"" title))
      ".LO SA"
      )
- ))
+    ))
 
 
 ;;; Template
@@ -818,42 +830,42 @@ holding export options."
        "")
 
      (cond 
-       ((string= type-option "custom") "")
+      ((string= type-option "custom") "")
 
-       ((and (stringp document-class-string)
-                     (string= type-option "cover"))
+      ((and (stringp document-class-string)
+            (string= type-option "cover"))
 
-        (concat 
-         (format ".COVER %s\n" document-class-string)
-         (org-e-groff--mt-head title contents attr info)
-         ".COVEND\n"))
+       (concat 
+        (format ".COVER %s\n" document-class-string)
+        (org-e-groff--mt-head title contents attr info)
+        ".COVEND\n"))
 
-       ((string= type-option "memo")
-        (concat
-         (org-e-groff--mt-head title contents attr info)
-         document-class-string))
-        ((string= type-option "letter")
-         (concat 
-          (org-e-groff--letter-head title contents attr info) "\n"
-          ".LT " document-class-string)
-          )
-         
-       (t ""))
+      ((string= type-option "memo")
+       (concat
+        (org-e-groff--mt-head title contents attr info)
+        document-class-string))
+      ((string= type-option "letter")
+       (concat 
+        (org-e-groff--letter-head title contents attr info) "\n"
+        ".LT " document-class-string)
+       )
+      
+      (t ""))
 
 
      contents
 
-    (cond 
-     ((string= last-option "toc")
-      ".TC")
-     ((string= last-option "sign")
-      (let ((fc-item (plist-get attr :closing)))
-        (concat (if (stringp fc-item)
-                    (format ".FC \"%s\" \n" fc-item)
-                  ".FC\n")
-                ".SG")))
-     (t "")) 
-)))
+     (cond 
+      ((string= last-option "toc")
+       ".TC")
+      ((string= last-option "sign")
+       (let ((fc-item (plist-get attr :closing)))
+         (concat (if (stringp fc-item)
+                     (format ".FC \"%s\" \n" fc-item)
+                   ".FC\n")
+                 ".SG")))
+      (t "")) 
+     )))
 
 
 
@@ -1013,18 +1025,18 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
     ;; It is a reference
     ;;
 
-     (if (string-match "fn:rl" ref-id)
-         (if (member ref-id registered-references)
-             (format "\\*[%s]" ref-id)
-           (let ()
-             (push ref-id registered-references)
-             (format "\\*(Rf\n.RS \"%s\" \n%s\n.RF\n" ref-id  data)) )
-       ;;
-       ;; else it is a footnote
-       ;;
-       (format "\\u\\s-2%s\\d\\s+2\n.FS %s\n%s\n.FE\n" n n data))
+    (if (string-match "fn:rl" ref-id)
+        (if (member ref-id registered-references)
+            (format "\\*[%s]" ref-id)
+          (let ()
+            (push ref-id registered-references)
+            (format "\\*(Rf\n.RS \"%s\" \n%s\n.RF\n" ref-id  data)) )
+      ;;
+      ;; else it is a footnote
+      ;;
+      (format "\\u\\s-2%s\\d\\s+2\n.FS %s\n%s\n.FE\n" n n data))
  	
-    	))
+    ))
 
 ;;;; Headline
 
@@ -1402,8 +1414,8 @@ used as a communication channel."
       (t (format "\n.DS L F\n.PSPIC %s \"%s\" %s %s\n.DE " 
                  placement raw-path width height )))
      (unless disable-caption (format "\n.FG \"%s\"" caption )))
-  ))
-    
+    ))
+
 
 
 (defun org-e-groff-link (link desc info)
@@ -1506,12 +1518,12 @@ the plist used as a communication channel."
   (setq parent (plist-get (nth 1 paragraph) :parent))
   (when parent
     (let* ((parent-type (car parent)) 
-          (fixed-paragraph "")
-          (class (plist-get info :groff-class))
-          (class-options (plist-get info :groff-class-options))
-          (classes (assoc class org-e-groff-classes))
-          (classes-options (car (last classes)) )
-          (paragraph-option (plist-get classes-options :paragraph ) ))
+           (fixed-paragraph "")
+           (class (plist-get info :groff-class))
+           (class-options (plist-get info :groff-class-options))
+           (classes (assoc class org-e-groff-classes))
+           (classes-options (car (last classes)) )
+           (paragraph-option (plist-get classes-options :paragraph ) ))
       (cond 
        ((and (symbolp paragraph-option)
              (fboundp paragraph-option))
@@ -1574,12 +1586,12 @@ contextual information."
       (dolist (special-char-list org-e-groff-special-char)
         (setq text
               (replace-regexp-in-string (car special-char-list) 
-                                            (cdr special-char-list) text ))
-                )
+                                        (cdr special-char-list) text ))
+        )
     )
   
   ;; Handle Special Characters
-    
+  
   ;; Handle break preservation if required.
   (when (plist-get info :preserve-breaks)
     (setq text (replace-regexp-in-string "\\(\\\\\\\\\\)?[ \t]*\n" " \\\\\\\\\n"
@@ -1708,9 +1720,9 @@ contextual information."
          (attr
           (read
            (format "(%s)"
-            (mapconcat #'identity
-                       (org-element-property :attr_groff src-block)
-                       " ")))))
+                   (mapconcat #'identity
+                              (org-element-property :attr_groff src-block)
+                              " ")))))
     
     (setq disable-caption (plist-get attr :disable-caption))
 
@@ -1754,8 +1766,8 @@ contextual information."
                 (delete-file in-file)
                 (delete-file out-file)
                 (format "%s\n"  code-block))
-           (format ".DS I\n\\fC\\m[black]%s\\m[]\\fP\n.DE\n"
-                   code))
+            (format ".DS I\n\\fC\\m[black]%s\\m[]\\fP\n.DE\n"
+                    code))
           (unless disable-caption (format ".EX \"%s\" " caption-str) )          
           )
          
@@ -2033,7 +2045,7 @@ a communication channel."
               contents )
             (when (org-export-get-next-element table-cell info) "\t"))
     )
-)
+  )
 
 
 ;;;; Table Row
