@@ -782,7 +782,6 @@ See `org-e-groff-text-markup-alist' for details."
        (format ".IA \n%s\n.IE\n" to-data))
      (when title 
        (format ".LO SJ \"%s\"" title))
-     ".LO SA"
      )
     ))
 
@@ -850,6 +849,30 @@ holding export options."
       ((string= type-option "letter")
        (concat 
         (org-e-groff--letter-head title contents attr info) "\n"
+        (let ((sa-item (plist-get attr :salutation))
+              (cn-item (plist-get attr :confidential))
+              (rn-item (plist-get attr :reference))
+              (at-item (plist-get attr :attention) ))
+
+          (concat
+
+           (if (stringp sa-item)
+               (format ".LO SA \"%s\""  sa-item)
+             ".LO SA\n")
+           (when cn-item ".LO CN\n")
+           (when (and at-item (stringp at-item) ) 
+             (format ".LO AT \"%s\""  at-item)
+
+           (when (and rn-item (stringp rn-item) ) 
+             (format ".LO RN \"%s\""  rn-item)
+
+)
+)
+
+)
+        
+        
+ 
         ".LT " document-class-string)
        )
       
