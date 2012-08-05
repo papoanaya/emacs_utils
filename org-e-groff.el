@@ -195,8 +195,8 @@ structure of the values.")
 ;;;; Headline
 
 (defconst org-e-groff-special-tags
-  " "
-  '("FROM" "TO" "ABSTRACT" "APPENDIX")
+  '("FROM" "TO" "ABSTRACT" "APPENDIX"
+    FROM TO ABSTRACT APPENDIX)
 ;;  :group 'org-export-e-groff
 ;;  :type '(list (string :tag "Special Process Tag"))  
 )
@@ -705,14 +705,14 @@ See `org-e-groff-text-markup-alist' for details."
          (email (and (plist-get info :with-email)
                      (org-export-data (plist-get info :email) info)))
          (from-data  (org-e-groff--get-tagged-content "FROM" info))
-         (to-data  (org-e-groff--get-tagged-content "TO" info))
-         (abstract-data (org-e-groff--get-tagged-content "ABSTRACT" info)))
+         (to-data  (org-e-groff--get-tagged-content "TO" info)))
 
-     (cond ((and author email (not (string= "" email)))
-            (format ".AU \"%s\" \"%s\"\n" author email))
-           (author (format ".AU \"%s\"\n" author))
-           (t ".AU \"\" \n")))
-          
+         (cond ((and author email (not (string= "" email)))
+                (format ".AU \"%s\" \"%s\"\n" author email))
+               (author (format ".AU \"%s\"\n" author))
+               (t ".AU \"\" \n")))
+
+               
    ;; 4. Author Title, if present
    (let ((at-item (plist-get attr :author-title)  ))
      (if (and at-item (stringp at-item))
@@ -727,16 +727,15 @@ See `org-e-groff-text-markup-alist' for details."
    ;; If Abstract, then Populate Abstract
    ;; 
 
-   (cond 
-    (abstract-data 
-     (format ".AS \"%s\"\n%s\n.AE" abstract-data))
-    (from-data
-     (format ".AS \"%s\"\n%s\n.AE" from-data)
-)
-         
-)
+   (let ((abstract-data (org-e-groff--get-tagged-content "ABSTRACT" info))
+         (to-data (org-e-groff--get-tagged-content "TO" info)))
+     (cond 
+      ((not (string= abstract-data "" ))
+       (format ".AS\n%s\n.AE\n" abstract-data))
+      ((not (string= to-data "" ))
+       (format ".AS\n%s\n.AE\n" to-data))))
    
-   ))
+))
 
 
 (defun org-e-groff--letter-head (contents info attr)
@@ -823,14 +822,13 @@ holding export options."
 
        ((string= type-option "memo")
         (concat
-         (org-e-groff-mt-head title contents attr info)
+         (org-e-groff--mt-head title contents attr info)
          document-class-string))
 
         ((string= type-option "letter")
-         (org-e-groff--letter-head title contents attr info))
-        (concat ".LT " document-class-string)
-
-       (t "")))
+         (org-e-groff--letter-head title contents attr info)
+         (concat ".LT " document-class-string))
+       (t ""))
 
     contents
 
@@ -843,9 +841,8 @@ holding export options."
                     (format ".FC \"%s\" \n" fc-item)
                   ".FC\n")
                 ".SG")))
-     (t ""))
-     )
-)
+     (t "")) 
+)))
 
 
 
@@ -973,7 +970,6 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
   (when (eq (org-export-snippet-backend export-snippet) 'e-groff)
     (org-element-property :value export-snippet)))
 
-
 ;;;; Fixed Width
 
 (defun org-e-groff-fixed-width (fixed-width contents info)
@@ -1089,9 +1085,10 @@ holding contextual information."
          (pre-blanks
           (make-string (org-element-property :pre-blank headline) 10)))
     
+
     (cond
      ;; Case 1: Special Tag, do not process. 
-     ((member (org-export-get-tags headline info) 
+     ((member (car  (org-export-get-tags headline info) ) 
               org-e-groff-special-tags) nil)
      ;; Case 2: This is a footnote section: ignore it.
      ((org-element-property :footnote-section-p headline) nil)
@@ -2040,10 +2037,10 @@ a communication channel."
             (org-export-table-cell-borders
              (car (org-element-contents table-row)) info)))
       (concat
-       ;; Mark "hline" for horizontal lines.
+       ;; Mark horizontal lines
        (cond  ((and (memq 'top borders) (memq 'above borders)) "_\n"))
        contents 
-;;; "\\\\\n"
+
        (cond
         ;; When BOOKTABS are activated enforce bottom rule even when
         ;; no hline was specifically marked.
