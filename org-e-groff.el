@@ -108,6 +108,7 @@
   '((:date "DATE" nil org-e-groff-date-format t)
     (:closing "CLOSING" nil nil)
     (:lco "LCO" nil nil)
+    (:ns "NS" nil nil)
     (:opening "OPENING" nil nil)
     (:groff-class "GROFF_CLASS" nil org-e-groff-default-class t)
     (:groff-class-options "GROFF_CLASS_OPTIONS" nil nil t)
@@ -705,6 +706,7 @@ See `org-e-groff-text-markup-alist' for details."
          (email (and (plist-get info :with-email)
                      (org-export-data (plist-get info :email) info)))
          (from-data  (org-e-groff--get-tagged-content "FROM" info))
+         
          (to-data  (org-e-groff--get-tagged-content "TO" info)))
 
      (cond 
@@ -759,6 +761,7 @@ See `org-e-groff-text-markup-alist' for details."
         (email (and (plist-get info :with-email)
                     (org-export-data (plist-get info :email) info)))
         (from-data  (org-e-groff--get-tagged-content "FROM" info))
+        (at-item (plist-get attr :author-title)  )
         (to-data  (org-e-groff--get-tagged-content "TO" info)))
 
 
@@ -773,7 +776,7 @@ See `org-e-groff-text-markup-alist' for details."
     (concat 
      (cond 
       (from-data 
-       (format ".WA \"%s\"\n%s\n.WE\n" author from-data))
+       (format ".WA \"%s\" \"%s\" \n%s\n.WE\n" author (or at-item "") from-data))
       ((and author email (not (string= "" email)))
        (format ".WA \"%s\"\n \"%s\"\n.WE\n" author email))
       (author (format ".WA \"%s\"\n.WE\n" author))
@@ -893,8 +896,16 @@ holding export options."
                    ".FC\n")
                  ".SG\n")))
       (t ""))
-
      
+     (let ()
+       (mapconcat 
+        (lambda (item)
+          (when (string= (car item) "NS")
+            (replace-regexp-in-string 
+                    "\\.P\n" "" (cdr item))
+            
+             ))
+        (reverse special-content) "\n"))
      )))
 
 
@@ -1144,6 +1155,15 @@ holding contextual information."
      ((member (car  tags)  org-e-groff-special-tags)
       (cond 
        ((string= (car tags) "BODY") contents )
+       ((string= (car tags) "NS")
+        (let ()
+          (push (cons (car tags) 
+                      (format ".NS \"%s\" 1 \n%s" 
+                              (car (org-element-property :title headline) ) 
+                              contents))
+                special-content )
+          nil)
+        )
        ;; else
        (t 
         (let ()
