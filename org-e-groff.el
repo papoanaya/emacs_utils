@@ -106,10 +106,13 @@
 
 (defconst org-e-groff-options-alist
   '((:date "DATE" nil org-e-groff-date-format t)
+    (:closing "CLOSING" nil nil)
+    (:lco "LCO" nil nil)
+    (:opening "OPENING" nil nil)
     (:groff-class "GROFF_CLASS" nil org-e-groff-default-class t)
     (:groff-class-options "GROFF_CLASS_OPTIONS" nil nil t)
     (:groff-header-extra "GROFF_HEADER" nil nil newline))
-  "Alist between Groff export properties and ways to set them.
+"Alist between Groff export properties and ways to set them.
 See `org-export-options-alist' for more information on the
 structure of the values.")
 
