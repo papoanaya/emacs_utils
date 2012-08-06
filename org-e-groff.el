@@ -1160,7 +1160,7 @@ holding contextual information."
           (push (cons (car tags) 
                       (format ".NS \"%s\" 1 \n%s" 
                               (car (org-element-property :title headline) ) 
-                              contents))
+                              (or contents " ") ))
                 special-content )
           nil)
         )
