@@ -373,7 +373,7 @@ holding export options."
        (format ".TH \"%s\" \"%s\" \n" title section-item))
 
       ((and (string= "" title) (stringp section-item))
-       (format ".TH \"%s\" \"%s\" \n" " " section-item ))
+       (format ".TH \"%s\" \"%s\" \n" " " section-item))
 
       (title
        (format ".TH \"%s\" \"1\" \n" title))
@@ -1104,16 +1104,16 @@ This function assumes TABLE has `org' as its `:type' attribute."
          (disable-caption (plist-get attr :disable-caption))
          (long-cells (plist-get attr :long-cells))
 
-         (table-format (concat
-                        (format "%s" (or (car attr-list) ""))
-                        (or
-                         (let ((output-list '()))
-                           (when (cdr attr-list)
-                             (dolist (attr-item (cdr attr-list))
-                               (setq output-list
-                                     (concat output-list  (format ",%s" attr-item)))))
-                           output-list)
-                         "")))
+         (table-format 
+          (concat
+           (format "%s" (or (car attr-list) ""))
+           (or
+            (let ((output-list '()))
+              (when (cdr attr-list)
+                (dolist (attr-item (cdr attr-list))
+                  (setq output-list
+                        (concat output-list  (format ",%s" attr-item)))))
+              output-list) "")))
 
     (first-line (when lines (org-split-string (car lines) "\t"))))
     ;; Prepare the final format string for the table.
@@ -1121,54 +1121,54 @@ This function assumes TABLE has `org' as its `:type' attribute."
 
     (cond
      ;; Others.
-     (lines (concat ".TS\n " table-format ";\n"
+     (lines 
+      (concat ".TS\n " table-format ";\n"
 
-                    (format "%s.\n"
-                            (let ((final-line ""))
-                              (when title-line
-                                (dotimes (i (length first-line))
-                                  (setq final-line (concat final-line "cb" divider))))
+              (format "%s.\n"
+                      (let ((final-line ""))
+                        (when title-line
+                          (dotimes (i (length first-line))
+                            (setq final-line (concat final-line "cb" divider))))
 
-                              (setq final-line (concat final-line "\n"))
+                        (setq final-line (concat final-line "\n"))
 
-                              (if alignment
-                                  (setq final-line (concat final-line alignment))
-                                (dotimes (i (length first-line))
-                                  (setq final-line (concat final-line "c" divider))))
-                              final-line))
+                        (if alignment
+                            (setq final-line (concat final-line alignment))
+                          (dotimes (i (length first-line))
+                            (setq final-line (concat final-line "c" divider))))
+                        final-line))
 
-                    (format "%s\n.TE\n"
-                            (let ((final-line "")
-                                  (long-line "")
-                                  (lines (org-split-string contents "\n")))
+              (format "%s\n.TE\n"
+                      (let ((final-line "")
+                            (long-line "")
+                            (lines (org-split-string contents "\n")))
 
-                              (dolist (line-item lines)
-                                (setq long-line "")
+                        (dolist (line-item lines)
+                          (setq long-line "")
 
-                                (if long-cells
-                                    (progn
-                                      (if (string= line-item "_")
-                                          (setq long-line (format "%s\n" line-item))
-                                        ;; else string =
-                                        (let ((cell-item-list (org-split-string line-item "\t")))
-                                          (dolist (cell-item cell-item-list)
+                          (if long-cells
+                              (progn
+                                (if (string= line-item "_")
+                                    (setq long-line (format "%s\n" line-item))
+                                  ;; else string =
+                                  (let ((cell-item-list (org-split-string line-item "\t")))
 
-                                            (cond  ((eq cell-item (car (last cell-item-list)))
-                                                    (setq long-line (concat long-line
-                                                                            (format "T{\n%s\nT}\t\n"  cell-item))))
-                                                   (t
-                                                    (setq long-line (concat long-line
-                                                                            (format "T{\n%s\nT}\t"  cell-item))))))
-                                        long-line))
-                                     ;; else long cells
-                                  (setq final-line (concat final-line long-line)))
+                                    (dolist (cell-item cell-item-list)
+                                      (cond  ((eq cell-item (car (last cell-item-list)))
+                                              (setq long-line (concat long-line
+                                                                      (format "T{\n%s\nT}\t\n"  cell-item))))
+                                             (t
+                                              (setq long-line (concat long-line
+                                                                      (format "T{\n%s\nT}\t"  cell-item))))))
+                                    long-line))
+                                ;; else long cells
+                                (setq final-line (concat final-line long-line)))
 
-                                  (setq final-line (concat final-line line-item "\n"))))
-                              final-line))
+                            (setq final-line (concat final-line line-item "\n"))))
+                        final-line))
 
-                    (if (not disable-caption)
-                        (format ".TB \"%s\""
-                                caption) ""))))))
+              (if (not disable-caption)
+                  (format ".TB \"%s\"" caption) ""))))))
 
 ;;;; Table Cell
 
