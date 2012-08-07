@@ -18,13 +18,13 @@ $footer
 end
 
 nodoctemplate
-".DS I
+"
+.DS I
 .fam C
 "
 "
 .fam
-.DE
-"
+.DE"
 end
 
 bold "\fB$text\fP"
