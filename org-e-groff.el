@@ -742,7 +742,7 @@ See `org-e-groff-text-markup-alist' for details."
         (email (and (plist-get info :with-email)
                     (org-export-data (plist-get info :email) info)))
         (from-data  (org-e-groff--get-tagged-content "FROM" info))
-        (at-item (plist-get attr :author-title)  )
+        (at-item (plist-get attr :author-title))
         (to-data  (org-e-groff--get-tagged-content "TO" info)))
 
 
@@ -786,9 +786,9 @@ holding export options."
          (class-options (plist-get info :groff-class-options))
          (classes (assoc class org-e-groff-classes))
          (classes-options (car (last classes)))
-         (heading-option (plist-get classes-options :heading ))
-         (type-option (plist-get classes-options :type ))
-         (last-option (plist-get classes-options :last-section ))
+         (heading-option (plist-get classes-options :heading))
+         (type-option (plist-get classes-options :type))
+         (last-option (plist-get classes-options :last-section))
          (hyphenate (plist-get attr :hyphenate))
          (justify-right (plist-get attr :justify-right))
 
@@ -1067,9 +1067,9 @@ holding contextual information."
 
          (classes (assoc class org-e-groff-classes))
          (classes-options (car (last classes)))
-         (heading-option (plist-get classes-options :heading ))
+         (heading-option (plist-get classes-options :heading))
          (section-fmt
-          (let ()
+          (progn
             (cond
              ((and (symbolp heading-option)
                    (fboundp heading-option))
@@ -1129,7 +1129,7 @@ holding contextual information."
      ;; Case 1: Special Tag
      ((member (car  tags)  org-e-groff-special-tags)
       (cond
-       ((string= (car tags) "BODY") contents )
+       ((string= (car tags) "BODY") contents)
 
        ((string= (car tags) "NS")
         (progn
@@ -1137,7 +1137,7 @@ holding contextual information."
                       (format ".NS \"%s\" 1 \n%s"
                               (car (org-element-property :title headline))
                               (or contents " ")))
-                org-e-groff-special-content ) nil))
+                org-e-groff-special-content) nil))
 
        (t
         (progn
@@ -1165,7 +1165,7 @@ holding contextual information."
         (if (not (org-export-last-sibling-p headline info)) low-level-body
           (replace-regexp-in-string
            "[ \t\n]*\\'"
-           (concat "\n.LE" )
+           (concat "\n.LE")
            low-level-body))))
 
      ;; Case 4. Standard headline.  Export it as a section.
@@ -1193,9 +1193,9 @@ contextual information."
      (org-e-groff-source-highlight
       (let* ((tmpdir (if (featurep 'xemacs)
                          temp-directory
-                       temporary-file-directory ))
+                       temporary-file-directory))
              (in-file  (make-temp-name
-                        (expand-file-name "srchilite" tmpdir))  )
+                        (expand-file-name "srchilite" tmpdir)))
              (out-file (make-temp-name
                         (expand-file-name "reshilite" tmpdir)))
              (org-lang (org-element-property :language inline-src-block))
@@ -1206,10 +1206,10 @@ contextual information."
                           " -s " lst-lang
                           " -f groff_mm_color "
                           " -i " in-file
-                          " -o " out-file )))
+                          " -o " out-file)))
 
         (if lst-lang
-            (let ((code-block "" ))
+            (let ((code-block ""))
               (with-temp-file in-file (insert code))
               (shell-command cmd)
               (setq code-block  (org-file-contents out-file))
@@ -1293,7 +1293,7 @@ contextual information."
          (checkbox (case (org-element-property :checkbox item)
                      (on "\\o'\\(sq\\(mu'")
                      (off "\\(sq")
-                     (trans "\\o'\\(sq\\(mi'"   )))
+                     (trans "\\o'\\(sq\\(mi'")))
 
          (tag (let ((tag (org-element-property :tag item)))
                 ;; Check-boxes must belong to the tag.
@@ -1305,18 +1305,18 @@ contextual information."
 	 ((or checkbox tag)
 	  (concat ".LI ""\"" (or tag (concat "\\ " checkbox)) "\""
               "\n"
-              (org-trim (or contents " " )))  )
+              (org-trim (or contents " "))))
      ((eq type 'ordered)
       (concat ".LI"
               "\n"
-              (org-trim (or contents " " ))))
+              (org-trim (or contents " "))))
      (t
       (let* ((bullet (org-trim bullet))
              (marker (cond  ((string= "-" bullet) "\\(em")
                             ((string= "*" bullet) "\\(bu")
                             (t "\\(dg"))))
         (concat ".LI " marker "\n"
-                (org-trim (or contents " " ))))))))
+                (org-trim (or contents " "))))))))
 
 
 
@@ -1395,8 +1395,8 @@ used as a communication channel."
             ('left "-L")
             ('right "-R")
             (t "")))
-    (width  (or (plist-get attr :width) "" ))
-    (height (or (plist-get attr :height) "" ))
+    (width  (or (plist-get attr :width) ""))
+    (height (or (plist-get attr :height) ""))
 
     (disable-caption (plist-get attr :disable-caption))
 
@@ -1414,10 +1414,10 @@ used as a communication channel."
     (concat
      (cond
       ((string-match ".\.pic$" path)
-       (format "\n.PS\ncopy \"%s\"\n.PE" path ))
+       (format "\n.PS\ncopy \"%s\"\n.PE" path))
       (t (format "\n.DS L F\n.PSPIC %s \"%s\" %s %s\n.DE "
-                 placement path width height )))
-     (unless disable-caption (format "\n.FG \"%s\"" caption )))))
+                 placement path width height)))
+     (unless disable-caption (format "\n.FG \"%s\"" caption)))))
 
 
 
@@ -1526,14 +1526,14 @@ the plist used as a communication channel."
              (class-options (plist-get info :groff-class-options))
              (classes (assoc class org-e-groff-classes))
              (classes-options (car (last classes)))
-             (paragraph-option (plist-get classes-options :paragraph )))
+             (paragraph-option (plist-get classes-options :paragraph)))
         (cond
          ((and (symbolp paragraph-option)
                (fboundp paragraph-option))
           (funcall paragraph-option parent-type parent contents))
 
          ((and (eq parent-type 'item)
-               (plist-get (nth 1 parent) :bullet ))
+               (plist-get (nth 1 parent) :bullet))
           (setq fixed-paragraph (concat "" contents)))
 
          ((eq parent-type 'section)
@@ -1561,9 +1561,7 @@ contextual information."
                       ((eq type 'descriptive) ".VL 2.0i"))))
     (org-e-groff--wrap-label
      plain-list
-     (format "%s\n%s\n.LE"
-             groff-type
-             contents ))))
+     (format "%s\n%s\n.LE" groff-type contents))))
 
 
 ;;;; Plain Text
@@ -1585,7 +1583,7 @@ contextual information."
       (dolist (special-char-list org-e-groff-special-char)
         (setq text
               (replace-regexp-in-string (car special-char-list)
-                                        (cdr special-char-list) text ))))
+                                        (cdr special-char-list) text))))
 
   ;; Handle Special Characters
 
@@ -1731,12 +1729,12 @@ contextual information."
         (concat
          (format ".DS I\n\\fC%s\\fP\n.DE\n"
                  (org-export-format-code-default src-block info))
-         (unless  disable-caption (format ".EX \"%s\" "  caption-str )))))
+         (unless  disable-caption (format ".EX \"%s\" "  caption-str)))))
 
      ((and org-e-groff-source-highlight)
        (let* ((tmpdir (if (featurep 'xemacs)
                           temp-directory
-                        temporary-file-directory ))
+                        temporary-file-directory))
               (caption-str (org-e-groff--caption/label-string caption label info))
               (in-file  (make-temp-name
                          (expand-file-name "srchilite" tmpdir)))
@@ -1751,11 +1749,11 @@ contextual information."
                            " -s " lst-lang
                            " -f groff_mm_color "
                            " -i " in-file
-                           " -o " out-file )))
+                           " -o " out-file)))
 
          (concat
           (if lst-lang
-              (let ((code-block "" ))
+              (let ((code-block ""))
                 (with-temp-file in-file (insert code))
                 (shell-command cmd)
                 (setq code-block  (org-file-contents out-file))
@@ -1922,8 +1920,7 @@ This function assumes TABLE has `org' as its `:type' attribute."
                         ('left nil)
                         (t
                          (if org-e-groff-tables-centered
-                             "center"
-                           "" )))
+                             "center" "")))
 
                       (case (plist-get attr :boxtype)
                         ('box "box")
@@ -1934,7 +1931,7 @@ This function assumes TABLE has `org' as its `:type' attribute."
 
               (if (not (null attr-item))
                   (add-to-list 'result-list attr-item)))
-            result-list ))
+            result-list))
 
 
          (title-line  (plist-get attr :title-line))
@@ -1942,13 +1939,13 @@ This function assumes TABLE has `org' as its `:type' attribute."
          (long-cells (plist-get attr :long-cells))
 
          (table-format (concat
-                        (format "%s" (or (car attr-list) "" ))
+                        (format "%s" (or (car attr-list) ""))
                         (or
                          (let ((output-list '()))
                            (when (cdr attr-list)
                              (dolist (attr-item (cdr attr-list))
                                (setq output-list
-                                     (concat output-list  (format ",%s" attr-item )))))
+                                     (concat output-list  (format ",%s" attr-item)))))
                            output-list)
                          "")))
 
@@ -1972,7 +1969,7 @@ This function assumes TABLE has `org' as its `:type' attribute."
                                   (setq final-line (concat final-line alignment))
                                 (dotimes (i (length first-line))
                                   (setq final-line (concat final-line "c" divider))))
-                              final-line ))
+                              final-line))
 
                     (format "%s\n.TE\n"
                             (let ((final-line "")
@@ -1992,13 +1989,13 @@ This function assumes TABLE has `org' as its `:type' attribute."
 
                                             (cond  ((eq cell-item (car (last cell-item-list)))
                                                     (setq long-line (concat long-line
-                                                                            (format "T{\n%s\nT}\t\n"  cell-item ))))
+                                                                            (format "T{\n%s\nT}\t\n"  cell-item))))
                                                    (t
                                                     (setq long-line (concat long-line
-                                                                            (format "T{\n%s\nT}\t"  cell-item ))))))
+                                                                            (format "T{\n%s\nT}\t"  cell-item))))))
                                         long-line))
                                      ;; else long cells
-                                  (setq final-line (concat final-line long-line )))
+                                  (setq final-line (concat final-line long-line)))
 
                                   (setq final-line (concat final-line line-item "\n"))))
                               final-line))
@@ -2021,7 +2018,7 @@ a communication channel."
               (format org-e-groff-table-scientific-notation
                       (match-string 1 contents)
                       (match-string 2 contents))
-            contents )
+            contents)
           (when (org-export-get-next-element table-cell info) "\t")))
 
 
@@ -2240,7 +2237,7 @@ none."
     (save-excursion
       (goto-char (point-max))
       ;; Find final run
-      nil )))
+      nil)))
 
 
 (provide 'org-e-groff)
