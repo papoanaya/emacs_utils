@@ -2018,17 +2018,16 @@ This function assumes TABLE has `org' as its `:type' attribute."
   "Transcode a TABLE-CELL element from Org to Groff
 CONTENTS is the cell contents.  INFO is a plist used as
 a communication channel."
-  (progn
-    (concat (if (and contents
-                     org-e-groff-table-scientific-notation
-                     (string-match orgtbl-exp-regexp contents))
-                ;; Use appropriate format string for scientific
-                ;; notation.
-                (format org-e-groff-table-scientific-notation
-                        (match-string 1 contents)
-                        (match-string 2 contents))
-              contents )
-            (when (org-export-get-next-element table-cell info) "\t"))))
+  (concat (if (and contents
+                   org-e-groff-table-scientific-notation
+                   (string-match orgtbl-exp-regexp contents))
+              ;; Use appropriate format string for scientific
+              ;; notation.
+              (format org-e-groff-table-scientific-notation
+                      (match-string 1 contents)
+                      (match-string 2 contents))
+            contents )
+          (when (org-export-get-next-element table-cell info) "\t")))
 
 
 ;;;; Table Row
