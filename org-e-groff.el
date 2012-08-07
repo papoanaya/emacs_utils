@@ -411,8 +411,7 @@ in order to mimic default behaviour:
     (ldap "ldap") (opa "opa")
     (php "php") (postscript "postscript") (prolog "prolog")
     (properties "properties") (makefile "makefile")
-    (tml "tml") (vala "vala") (vbscript "vbscript") (xorg "xorg")
-    )
+    (tml "tml") (vala "vala") (vbscript "vbscript") (xorg "xorg"))
   "Alist mapping languages to their listing language counterpart.
 The key is a symbol, the major mode symbol without the \"-mode\".
 The value is the string that should be inserted as the language
@@ -502,11 +501,9 @@ string defines the replacement string for this quote."
 
 
 (defcustom org-e-groff-special-char
-  '(
-    ("(c)" . "\\\\(co")
+  '(("(c)" . "\\\\(co")
     ("(tm)" . "\\\\(tm")
-    ("(rg)" . "\\\\(rg")
-    )
+    ("(rg)" . "\\\\(rg"))
   "CONS list in which the value of the car
   is replace on the value of the CDR. "
   :group 'org-export-e-groff
@@ -520,8 +517,7 @@ string defines the replacement string for this quote."
 (defcustom org-e-groff-pdf-process
   '("pic %f | tbl | eqn | groff -mm | ps2pdf - > %b.pdf"
     "pic %f | tbl | eqn | groff -mm | ps2pdf - > %b.pdf"
-    "pic %f | tbl | eqn | groff -mm | ps2pdf - > %b.pdf"
-    )
+    "pic %f | tbl | eqn | groff -mm | ps2pdf - > %b.pdf")
 
   "Commands to process a Groff file to a PDF file.
 This is a list of strings, each of them will be given to the
@@ -535,7 +531,7 @@ extension) and %o by the base directory of the file."
                   (string :tag "Shell command"))
           (const :tag "2 runs of pdfgroff"
                  ("pic %f | tbl | eqn | groff -mm | ps2pdf - > %b.pdf"
-                  "pic %f | tbl | eqn | groff -mm | ps2pdf - > %b.pdf" ))
+                  "pic %f | tbl | eqn | groff -mm | ps2pdf - > %b.pdf"))
           (const :tag "3 runs of pdfgroff"
                  ("pic %f | tbl | eqn | groff -mm | ps2pdf - > %b.pdf"
                   "pic %f | tbl | eqn | groff -mm | ps2pdf - > %b.pdf"
@@ -588,7 +584,7 @@ information.
 If there's no caption nor label, return the empty string.
 
 For non-floats, see `org-e-groff--wrap-label'."
-  (let ((label-str "" ))
+  (let ((label-str ""))
     (cond
      ((and (not caption) (not label)) "")
      ((not caption) (format "\\fI%s\\fP" label))
@@ -673,15 +669,15 @@ See `org-e-groff-text-markup-alist' for details."
       ((string= "" title)
        (format ".TL \"%s\" \"%s\" \n%s\n"
                (or subtitle1 "")
-               (or subtitle2 "") " ")
-       )
+               (or subtitle2 "") " "))
+
       ((not (or subtitle1 subtitle2))
        (format ".TL\n%s\n"
-               (or title "" )))
+               (or title "")))
       (t
        (format ".TL \"%s\" \"%s \" \n%s\n"
                (or subtitle1 "")
-               (or subtitle2 "") title)  )))
+               (or subtitle2 "") title))))
 
    ;; 3. Author.
    ;; In Groff, .AU *MUST* be placed after .TL
@@ -704,7 +700,7 @@ See `org-e-groff-text-markup-alist' for details."
                  (format " \"%s\" " from-line))
                (split-string
                 (setq from-data
-                      (replace-regexp-in-string "\\.P\n" "" from-data)) "\n") "" )))
+                      (replace-regexp-in-string "\\.P\n" "" from-data)) "\n") "")))
 
          (concat
           (format ".AU \"%s\" " author) au-line "\n")))
@@ -718,10 +714,9 @@ See `org-e-groff-text-markup-alist' for details."
 
 
    ;; 4. Author Title, if present
-   (let ((at-item (plist-get attr :author-title)  ))
+   (let ((at-item (plist-get attr :author-title)))
      (if (and at-item (stringp at-item))
-         (format ".AT \"%s\" \n" at-item )
-       ""))
+         (format ".AT \"%s\" \n" at-item) ""))
 
    ;; 5. Date.
    (let ((date (org-export-data (plist-get info :date) info)))
@@ -1037,7 +1032,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 
 (defun org-e-groff-footnote-reference (footnote-reference contents info)
   ;; Changing from info to footnote-reference
-  (let* (( raw (org-export-get-footnote-definition footnote-reference info))
+  (let* ((raw (org-export-get-footnote-definition footnote-reference info))
 		 (n (org-export-get-footnote-number footnote-reference info))
 		 (data (org-trim (org-export-data raw info)))
          (ref-id (plist-get (nth 1 footnote-reference) :label)))
@@ -1048,7 +1043,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
     (if (string-match "fn:rl" ref-id)
         (if (member ref-id org-e-groff-registered-references)
             (format "\\*[%s]" ref-id)
-          (let ()
+          (progn
             (push ref-id org-e-groff-registered-references)
             (format "\\*(Rf\n.RS \"%s\" \n%s\n.RF\n" ref-id  data)))
       ;;
