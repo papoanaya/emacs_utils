@@ -41,7 +41,7 @@ lineprefix ""
 #lineprefix "\fC\n(ln\fP   "
 
 translations
-##"_" "\_"
+"\\" "\\\\"
 ##"\n" " \\\\\n"
 ##" " "\\ "
 ##"\t" "\\ \\ \\ \\ \\ \\ \\ \\ "
