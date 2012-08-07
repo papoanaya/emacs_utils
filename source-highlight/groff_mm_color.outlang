@@ -16,15 +16,18 @@ $footer
 end
 
 nodoctemplate
-".DS I
+"
+.DS I
+.fam C
 "
 "
+.fam
 .DE"
 end
 
-bold "\fB$text\fP"
-italics "\fB$text\fP"
-underline "\fH$text\fP"
+bold "\f[CB]$text\fP"
+italics "\f[CI]$text\fP"
+underline "\f[CI]$text\fP"
 fixed "\fC$text\fP"
 color "\m[$style]$text\m[]"
 
