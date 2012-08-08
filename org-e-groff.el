@@ -195,7 +195,7 @@ structure of the values.")
 ;;;; Headline
 
 (defconst org-e-groff-special-tags
-  '("FROM" "TO" "ABSTRACT" "APPENDIX" "BODY" "NS"))
+  '("FROM" "TO" "ABSTRACT" "BODY" "NS"))
 
 
 (defcustom org-e-groff-format-headline-function nil
