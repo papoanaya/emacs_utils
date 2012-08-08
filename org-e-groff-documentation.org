@@ -190,19 +190,19 @@ block, semiblock, simplified and fullblock.
 
 Illustrated below is how a typical letter looks like:
 #+BEGIN_EXAMPLE
-* FROM :FROM:
-Joe Smith
-00 Street
-City, ST, 00000
-* TO :TO:
-Maria Rivera
-Urbanizacion Palma Lejos
-Calle 22, Bloque A, Numero 10
-Ciudad, ES, 00000
-* BODY :BODY:
-letter content
-* Copy to :NS:
-Jill Brown
+  * FROM :FROM:
+  Joe Smith
+  00 Street
+  City, ST, 00000
+  * TO :TO:
+  Maria Rivera
+  Urbanizacion Palma Lejos
+  Calle 22, Bloque A, Numero 10
+  Ciudad, ES, 00000
+  * BODY :BODY:
+  letter content
+  * Copy to :NS:
+  Jill Brown
 #+END_EXAMPLE
 
 - FROM :: A header with a /:FROM:/ tag contains the address of the
@@ -211,10 +211,10 @@ Jill Brown
           addressing standards of the originator. 
 - TO :: A header with a /:TO:/ tag contains the address of the
         recipient. It needs to be written in free form but it should
-- BODY :: Body indicates the start of the letter. This is needed to
+- BODY :: The /:BODY:/ tag indicates the start of the letter. This is needed to
           start the content of the letter without writing the header on
           output. 
-- NS :: NS will write the title of the header as the type of
+- NS :: /:NS: will write the title of the header as the type of
         disposition at the end of the letter, after the signature. 
         In the exaple, it will write "Copy to" Jill Brown at
         the end of the letter. 
@@ -225,22 +225,22 @@ Memo letter types are the ones defined as: "letter" or a custom cover.
 
 Illustrated below is how a typical letter looks like:
 #+BEGIN_EXAMPLE
-* FROM :FROM:
-initials
-location
-department
-extension
-room
-additional
-* TO :TO:
-Maria Rivera
-Urbanizacion Palma Lejos
-Calle 22, Bloque A, Numero 10
-Ciudad, ES, 00000
-* BODY :BODY:
-letter content
-* Copy to :NS:
-Jill Brown
+  * FROM :FROM:
+  initials
+  location
+  department
+  extension
+  room
+  additional
+  * TO :TO:
+  Maria Rivera
+  Urbanizacion Palma Lejos
+  Calle 22, Bloque A, Numero 10
+  Ciudad, ES, 00000
+  * BODY :BODY:
+  letter content
+  * Copy to :NS:
+  Jill Brown
 #+END_EXAMPLE
 
 - FROM :: A header with a /:FROM:/ tag contains the address of the
@@ -254,10 +254,10 @@ Jill Brown
           6. Additional items, like email or street address.
 - TO :: A header with a /:TO:/ tag contains the address of the
         recipient. It needs to be written in free form but it should
-- BODY :: Body indicates the start of the letter. This is needed to
+- BODY :: The /:BODY:/ tag indicates the start of the letter. This is needed to
           start the content of the letter without writing the header on
           output. 
-- NS :: NS will write the title of the header as the type of
+- NS :: The /:NS:/ tag will write the title of the header as the type of
         disposition at the end of the letter, after the signature. 
         In the exaple, it will write "Copy to" Jill Brown at
         the end of the letter. 
@@ -275,16 +275,16 @@ engineering, programmer or a custom cover.
 
 Illustrated below is how a typical memo looks like:
 #+BEGIN_EXAMPLE
-* FROM :FROM:
-initials
-location
-department
-extension
-room
-additional
-* TO :ABSTRACT:
-Abstract Body
-* First Header
+  * FROM :FROM:
+  initials
+  location
+  department
+  extension
+  room
+  additional
+ * TO :ABSTRACT:
+  Abstract Body
+ * First Header
 #+END_EXAMPLE
 
 - FROM :: A header with a /:FROM:/ tag contains the address of the
@@ -296,8 +296,9 @@ Abstract Body
           4. Author extension
           5. Author room
           6. Additional items, like email or street address.
-- ABSTRACT :: Abstract defines the body of an abstract. The abstract will
-              be placed before the document itself. 
+- ABSTRACT :: A header with an /:ABSTRACT:/ tag contains the abstract 
+              The abstract will be placed in the Abstract Location,
+              usually at the cover sheet, before the start of the document.
 
 The placement of items depends directly on the way the cover has been
 written and these follows the Bell Labs standards. This may or may not be

@@ -123,7 +123,7 @@ structure of the values.")
   :tag "Org Export Man"
   :group 'org-export)
 
-;;;; Tables
+;;; Tables
 
 
 (defcustom org-e-man-tables-centered t
@@ -149,7 +149,7 @@ When nil, no transformation is made."
           (const :tag "No formatting")))
 
 
-;;;; Inlinetasks
+;;; Inlinetasks
 ;; Src blocks
 
 (defcustom org-e-man-source-highlight nil
@@ -207,7 +207,7 @@ during man export."
 
 
 
-;;;; Plain text
+;;; Plain text
 
 (defcustom org-e-man-quotes
   '(("fr"
@@ -243,7 +243,7 @@ string defines the replacement string for this quote."
                 (string :tag "Replacement quote     "))))
 
 
-;;;; Compilation
+;;; Compilation
 
 (defcustom org-e-man-pdf-process
   '("tbl %f | eqn | groff -man | ps2pdf - > %b.pdf"
@@ -268,7 +268,7 @@ its single argument."
                   (string :tag "Shell command"))
           (const :tag "2 runs of pdfgroff"
                  ("tbl %f | eqn | groff -mm | ps2pdf - > %b.pdf"
-                  "tbl %f | eqn | groff -mm | ps2pdf - > %b.pdf"))
+                  "tbl %f | eqn | groff -mm | ps2pdf - > %b.pdf" ))
           (const :tag "3 runs of pdfgroff"
                  ("tbl %f | eqn | groff -mm | ps2pdf - > %b.pdf"
                   "tbl %f | eqn | groff -mm | ps2pdf - > %b.pdf"
@@ -313,7 +313,7 @@ information.
 If there's no caption nor label, return the empty string.
 
 For non-floats, see `org-e-man--wrap-label'."
-  (let ((label-str ""))
+  (let ((label-str "" ))
     (cond
      ((and (not caption) (not label)) "")
      ((not caption) (format "\\fI%s\\fP" label))
@@ -371,26 +371,25 @@ holding export options."
      (cond
       ((and title (stringp section-item))
        (format ".TH \"%s\" \"%s\" \n" title section-item))
-
       ((and (string= "" title) (stringp section-item))
        (format ".TH \"%s\" \"%s\" \n" " " section-item))
-
       (title
        (format ".TH \"%s\" \"1\" \n" title))
       (t
        ".TH \" \" \"1\" "))
-
      contents)))
+
+
 
 
 ;;; Transcode Functions
 
-;;;; Babel Call
+;;; Babel Call
 ;;
 ;; Babel Calls are ignored.
 
 
-;;;; Bold
+;;; Bold
 
 (defun org-e-man-bold (bold contents info)
   "Transcode BOLD from Org to Man.
@@ -399,7 +398,7 @@ contextual information."
   (format "\\fB%s\\fP" contents))
 
 
-;;;; Center Block
+;;; Center Block
 
 (defun org-e-man-center-block (center-block contents info)
   "Transcode a CENTER-BLOCK element from Org to Man.
@@ -408,20 +407,20 @@ holding contextual information."
   (org-e-man--wrap-label
    center-block
    (format ".ce %d\n.nf\n%s\n.fi"
-           (- (length (split-string contents "\n")) 1)
+           (- (length (split-string contents "\n")) 1 )
            contents)))
 
 
-;;;; Clock
+;;; Clock
 
 (defun org-e-man-clock (clock contents info)
   "Transcode a CLOCK element from Org to Man.
 CONTENTS is nil.  INFO is a plist holding contextual
 information."
-  "")
+  "" )
 
 
-;;;; Code
+;;; Code
 
 (defun org-e-man-code (code contents info)
   "Transcode a CODE object from Org to Man.
@@ -430,17 +429,17 @@ channel."
   (format "\\fC%s\\fP" code))
 
 
-;;;; Comment
+;;; Comment
 ;;
 ;; Comments are ignored.
 
 
-;;;; Comment Block
+;;; Comment Block
 ;;
 ;; Comment Blocks are ignored.
 
 
-;;;; Drawer
+;;; Drawer
 
 (defun org-e-man-drawer (drawer contents info)
   "Transcode a DRAWER element from Org to Man.
@@ -450,7 +449,7 @@ channel."
   contents)
 
 
-;;;; Dynamic Block
+;;; Dynamic Block
 
 (defun org-e-man-dynamic-block (dynamic-block contents info)
   "Transcode a DYNAMIC-BLOCK element from Org to Man.
@@ -459,7 +458,7 @@ holding contextual information.  See `org-export-data'."
   (org-e-man--wrap-label dynamic-block contents))
 
 
-;;;; Entity
+;;; Entity
 
 (defun org-e-man-entity (entity contents info)
   "Transcode an ENTITY object from Org to Man.
@@ -468,7 +467,7 @@ contextual information."
   (let ((ent (org-element-property :utf8 entity))) ent))
 
 
-;;;; Example Block
+;;; Example Block
 
 (defun org-e-man-example-block (example-block contents info)
   "Transcode an EXAMPLE-BLOCK element from Org to Man.
@@ -478,7 +477,7 @@ information."
    example-block
    (format ".RS\n.nf\n%s\n.fi\n.RE"
            (org-export-format-code-default example-block info))))
-;;;; Export Block
+;;; Export Block
 
 (defun org-e-man-export-block (export-block contents info)
   "Transcode a EXPORT-BLOCK element from Org to Man.
@@ -487,7 +486,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
     (org-remove-indentation (org-element-property :value export-block))))
 
 
-;;;; Export Snippet
+;;; Export Snippet
 
 (defun org-e-man-export-snippet (export-snippet contents info)
   "Transcode a EXPORT-SNIPPET object from Org to Man.
@@ -496,7 +495,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
     (org-element-property :value export-snippet)))
 
 
-;;;; Fixed Width
+;;; Fixed Width
 
 (defun org-e-man-fixed-width (fixed-width contents info)
   "Transcode a FIXED-WIDTH element from Org to Man.
@@ -508,16 +507,16 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
             (org-element-property :value fixed-width)))))
 
 
-;;;; Footnote Definition
+;;; Footnote Definition
 ;;
 ;; Footnote Definitions are ignored.
 
-;;;; Footnote References
+;;; Footnote References
 ;;
 ;; Footnote References are Ignored
 
 
-;;;; Headline
+;;; Headline
 
 (defun org-e-man-headline (headline contents info)
   "Transcode an HEADLINE element from Org to Man.
@@ -561,16 +560,16 @@ holding contextual information."
 		   low-level-body))))
 
      ;; Case 3. Standard headline.  Export it as a section.
-     (t (format section-fmt text contents)))))
+     (t (format section-fmt text contents )))))
 
-;;;; Horizontal Rule
+;;; Horizontal Rule
 ;; Not supported
 
-;;;; Inline Babel Call
+;;; Inline Babel Call
 ;;
 ;; Inline Babel Calls are ignored.
 
-;;;; Inline Src Block
+;;; Inline Src Block
 
 (defun org-e-man-inline-src-block (inline-src-block contents info)
   "Transcode an INLINE-SRC-BLOCK element from Org to Man.
@@ -581,7 +580,7 @@ contextual information."
      (org-e-man-source-highlight
       (let* ((tmpdir (if (featurep 'xemacs)
                          temp-directory
-                       temporary-file-directory))
+                       temporary-file-directory ))
              (in-file  (make-temp-name
                         (expand-file-name "srchilite" tmpdir)))
              (out-file (make-temp-name
@@ -594,10 +593,10 @@ contextual information."
                           " -s " lst-lang
                           " -f groff_man"
                           " -i " in-file
-                          " -o " out-file)))
+                          " -o " out-file )))
 
         (if lst-lang
-            (let ((code-block ""))
+            (let ((code-block "" ))
               (with-temp-file in-file (insert code))
               (shell-command cmd)
               (setq code-block  (org-file-contents out-file))
@@ -613,8 +612,8 @@ contextual information."
               "\\fP\n.fi\n.RE\n")))))
 
 
-;;;; Inlinetask
-;;;; Italic
+;;; Inlinetask
+;;; Italic
 
 (defun org-e-man-italic (italic contents info)
   "Transcode ITALIC from Org to Man.
@@ -623,7 +622,7 @@ contextual information."
   (format "\\fI%s\\fP" contents))
 
 
-;;;; Item
+;;; Item
 
 
 (defun org-e-man-item (item contents info)
@@ -632,21 +631,12 @@ contextual information."
 CONTENTS holds the contents of the item.  INFO is a plist holding
 contextual information."
 
-  (let* ((counter
-          (let ((count (org-element-property :counter item))
-                (level
-                 (loop for parent in (org-export-get-genealogy item)
-                       count (eq (org-element-type parent) 'plain-list)
-                       until (eq (org-element-type parent) 'headline))))
-            (and count
-                 (< level 5)
-                 (concat ""))))
-         (bullet (org-element-property :bullet item))
+  (let* ((bullet (org-element-property :bullet item))
          (type (org-element-property :type (org-element-property :parent item)))
          (checkbox (case (org-element-property :checkbox item)
                      (on "\\o'\\(sq\\(mu'")			;;
                      (off "\\(sq ")					;;
-                     (trans "\\o'\\(sq\\(mi'"))) ;;
+                     (trans "\\o'\\(sq\\(mi'"   ))) ;;
 
          (tag (let ((tag (org-element-property :tag item)))
                 ;; Check-boxes must belong to the tag.
@@ -654,7 +644,7 @@ contextual information."
                                  (concat checkbox
                                          (org-export-data tag info)))))))
 
-    (if (and (null tag)
+    (if (and (null tag )
 			 (null checkbox))
 		(let* ((bullet (org-trim bullet))
 			   (marker (cond  ((string= "-" bullet) "\\(em")
@@ -663,12 +653,12 @@ contextual information."
 							   (format "%s " (org-trim bullet)))
 							  (t "\\(dg"))))
 		  (concat ".IP " marker " 4\n"
-				  (org-trim (or contents " "))))
+				  (org-trim (or contents " " ))))
                                         ; else
       (concat ".TP\n" (or tag (concat " " checkbox)) "\n"
-              (org-trim (or contents " "))))))
+              (org-trim (or contents " " ))))))
 
-;;;; Keyword
+;;; Keyword
 
 
 (defun org-e-man-keyword (keyword contents info)
@@ -681,10 +671,10 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
      ((string= key "INDEX") nil)
      ;; Invisible targets.
      ((string= key "TARGET") nil)
-     ((string= key "TOC") nil))))
+     ((string= key "TOC"   ) nil))))
 
 
-;;;; Man Environment
+;;; Man Environment
 
 (defun org-e-man-man-environment (man-environment contents info)
   "Transcode a MAN-ENVIRONMENT element from Org to Man.
@@ -704,7 +694,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
         (buffer-string)))))
 
 
-;;;; Man Fragment
+;;; Man Fragment
 
 (defun org-e-man-man-fragment (man-fragment contents info)
   "Transcode a MAN-FRAGMENT object from Org to Man.
@@ -712,7 +702,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
   (org-element-property :value man-fragment))
 
 
-;;;; Line Break
+;;; Line Break
 
 (defun org-e-man-line-break (line-break contents info)
   "Transcode a LINE-BREAK object from Org to Man.
@@ -720,7 +710,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
   ".br\n")
 
 
-;;;; Link
+;;; Link
 
 
 (defun org-e-man-link (link desc info)
@@ -754,7 +744,7 @@ INFO is a plist holding contextual information.  See
      ;; No path, only description.  Try to do something useful.
      (t (format "\\fI%s\\fP" desc)))))
 
-;;;; Macro
+;;; Macro
 
 (defun org-e-man-macro (macro contents info)
   "Transcode a MACRO element from Org to Man.
@@ -763,7 +753,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
   (org-export-expand-macro macro info))
 
 
-;;;; Paragraph
+;;; Paragraph
 
 (defun org-e-man-paragraph (paragraph contents info)
   "Transcode a PARAGRAPH element from Org to Man.
@@ -774,17 +764,17 @@ the plist used as a communication channel."
       (let ((parent-type (car parent))
             (fixed-paragraph ""))
         (cond ((and (eq parent-type 'item)
-                    (plist-get (nth 1 parent) :bullet))
+                    (plist-get (nth 1 parent) :bullet ))
                (setq fixed-paragraph (concat "" contents)))
               ((eq parent-type 'section)
                (setq fixed-paragraph (concat ".PP\n" contents)))
               ((eq parent-type 'footnote-definition)
                (setq fixed-paragraph contents))
               (t (setq fixed-paragraph (concat "" contents))))
-        fixed-paragraph))))
+        fixed-paragraph ))))
 
 
-;;;; Plain List
+;;; Plain List
 
 (defun org-e-man-plain-list (plain-list contents info)
   "Transcode a PLAIN-LIST element from Org to Man.
@@ -792,7 +782,7 @@ CONTENTS is the contents of the list.  INFO is a plist holding
 contextual information."
   contents)
 
-;;;; Plain Text
+;;; Plain Text
 
 (defun org-e-man-plain-text (text info)
   "Transcode a TEXT string from Org to Man.
@@ -816,13 +806,13 @@ contextual information."
 
 
 
-;;;; Planning
+;;; Planning
 
 
-;;;; Property Drawer
+;;; Property Drawer
 
 
-;;;; Quote Block
+;;; Quote Block
 
 (defun org-e-man-quote-block (quote-block contents info)
   "Transcode a QUOTE-BLOCK element from Org to Man.
@@ -832,7 +822,7 @@ holding contextual information."
    quote-block
    (format ".RS\n%s\n.RE" contents)))
 
-;;;; Quote Section
+;;; Quote Section
 
 (defun org-e-man-quote-section (quote-section contents info)
   "Transcode a QUOTE-SECTION element from Org to Man.
@@ -842,16 +832,16 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
     (when value (format ".RS\\fI%s\\fP\n.RE\n" value))))
 
 
-;;;; Radio Target
+;;; Radio Target
 
 (defun org-e-man-radio-target (radio-target text info)
   "Transcode a RADIO-TARGET object from Org to Man.
 TEXT is the text of the target.  INFO is a plist holding
 contextual information."
-  text)
+  text )
 
 
-;;;; Section
+;;; Section
 
 (defun org-e-man-section (section contents info)
   "Transcode a SECTION element from Org to Man.
@@ -860,7 +850,7 @@ holding contextual information."
   contents)
 
 
-;;;; Special Block
+;;; Special Block
 
 (defun org-e-man-special-block (special-block contents info)
   "Transcode a SPECIAL-BLOCK element from Org to Man.
@@ -872,7 +862,7 @@ holding contextual information."
      (format "%s\n" contents))))
 
 
-;;;; Src Block
+;;; Src Block
 
 (defun org-e-man-src-block (src-block contents info)
   "Transcode a SRC-BLOCK element from Org to Man.
@@ -893,17 +883,14 @@ contextual information."
     (cond
      ;; Case 1.  No source fontification.
      ((not org-e-man-source-highlight)
-      (let ((caption-str (org-e-man--caption/label-string caption label info))
-            (float-env (when caption ".RS\n.nf\\fC%s\\fP\n.fi.RE\n")))
-        (format
-         (or float-env "%s")
+      (let ((caption-str (org-e-man--caption/label-string caption label info)))
          (concat
           (format ".RS\n.nf\n\\fC%s\\fP\n.fi\n.RE\n\n"
-                  (org-export-format-code-default src-block info))))))
-     ((and org-e-man-source-highlight)
+                  (org-export-format-code-default src-block info)))))
+     ( (and org-e-man-source-highlight)
        (let* ((tmpdir (if (featurep 'xemacs)
                           temp-directory
-                        temporary-file-directory))
+                        temporary-file-directory ))
 
               (in-file  (make-temp-name
                          (expand-file-name "srchilite" tmpdir)))
@@ -921,7 +908,7 @@ contextual information."
                            " -o " out-file)))
 
          (if lst-lang
-             (let ((code-block ""))
+             (let ((code-block "" ))
                (with-temp-file in-file (insert code))
                (shell-command cmd)
                (setq code-block  (org-file-contents out-file))
@@ -932,7 +919,7 @@ contextual information."
                    code)))))))
 
 
-;;;; Statistics Cookie
+;;; Statistics Cookie
 
 (defun org-e-man-statistics-cookie (statistics-cookie contents info)
   "Transcode a STATISTICS-COOKIE object from Org to Man.
@@ -940,7 +927,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
   (org-element-property :value statistics-cookie))
 
 
-;;;; Strike-Through
+;;; Strike-Through
 
 (defun org-e-man-strike-through (strike-through contents info)
   "Transcode STRIKE-THROUGH from Org to Man.
@@ -948,7 +935,7 @@ CONTENTS is the text with strike-through markup.  INFO is a plist
 holding contextual information."
   (format "\\fI%s\\fP" contents))
 
-;;;; Subscript
+;;; Subscript
 
 (defun org-e-man-subscript (subscript contents info)
   "Transcode a SUBSCRIPT object from Org to Man.
@@ -956,7 +943,7 @@ CONTENTS is the contents of the object.  INFO is a plist holding
 contextual information."
   (format  "\\d\\s-2%s\\s+2\\u" contents))
 
-;;;; Superscript "^_%s$
+;;; Superscript "^_%s$
 
 (defun org-e-man-superscript (superscript contents info)
   "Transcode a SUPERSCRIPT object from Org to Man.
@@ -965,7 +952,7 @@ contextual information."
   (format  "\\u\\s-2%s\\s+2\\d" contents))
 
 
-;;;; Table
+;;; Table
 ;;
 ;; `org-e-man-table' is the entry point for table transcoding.  It
 ;; takes care of tables with a "verbatim" attribute.  Otherwise, it
@@ -1003,17 +990,6 @@ contextual information."
   "Return an appropriate Man alignment string.
 TABLE is the considered table.  INFO is a plist used as
 a communication channel."
-  (let* ((attr (read
-          (format "(%s)"
-           (mapconcat #'identity
-            (org-element-property :attr_groff table)
-            " "))))
-         (align
-          (case (plist-get  attr :align)
-            ('center "c")
-            ('left "l")
-            ('right "r"))))
-
     (let (alignment)
       ;; Extract column groups and alignment from first (non-rule)
       ;; row.
@@ -1034,16 +1010,14 @@ a communication channel."
            (when (and (memq 'left borders) (not alignment))
              (push "|" alignment))
            (push
-            (if (not align)
                 (case (org-export-table-cell-alignment cell info)
                   (left (concat "l" width divider))
                   (right (concat "r" width divider))
                   (center (concat "c" width divider)))
-              (concat align divider))
             alignment)
            (when (memq 'right borders) (push "|" alignment))))
        info)
-      (apply 'concat (reverse alignment)))))
+      (apply 'concat (reverse alignment))))
 
 (defun org-e-man-table--org-table (table contents info)
   "Return appropriate Man code for an Org table.
@@ -1054,13 +1028,13 @@ channel.
 
 This function assumes TABLE has `org' as its `:type' attribute."
   (let* ((label (org-element-property :name table))
-         (caption (org-e-groff--caption/label-string
+         (caption (org-e-man--caption/label-string
                    (org-element-property :caption table) label info))
          (attr (read
            (format "(%s)"
             (mapconcat
              #'identity
-             (org-element-property :attr_groff table)
+             (org-element-property :attr_man table)
              " "))))
 
          (divider (if (plist-get attr :divider)
@@ -1068,8 +1042,7 @@ This function assumes TABLE has `org' as its `:type' attribute."
                     " "))
 
          ;; Determine alignment string.
-         (alignment (org-e-groff-table--align-string divider table info))
-
+         (alignment (org-e-man-table--align-string divider table info))
          ;; Extract others display options.
 
          (lines (org-split-string contents "\n"))
@@ -1085,7 +1058,7 @@ This function assumes TABLE has `org' as its `:type' attribute."
                         ('center "center")
                         ('left nil)
                         (t
-                         (if org-e-groff-tables-centered
+                         (if org-e-man-tables-centered
                              "center" "")))
 
                       (case (plist-get attr :boxtype)
@@ -1095,25 +1068,24 @@ This function assumes TABLE has `org' as its `:type' attribute."
                         ('none nil)
                         (t "box"))))
 
-              (if (not (null attr-item))
+              (if attr-item
                   (add-to-list 'result-list attr-item)))
-            result-list))
+            result-list ))
 
 
          (title-line  (plist-get attr :title-line))
          (disable-caption (plist-get attr :disable-caption))
          (long-cells (plist-get attr :long-cells))
 
-         (table-format 
-          (concat
-           (format "%s" (or (car attr-list) ""))
-           (or
-            (let ((output-list '()))
-              (when (cdr attr-list)
-                (dolist (attr-item (cdr attr-list))
-                  (setq output-list
-                        (concat output-list  (format ",%s" attr-item)))))
-              output-list) "")))
+         (table-format (concat
+                        (format "%s" (or (car attr-list) "" ))
+                        (or
+                         (let ((output-list '()))
+                           (when (cdr attr-list)
+                             (dolist (attr-item (cdr attr-list))
+             (setq output-list (concat output-list  (format ",%s" attr-item)))))
+                           output-list)
+                         "")))
 
     (first-line (when lines (org-split-string (car lines) "\t"))))
     ;; Prepare the final format string for the table.
@@ -1121,75 +1093,74 @@ This function assumes TABLE has `org' as its `:type' attribute."
 
     (cond
      ;; Others.
-     (lines 
-      (concat ".TS\n " table-format ";\n"
+     (lines (concat ".TS\n " table-format ";\n"
 
-              (format "%s.\n"
-                      (let ((final-line ""))
-                        (when title-line
-                          (dotimes (i (length first-line))
-                            (setq final-line (concat final-line "cb" divider))))
+                    (format "%s.\n"
+                            (let ((final-line ""))
+                              (when title-line
+                                (dotimes (i (length first-line))
+                                  (setq final-line (concat final-line "cb" divider))))
 
-                        (setq final-line (concat final-line "\n"))
+                              (setq final-line (concat final-line "\n"))
 
-                        (if alignment
-                            (setq final-line (concat final-line alignment))
-                          (dotimes (i (length first-line))
-                            (setq final-line (concat final-line "c" divider))))
-                        final-line))
+                              (if alignment
+                                  (setq final-line (concat final-line alignment))
+                                (dotimes (i (length first-line))
+                                  (setq final-line (concat final-line "c" divider))))
+                              final-line ))
 
-              (format "%s\n.TE\n"
-                      (let ((final-line "")
-                            (long-line "")
-                            (lines (org-split-string contents "\n")))
+                    (format "%s\n.TE\n"
+                            (let ((final-line "")
+                                  (long-line "")
+                                  (lines (org-split-string contents "\n")))
 
-                        (dolist (line-item lines)
-                          (setq long-line "")
+                              (dolist (line-item lines)
+                                (setq long-line "")
 
-                          (if long-cells
-                              (progn
-                                (if (string= line-item "_")
-                                    (setq long-line (format "%s\n" line-item))
-                                  ;; else string =
-                                  (let ((cell-item-list (org-split-string line-item "\t")))
+                                (if long-cells
+                                    (progn
+                                      (if (string= line-item "_")
+                                          (setq long-line (format "%s\n" line-item))
+                                        ;; else string =
+                                        (let ((cell-item-list (org-split-string line-item "\t")))
+                                          (dolist (cell-item cell-item-list)
 
-                                    (dolist (cell-item cell-item-list)
-                                      (cond  ((eq cell-item (car (last cell-item-list)))
-                                              (setq long-line (concat long-line
-                                                                      (format "T{\n%s\nT}\t\n"  cell-item))))
-                                             (t
-                                              (setq long-line (concat long-line
-                                                                      (format "T{\n%s\nT}\t"  cell-item))))))
-                                    long-line))
-                                ;; else long cells
-                                (setq final-line (concat final-line long-line)))
+                                            (cond  ((eq cell-item (car (last cell-item-list)))
+                                                    (setq long-line (concat long-line
+                                                                            (format "T{\n%s\nT}\t\n"  cell-item ))))
+                                                   (t
+                                                    (setq long-line (concat long-line
+                                                                            (format "T{\n%s\nT}\t"  cell-item ))))))
+                                        long-line))
+                                     ;; else long cells
+                                  (setq final-line (concat final-line long-line )))
 
-                            (setq final-line (concat final-line line-item "\n"))))
-                        final-line))
+                                  (setq final-line (concat final-line line-item "\n"))))
+                              final-line))
 
-              (if (not disable-caption)
-                  (format ".TB \"%s\"" caption) ""))))))
+                    (if (not disable-caption)
+                        (format ".TB \"%s\""
+                                caption) ""))))))
 
-;;;; Table Cell
+;;; Table Cell
 
 (defun org-e-man-table-cell (table-cell contents info)
   "Transcode a TABLE-CELL element from Org to Man
 CONTENTS is the cell contents.  INFO is a plist used as
 a communication channel."
-(progn
     (concat (if (and contents
-                     org-e-groff-table-scientific-notation
+                     org-e-man-table-scientific-notation
                      (string-match orgtbl-exp-regexp contents))
                 ;; Use appropriate format string for scientific
                 ;; notation.
-                (format org-e-groff-table-scientific-notation
+              (format org-e-man-table-scientific-notation
                         (match-string 1 contents)
                         (match-string 2 contents))
-              contents)
-            (when (org-export-get-next-element table-cell info) "\t"))))
+              contents )
+            (when (org-export-get-next-element table-cell info) "\t")))
 
 
-;;;; Table Row
+;;; Table Row
 
 (defun org-e-man-table-row (table-row contents info)
   "Transcode a TABLE-ROW element from Org to Man
@@ -1200,7 +1171,7 @@ a communication channel."
   (when (eq (org-element-property :type table-row) 'standard)
     (let* ((attr (mapconcat 'identity
                             (org-element-property
-                             :attr_groff (org-export-get-parent table-row))
+                             :attr_man (org-export-get-parent table-row))
                             " "))
            ;; TABLE-ROW's borders are extracted from its first cell.
            (borders
@@ -1218,7 +1189,7 @@ a communication channel."
         ((memq 'below borders) "\n_"))))))
 
 
-;;;; Target
+;;; Target
 
 (defun org-e-man-target (target contents info)
   "Transcode a TARGET object from Org to Man.
@@ -1228,16 +1199,16 @@ information."
           (org-export-solidify-link-text (org-element-property :value target))))
 
 
-;;;; Timestamp
+;;; Timestamp
 
 (defun org-e-man-timestamp (timestamp contents info)
   "Transcode a TIMESTAMP object from Org to Man.
   CONTENTS is nil.  INFO is a plist holding contextual
   information."
-  "")
+  "" )
 
 
-;;;; Underline
+;;; Underline
 
 (defun org-e-man-underline (underline contents info)
   "Transcode UNDERLINE from Org to Man.
@@ -1246,7 +1217,7 @@ holding contextual information."
   (format "\\fI%s\\fP" contents))
 
 
-;;;; Verbatim
+;;; Verbatim
 
 (defun org-e-man-verbatim (verbatim contents info)
   "Transcode a VERBATIM object from Org to Man.
@@ -1255,7 +1226,7 @@ channel."
   (format ".nf\n%s\n.fi" contents))
 
 
-;;;; Verse Block
+;;; Verse Block
 
 (defun org-e-man-verse-block (verse-block contents info)
   "Transcode a VERSE-BLOCK element from Org to Man.
@@ -1397,7 +1368,7 @@ none."
     (save-excursion
       (goto-char (point-max))
       ;; Find final run
-      nil)))
+      nil )))
 
 
 (provide 'org-e-man)
