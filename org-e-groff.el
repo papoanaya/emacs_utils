@@ -19,7 +19,6 @@
 
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 ;;; Commentary:
 ;;
 ;; This library implements a Groff Memorandum Macro  back-end for
@@ -113,7 +112,6 @@
 See `org-export-options-alist' for more information on the
 structure of the values.")
 
-
 
 ;;; User Configurable Variables
 
@@ -121,7 +119,6 @@ structure of the values.")
   "Options for exporting Org mode files to Groff."
   :tag "Org Export Groff"
   :group 'org-export)
-
 
 ;;; Preamble
 
@@ -185,14 +182,10 @@ structure of the values.")
   :group 'org-export-e-groff
   :type 'boolean)
 
-
-
-
 ;;; Headline
 
 (defconst org-e-groff-special-tags
   '("FROM" "TO" "ABSTRACT" "APPENDIX" "BODY" "NS"))
-
 
 (defcustom org-e-groff-format-headline-function nil
   "Function to format headline text.
@@ -222,7 +215,6 @@ order to reproduce the default set-up:
   :group 'org-export-e-groff
   :type 'function)
 
-
 ;;; Timestamps
 
 (defcustom org-e-groff-active-timestamp-format "\\fI%s\\fP"
@@ -240,9 +232,7 @@ order to reproduce the default set-up:
   :group 'org-export-e-groff
   :type 'string)
 
-
 ;;; Links
-
 
 (defcustom org-e-groff-inline-image-rules
   '(("file" . "\\.\\(pdf\\|ps\\|eps\\|pic\\)\\'")
@@ -267,9 +257,7 @@ default we use here encompasses both."
   :group 'org-export-groff
   :type 'string)
 
-
 ;;; Tables
-
 
 (defcustom org-e-groff-tables-centered t
   "When non-nil, tables are exported in a center environment."
@@ -281,7 +269,6 @@ default we use here encompasses both."
   :group 'org-export-e-groff
   :type 'boolean)
 
-
 (defcustom org-e-groff-table-scientific-notation "%sE%s"
   "Format string to display numbers in scientific notation.
 The format should have \"%s\" twice, for mantissa and exponent
@@ -292,7 +279,6 @@ When nil, no transformation is made."
   :type '(choice
           (string :tag "Format string")
           (const :tag "No formatting")))
-
 
 ;;; Text markup
 
@@ -315,7 +301,6 @@ returned as-is."
   :type 'alist
   :options '(bold code italic strike-through underline verbatim))
 
-
 ;;; Drawers
 
 (defcustom org-e-groff-format-drawer-function nil
@@ -335,7 +320,6 @@ in order to mimic default behaviour:
   contents\)"
   :group 'org-export-e-groff
   :type 'function)
-
 
 ;;; Inlinetasks
 
@@ -374,14 +358,12 @@ in order to mimic default behaviour:
   :group 'org-export-e-groff
   :type 'function)
 
-
 ;; Src blocks
 
 (defcustom org-e-groff-source-highlight nil
   "Use GNU source highlight to embellish source blocks "
   :group 'org-export-e-groff
   :type 'boolean)
-
 
 (defcustom org-e-groff-source-highlight-langs
   '((emacs-lisp "lisp") (lisp "lisp") (clojure "lisp")
@@ -437,8 +419,6 @@ languages."
            (string :tag "Listings option name ")
            (string :tag "Listings option value"))))
 
-
-
 (defvar org-e-groff-custom-lang-environments nil
   "Alist mapping languages to language-specific Groff environments.
 
@@ -451,8 +431,6 @@ groff packages.  For example,
 would have the effect that if org encounters begin_src python
 during groff export it will use pythoncode as the source-highlight
 language.")
-
-
 
 ;;; Plain text
 
@@ -488,8 +466,6 @@ string defines the replacement string for this quote."
                 (string :tag "Regexp for char before")
                 (string :tag "Replacement quote     "))))
 
-
-
 (defcustom org-e-groff-special-char
   '(("(c)" . "\\\\(co")
     ("(tm)" . "\\\\(tm")
@@ -514,7 +490,6 @@ This is a list of strings, each of them will be given to the
 shell as a command.  %f in the command will be replaced by the
 full file name, %b by the file base name \(i.e. without
 extension) and %o by the base directory of the file."
-
   :group 'org-export-pdf
   :type '(choice
           (repeat :tag "Shell command sequence"
@@ -540,15 +515,12 @@ These are the .aux, .log, .out, and .toc files."
   :group 'org-export-e-groff
   :type 'boolean)
 
-
 (defcustom org-e-groff-organization "Org User"
   "Name of the organization used to populate the .AF command."
   :group 'org-export-e-groff
   :type 'string)
 
 
-;; Preamble
-
 ;; Adding GROFF as a block parser to make sure that its contents
 ;; does not execute
 
@@ -561,7 +533,6 @@ These are the .aux, .log, .out, and .toc files."
 
 
 ;;; Internal Functions
-
 
 (defun org-e-groff--caption/label-string (caption label info)
   "Return caption and label Groff string for floats.
@@ -587,7 +558,6 @@ For non-floats, see `org-e-groff--wrap-label'."
      ;; Standard caption format.
      (t (format "\\fR%s\\fP"
                 (org-export-data (car caption) info))))))
-
 
 (defun org-e-groff--quotation-marks (text info)
   "Export quotation marks depending on language conventions.
@@ -639,7 +609,6 @@ See `org-e-groff-text-markup-alist' for details."
 
 (defun org-e-groff--get-tagged-content  (tag info)
   (cdr  (assoc tag org-e-groff-special-content)))
-
 
 (defun org-e-groff--mt-head (title contents attr info)
   (concat
@@ -725,7 +694,6 @@ See `org-e-groff-text-markup-alist' for details."
       (to-data
        (format ".AS\n%s\n.AE\n" to-data))))))
 
-
 (defun org-e-groff--letter-head (title contents attr info)
   (let ((author (and (plist-get info :with-author)
                      (let ((auth (plist-get info :author)))
@@ -743,7 +711,6 @@ See `org-e-groff-text-markup-alist' for details."
 
     (setq to-data
           (replace-regexp-in-string "\\.P\n" "" to-data))
-
 
     (concat
      (cond
@@ -892,7 +859,6 @@ CONTENTS is the text with bold markup.  INFO is a plist holding
 contextual information."
   (org-e-groff--text-markup contents 'bold))
 
-
 ;;; Center Block
 
 (defun org-e-groff-center-block (center-block contents info)
@@ -902,7 +868,6 @@ holding contextual information."
   (org-e-groff--wrap-label
    center-block
    (format ".DS C \n%s\n.DE" contents)))
-
 
 ;;; Clock
 
@@ -917,7 +882,6 @@ information."
                    (let ((time (org-element-property :time clock)))
                      (and time (format " (%s)" time)))))))
 
-
 ;;; Code
 
 (defun org-e-groff-code (code contents info)
@@ -926,16 +890,7 @@ CONTENTS is nil.  INFO is a plist used as a communication
 channel."
   (org-e-groff--text-markup (org-element-property :value code) 'code))
 
-
-;;; Comment
-;;
-;; Comments are ignored.
-
-
-;;; Comment Block
-;;
-;; Comment Blocks are ignored.
-
+;;; Comments and Comment Blocks are ignored.
 
 ;;; Drawer
 
@@ -952,7 +907,6 @@ holding contextual information."
                    contents)))
     (org-e-groff--wrap-label drawer output)))
 
-
 ;;; Dynamic Block
 
 (defun org-e-groff-dynamic-block (dynamic-block contents info)
@@ -961,7 +915,6 @@ CONTENTS holds the contents of the block.  INFO is a plist
 holding contextual information.  See `org-export-data'."
   (org-e-groff--wrap-label dynamic-block contents))
 
-
 ;;; Entity
 
 (defun org-e-groff-entity (entity contents info)
@@ -969,7 +922,6 @@ holding contextual information.  See `org-export-data'."
 CONTENTS are the definition itself.  INFO is a plist holding
 contextual information."
   (let ((ent (org-element-property :utf8 entity))) ent))
-
 
 ;;; Example Block
 
@@ -982,7 +934,6 @@ information."
    (format ".DS L\n%s\n.DE"
            (org-export-format-code-default example-block info))))
 
-
 ;;; Export Block
 
 (defun org-e-groff-export-block (export-block contents info)
@@ -990,7 +941,6 @@ information."
 CONTENTS is nil.  INFO is a plist holding contextual information."
   (when (string= (org-element-property :type export-block) "GROFF")
     (org-remove-indentation (org-element-property :value export-block))))
-
 
 ;;; Export Snippet
 
@@ -1011,11 +961,9 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
            (org-remove-indentation
             (org-element-property :value fixed-width)))))
 
-
 ;;; Footnote Definition
 ;;
 ;; Footnote Definitions are ignored.
-
 ;;
 ;; Footnotes are handled automatically in GROFF.  Although manual
 ;; references can be added, not really required.
@@ -1045,10 +993,8 @@ holding contextual information."
   (let* ((class (plist-get info :groff-class))
          (level (org-export-get-relative-level headline info))
          (numberedp (org-export-numbered-headline-p headline info))
-
          ;; Section formatting will set two placeholders: one for the
          ;; title and the other for the contents.
-
          (classes (assoc class org-e-groff-classes))
          (classes-options (car (last classes)))
          (heading-option (plist-get classes-options :heading))
@@ -1108,7 +1054,6 @@ holding contextual information."
          (pre-blanks
           (make-string (org-element-property :pre-blank headline) 10)))
 
-
     (cond
      ;; Case 1: Special Tag
      ((member (car  tags)  org-e-groff-special-tags)
@@ -1157,10 +1102,8 @@ holding contextual information."
       (format section-fmt full-text
               (concat headline-label pre-blanks contents))))))
 
-
 ;;; Horizontal Rule
 ;; Not supported
-
 
 ;;; Inline Babel Call
 ;;
@@ -1191,7 +1134,6 @@ contextual information."
                           " -f groff_mm_color "
                           " -i " in-file
                           " -o " out-file)))
-
         (if lst-lang
             (let ((code-block ""))
               (with-temp-file in-file (insert code))
@@ -1207,9 +1149,7 @@ contextual information."
      (t
       (concat ".DS I\n" "\\fC" code "\\fP\n.DE\n")))))
 
-
 ;;; Inlinetask
-
 
 (defun org-e-groff-inlinetask (inlinetask contents info)
   "Transcode an INLINETASK element from Org to Groff.
@@ -1246,7 +1186,6 @@ holding contextual information."
                          ".DE")
                  full-title contents))))))
 
-
 ;;; Italic
 
 (defun org-e-groff-italic (italic contents info)
@@ -1255,9 +1194,7 @@ CONTENTS is the text with italic markup.  INFO is a plist holding
 contextual information."
   (org-e-groff--text-markup contents 'italic))
 
-
 ;;; Item
-
 
 (defun org-e-groff-item (item contents info)
   "Transcode an ITEM element from Org to Groff.
@@ -1270,7 +1207,6 @@ contextual information."
                      (on "\\o'\\(sq\\(mu'")
                      (off "\\(sq")
                      (trans "\\o'\\(sq\\(mi'")))
-
          (tag (let ((tag (org-element-property :tag item)))
                 ;; Check-boxes must belong to the tag.
                 (and tag (format "%s"
@@ -1294,10 +1230,7 @@ contextual information."
         (concat ".LI " marker "\n"
                 (org-trim (or contents " "))))))))
 
-
-
 ;;; Keyword
-
 
 (defun org-e-groff-keyword (keyword contents info)
   "Transcode a KEYWORD element from Org to Groff.
@@ -1307,7 +1240,6 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
     (cond
      ((string= key "GROFF") value)
      (t nil))))
-
 
 ;;; Groff Environment
 
@@ -1328,14 +1260,12 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
         (insert (format "%s\n" label))
         (buffer-string)))))
 
-
 ;;; Groff Fragment
 
 (defun org-e-groff-groff-fragment (groff-fragment contents info)
   "Transcode a GROFF-FRAGMENT object from Org to Groff.
 CONTENTS is nil.  INFO is a plist holding contextual information."
   (org-element-property :value groff-fragment))
-
 
 ;;; Line Break
 
@@ -1344,13 +1274,9 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 CONTENTS is nil.  INFO is a plist holding contextual information."
   ".br\n")
 
-
 ;;; Link
-;;;
-;;; Inline images just place a call to .PSPIC or .PS/.PE
-;;;  and load the graph.
-;;;
-
+;; Inline images just place a call to .PSPIC or .PS/.PE
+;;  and load the graph.
 
 (defun org-e-groff-link--inline-image (link info)
   "Return Groff code for an inline image.
@@ -1393,8 +1319,6 @@ used as a communication channel."
                  placement path width height)))
      (unless disable-caption (format "\n.FG \"%s\"" caption)))))
 
-
-
 (defun org-e-groff-link (link desc info)
   "Transcode a LINK object from Org to Groff.
 
@@ -1426,7 +1350,7 @@ INFO is a plist holding contextual information.  See
      ((and (string= type "file")
            (string-match ".\.groff$" raw-path))
       (concat ".so " raw-path "\n"))
-     ;; Radio link: Transcode target's contents and use them as link's
+     ;; Radio link: transcode target's contents and use them as link's
      ;; description.
      ((string= type "radio")
       (let ((destination (org-export-resolve-radio-link link info)))
@@ -1477,7 +1401,6 @@ INFO is a plist holding contextual information.  See
      ;; No path, only description.  Try to do something useful.
      (t (format org-e-groff-link-with-unknown-path-format desc)))))
 
-
 ;;; Macro
 
 (defun org-e-groff-macro (macro contents info)
@@ -1485,7 +1408,6 @@ INFO is a plist holding contextual information.  See
 CONTENTS is nil.  INFO is a plist holding contextual information."
   ;; Use available tools.
   (org-export-expand-macro macro info))
-
 
 ;;; Paragraph
 
@@ -1506,17 +1428,13 @@ the plist used as a communication channel."
          ((and (symbolp paragraph-option)
                (fboundp paragraph-option))
           (funcall paragraph-option parent-type parent contents))
-
          ((and (eq parent-type 'item)
                (plist-get (nth 1 parent) :bullet))
           (setq fixed-paragraph (concat "" contents)))
-
          ((eq parent-type 'section)
           (setq fixed-paragraph (concat ".P\n" contents)))
-
          ((eq parent-type 'footnote-definition)
           (setq fixed-paragraph (concat "" contents)))
-
          (t (setq fixed-paragraph (concat "" contents))))
         fixed-paragraph))))
 
@@ -1536,10 +1454,7 @@ contextual information."
                       ((eq type 'descriptive) ".VL 2.0i"))))
     (org-e-groff--wrap-label
      plain-list
-     (format "%s\n%s\n.LE"
-             groff-type
-             contents))))
-
+     (format "%s\n%s\n.LE" groff-type contents))))
 
 ;;; Plain Text
 
@@ -1551,27 +1466,20 @@ contextual information."
   (setq text (replace-regexp-in-string
               "\\(?:[^\\]\\|^\\)\\(\\\\\\)\\(?:[^%$#&{}~^_\\]\\|$\\)"
               "$\\" text nil t 1))
-
-
   ;; Handle quotation marks
   (setq text (org-e-groff--quotation-marks text info))
-
+  ;; Handle Special Characters
   (if org-e-groff-special-char
       (dolist (special-char-list org-e-groff-special-char)
         (setq text
               (replace-regexp-in-string (car special-char-list)
                                         (cdr special-char-list) text))))
-
-  ;; Handle Special Characters
-
   ;; Handle break preservation if required.
   (when (plist-get info :preserve-breaks)
     (setq text (replace-regexp-in-string
 		"\\(\\\\\\\\\\)?[ \t]*\n" " \\\\\\\\\n" text)))
   ;; Return value.
   text)
-
-
 
 ;;; Planning
 
@@ -1605,7 +1513,6 @@ information."
     "")
    ""))
 
-
 ;;; Property Drawer
 
 (defun org-e-groff-property-drawer (property-drawer contents info)
@@ -1615,7 +1522,6 @@ information."
   ;; The property drawer isn't exported but we want separating blank
   ;; lines nonetheless.
   "")
-
 
 ;;; Quote Block
 
@@ -1627,7 +1533,6 @@ holding contextual information."
    quote-block
    (format ".DS I\n.I\n%s\n.R\n.DE" contents)))
 
-
 ;;; Quote Section
 
 (defun org-e-groff-quote-section (quote-section contents info)
@@ -1636,7 +1541,6 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
   (let ((value (org-remove-indentation
                 (org-element-property :value quote-section))))
     (when value (format ".DS L\n\\fI%s\\fP\n.DE\n" value))))
-
 
 ;;; Radio Target
 
@@ -1649,7 +1553,6 @@ contextual information."
            (org-element-property :value radio-target))
           text))
 
-
 ;;; Section
 
 (defun org-e-groff-section (section contents info)
@@ -1657,7 +1560,6 @@ contextual information."
 CONTENTS holds the contents of the section.  INFO is a plist
 holding contextual information."
   contents)
-
 
 ;;; Special Block
 
@@ -1670,14 +1572,12 @@ holding contextual information."
      special-block
      (format "%s\n" contents))))
 
-
 ;;; Src Block
 
 (defun org-e-groff-src-block (src-block contents info)
   "Transcode a SRC-BLOCK element from Org to Groff.
 CONTENTS holds the contents of the item.  INFO is a plist holding
 contextual information."
-
   (let* ((lang (org-element-property :language src-block))
          (caption (org-element-property :caption src-block))
          (label (org-element-property :name src-block))
@@ -1689,14 +1589,12 @@ contextual information."
                       (continued (org-export-get-loc src-block info))
                       (new 0)))
          (retain-labels (org-element-property :retain-labels src-block))
-
          (attr
           (read (format "(%s)"
                    (mapconcat #'identity
                               (org-element-property :attr_groff src-block)
                               " "))))
          (disable-caption (plist-get attr :disable-caption)))
-
 
     (cond
      ;; Case 1.  No source fontification.
@@ -1891,7 +1789,6 @@ This function assumes TABLE has `org' as its `:type' attribute."
                   (add-to-list 'result-list attr-item)))
             result-list))
 
-
          (title-line  (plist-get attr :title-line))
          (disable-caption (plist-get attr :disable-caption))
          (long-cells (plist-get attr :long-cells))
@@ -1900,7 +1797,7 @@ This function assumes TABLE has `org' as its `:type' attribute."
           (concat
            (format "%s"
                    (or (car attr-list) ""))
-                        (or
+           (or
             (let (output-list)
                            (when (cdr attr-list)
                              (dolist (attr-item (cdr attr-list))
@@ -2003,15 +1900,11 @@ a communication channel."
        ;; Mark horizontal lines
        (cond  ((and (memq 'top borders) (memq 'above borders)) "_\n"))
        contents
-
        (cond
         ;; When BOOKTABS are activated enforce bottom rule even when
         ;; no hline was specifically marked.
         ((and (memq 'bottom borders) (memq 'below borders)) "\n_")
         ((memq 'below borders) "\n_"))))))
-
-
-
 
 ;;; Target
 
@@ -2021,7 +1914,6 @@ CONTENTS is nil.  INFO is a plist holding contextual
 information."
   (format "\\fI%s\\fP"
           (org-export-solidify-link-text (org-element-property :value target))))
-
 
 ;;; Timestamp
 
@@ -2037,7 +1929,6 @@ information."
            (format org-e-groff-inactive-timestamp-format value))
           (t (format org-e-groff-diary-timestamp-format value)))))
 
-
 ;;; Underline
 
 (defun org-e-groff-underline (underline contents info)
@@ -2045,7 +1936,6 @@ information."
 CONTENTS is the text with underline markup.  INFO is a plist
 holding contextual information."
   (org-e-groff--text-markup contents 'underline))
-
 
 ;;; Verbatim
 
@@ -2055,7 +1945,6 @@ CONTENTS is nil.  INFO is a plist used as a communication
 channel."
   (org-e-groff--text-markup (org-element-property :value verbatim) 'verbatim))
 
-
 ;;; Verse Block
 
 (defun org-e-groff-verse-block (verse-block contents info)
@@ -2063,7 +1952,6 @@ channel."
 CONTENTS is verse block contents. INFO is a plist holding
 contextual information."
   (format ".DS C\n.ft HI\n%s\n.ft\n.DE" contents))
-
 
 
 ;;; Interactive functions
@@ -2092,12 +1980,9 @@ When optional argument PUB-DIR is set, use it as the publishing
 directory.
 
 Return output file's name."
-
   (interactive)
-
   (setq org-e-groff-registered-references nil)
   (setq org-e-groff-special-content nil)
-
   (let ((outfile (org-export-output-file-name ".groff" subtreep pub-dir)))
     (org-export-to-file
      'e-groff outfile subtreep visible-only body-only ext-plist)))
