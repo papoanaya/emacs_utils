@@ -1157,7 +1157,7 @@ a communication channel."
                         (match-string 1 contents)
                         (match-string 2 contents))
               contents )
-            (when (org-export-get-next-element table-cell info) "\t"))))
+            (when (org-export-get-next-element table-cell info) "\t")))
 
 
 ;;; Table Row
