@@ -296,13 +296,13 @@ When nil, no transformation is made."
 
 ;;; Text markup
 
-(defcustom org-e-groff-text-markup-alist '((bold . "\\fB%s\\fP")
-                                           ;; from "verb"
-                                           (code . "\\fC%s\\fP")
-                                           (italic . "\\fI%s\\fP")
+(defcustom org-e-groff-text-markup-alist 
+   '((bold . "\\fB%s\\fP")
+    (code . "\\fC%s\\fP")
+    (italic . "\\fI%s\\fP")
     (strike-through . "\\fC%s\\fP")  ; Strike through and underline
     (underline . "\\fI%s\\fP")       ; need to be revised.
-                                           (verbatim .   "protectedtexttt"))
+    (verbatim .   "protectedtexttt"))
   "Alist of Groff expressions to convert text markup.
 
 The key must be a symbol among `bold', `code', `italic',
@@ -555,8 +555,8 @@ These are the .aux, .log, .out, and .toc files."
 (add-to-list 'org-element-block-name-alist
              '("GROFF" . org-element-export-block-parser))
 
-(defvar org-e-groff-registered-references '())
-(defvar org-e-groff-special-content '())
+(defvar org-e-groff-registered-references nil)
+(defvar org-e-groff-special-content nil)
 
 
 
