@@ -11,11 +11,10 @@ end
 
 nodoctemplate
 "
-[code|lines:1,5]
-[ff:COURIER]
-"
-"
 [code]
+"
+"
+[-code]
 "
 end
 
@@ -28,6 +27,7 @@ anchor "$infilename : $linenum - $text"
 reference "$text \(-> $infile:$linenum, page : $infilename:$linenum"
 
 lineprefix " "
+##linesuffix "[]"
 
 translations
 ##"_" "\_"
