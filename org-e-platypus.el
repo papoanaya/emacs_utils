@@ -1,4 +1,4 @@
-;; org-e-man.el --- Man Back-End For Org Export Engine
+;; org-e-platypus.el --- Man Back-End For Org Export Engine
 
 ;; Copyright (C) 2011-2012  Free Software Foundation, Inc.
 
@@ -26,7 +26,7 @@
 ;;
 ;; To test it, run
 ;;
-;;   M-: (org-export-to-buffer 'e-man "*Test e-Man*") RET
+;;   M-: (org-export-to-buffer 'e-platypus "*Test e-Platypus*") RET
 ;;
 ;; in an org-mode buffer then switch to the buffer to see the Man
 ;; export.  See contrib/lisp/org-export.el for more details on how
@@ -41,71 +41,75 @@
 
 (eval-when-compile (require 'cl))
 
-(defvar org-export-man-default-packages-alist)
-(defvar org-export-man-packages-alist)
-
+(defvar org-export-platypus-default-packages-alist)
+(defvar org-export-platypus-packages-alist)
+(defvar org-export-platypus-header-alist
+  '(("1" . 0)
+    ("2" . 0)
+    ("3" . 0)
+    ("4" . 0)))
 
 
 
 ;;; Define Back-End
 
-(defvar org-e-man-translate-alist
-  '((babel-call . org-e-man-babel-call)
-    (bold . org-e-man-bold)
-    (center-block . org-e-man-center-block)
-    (clock . org-e-man-clock)
-    (code . org-e-man-code)
-    (comment . org-e-man-comment)
-    (comment-block . org-e-man-comment-block)
-    (drawer . org-e-man-drawer)
-    (dynamic-block . org-e-man-dynamic-block)
-    (entity . org-e-man-entity)
-    (example-block . org-e-man-example-block)
-    (export-block . org-e-man-export-block)
-    (export-snippet . org-e-man-export-snippet)
-    (fixed-width . org-e-man-fixed-width)
-    (footnote-definition . org-e-man-footnote-definition)
-    (footnote-reference . org-e-man-footnote-reference)
-    (headline . org-e-man-headline)
-    (horizontal-rule . org-e-man-horizontal-rule)
-    (inline-babel-call . org-e-man-inline-babel-call)
-    (inline-src-block . org-e-man-inline-src-block)
-    (inlinetask . org-e-man-inlinetask)
-    (italic . org-e-man-italic)
-    (item . org-e-man-item)
-    (keyword . org-e-man-keyword)
-    (man-environment . org-e-man-man-environment)
-    (man-fragment . org-e-man-man-fragment)
-    (line-break . org-e-man-line-break)
-    (link . org-e-man-link)
-    (macro . org-e-man-macro)
-    (paragraph . org-e-man-paragraph)
-    (plain-list . org-e-man-plain-list)
-    (plain-text . org-e-man-plain-text)
-    (planning . org-e-man-planning)
-    (property-drawer . org-e-man-property-drawer)
-    (quote-block . org-e-man-quote-block)
-    (quote-section . org-e-man-quote-section)
-    (radio-target . org-e-man-radio-target)
-    (section . org-e-man-section)
-    (special-block . org-e-man-special-block)
-    (src-block . org-e-man-src-block)
-    (statistics-cookie . org-e-man-statistics-cookie)
-    (strike-through . org-e-man-strike-through)
-    (subscript . org-e-man-subscript)
-    (superscript . org-e-man-superscript)
-    (table . org-e-man-table)
-    (table-cell . org-e-man-table-cell)
-    (table-row . org-e-man-table-row)
-    (target . org-e-man-target)
-    (template . org-e-man-template)
-    (timestamp . org-e-man-timestamp)
-    (underline . org-e-man-underline)
-    (verbatim . org-e-man-verbatim)
-    (verse-block . org-e-man-verse-block))
+(defvar org-e-platypus-translate-alist
+  '((babel-call . org-e-platypus-babel-call)
+    (bold . org-e-platypus-bold)
+    (center-block . org-e-platypus-center-block)
+    (clock . org-e-platypus-clock)
+    (code . org-e-platypus-code)
+    (comment . org-e-platypus-comment)
+    (comment-block . org-e-platypus-comment-block)
+    (drawer . org-e-platypus-drawer)
+    (dynamic-block . org-e-platypus-dynamic-block)
+    (entity . org-e-platypus-entity)
+    (example-block . org-e-platypus-example-block)
+    (export-block . org-e-platypus-export-block)
+    (export-snippet . org-e-platypus-export-snippet)
+    (fixed-width . org-e-platypus-fixed-width)
+    (footnote-definition . org-e-platypus-footnote-definition)
+    (footnote-reference . org-e-platypus-footnote-reference)
+    (headline . org-e-platypus-headline)
+    (horizontal-rule . org-e-platypus-horizontal-rule)
+    (inline-babel-call . org-e-platypus-inline-babel-call)
+    (inline-src-block . org-e-platypus-inline-src-block)
+    (inlinetask . org-e-platypus-inlinetask)
+    (italic . org-e-platypus-italic)
+    (item . org-e-platypus-item)
+    (keyword . org-e-platypus-keyword)
+    (man-environment . org-e-platypus-platypus-environment)
+    (man-fragment . org-e-platypus-platypus-fragment)
+    (line-break . org-e-platypus-line-break)
+    (link . org-e-platypus-link)
+    (macro . org-e-platypus-macro)
+    (paragraph . org-e-platypus-paragraph)
+    (plain-list . org-e-platypus-plain-list)
+    (plain-text . org-e-platypus-plain-text)
+    (planning . org-e-platypus-planning)
+    (property-drawer . org-e-platypus-property-drawer)
+    (quote-block . org-e-platypus-quote-block)
+    (quote-section . org-e-platypus-quote-section)
+    (radio-target . org-e-platypus-radio-target)
+    (section . org-e-platypus-section)
+    (special-block . org-e-platypus-special-block)
+    (src-block . org-e-platypus-src-block)
+    (statistics-cookie . org-e-platypus-statistics-cookie)
+    (strike-through . org-e-platypus-strike-through)
+    (subscript . org-e-platypus-subscript)
+    (superscript . org-e-platypus-superscript)
+    (table . org-e-platypus-table)
+    (table-cell . org-e-platypus-table-cell)
+    (table-row . org-e-platypus-table-row)
+    (target . org-e-platypus-target)
+    (template . org-e-platypus-template)
+    (timestamp . org-e-platypus-timestamp)
+    (underline . org-e-platypus-underline)
+    (verbatim . org-e-platypus-verbatim)
+    (verse-block . org-e-platypus-verse-block))
   "Alist between element or object types and translators.")
 
-(defconst org-e-man-options-alist
+(defconst org-e-platypus-options-alist
   '((:date "DATE" nil nil t)
     (:man-class "MAN_CLASS" nil nil t)
     (:man-class-options "MAN_CLASS_OPTIONS" nil nil t)
@@ -118,7 +122,7 @@ structure of the values.")
 
 ;;; User Configurable Variables
 
-(defgroup org-export-e-man nil
+(defgroup org-export-e-platypus nil
   "Options for exporting Org mode files to Man."
   :tag "Org Export Man"
   :group 'org-export)
@@ -235,7 +239,7 @@ string defines the replacement string for this quote."
 ;;; Compilation
 
 (defcustom org-e-platypus-pdf-process
-  '("platyrun -verbose  %f %b.pdf")
+  '("~/platyrun -verbose  %f %b.pdf")
 
   "Commands to process a Man file to a PDF file.
 This is a list of strings, each of them will be given to the
@@ -254,12 +258,12 @@ its single argument."
           (repeat :tag "Shell command sequence"
                   (string :tag "Shell command"))
           (const :tag "2 runs of pdfgroff"
-                 ("tbl %f | eqn | groff -mm | ps2pdf - > %b.pdf"
-                  "tbl %f | eqn | groff -mm | ps2pdf - > %b.pdf"))
+                 ("platyrun -verbose %f %b.pdf"
+                  "platyrun -verbose %f %b.pdf"))
           (const :tag "3 runs of pdfgroff"
-                 ("tbl %f | eqn | groff -mm | ps2pdf - > %b.pdf"
-                  "tbl %f | eqn | groff -mm | ps2pdf - > %b.pdf"
-                  "tbl %f | eqn | groff -mm | ps2pdf - > %b.pdf"))
+                 ("platyrun -verbose %f %b.pdf"
+                  "platyrun -verbose %f %b.pdf"
+                  "platyrun -verbose %f %b.pdf"))
           (function)))
 
 (defcustom org-e-platypus-logfiles-extensions nil
@@ -343,6 +347,30 @@ This function shouldn't be used for floats.  See
         output
       (concat (format "%s[]\n" label) output))))
 
+
+(defun org-e-platypus--get-level (level)
+  "Formats a level numbered header to simulate numbered headers"
+  (let* ((level-count (assoc (number-to-string level) 
+                             org-export-platypus-header-alist))
+         (result ""))
+
+    (if level-count
+        (progn
+          (setcdr (assoc (number-to-string level)
+                         org-export-platypus-header-alist)
+                  (+ (cdr level-count) 1 ))
+
+          (dotimes (i level)
+            (setq result 
+                  (concat result 
+                          (number-to-string 
+                           (cdr (assoc (number-to-string (+ i 1))
+                                       org-export-platypus-header-alist )))
+                          "."))))
+      "") (concat result "  ")))
+
+
+
 
 ;;; Template
 
@@ -351,21 +379,24 @@ This function shouldn't be used for floats.  See
 CONTENTS is the transcoded contents string.  INFO is a plist
 holding export options."
   (let* ((title (org-export-data (plist-get info :title) info))
-        (attr (read (format "(%s)"
-                            (mapconcat
-                             #'identity
-                             (list (plist-get info :man-class-options))
-                             " "))))
-        (section-item (plist-get attr :section-id)))
+         (author (and (plist-get info :with-author)
+                      (let ((auth (plist-get info :author)))
+                        (and auth (org-export-data auth info)))))
+         (email (and (plist-get info :with-email)
+                     (org-export-data (plist-get info :email) info)))
+         (date (org-export-data (plist-get info :date) info)))
 
-    (concat
-     "[pagesize:LETTER]\n"
-     "[paraindent:0.25i]\n"
-     (format "[ff:%s]\n" org-e-platypus-default-font)
-     (cond
-      (title
-       (format "\\n\n\n\n[align:center]%s\n\n[align:left]\n[pg]\n" title)))
-     contents)))
+         (concat
+          "[pagesize:LETTER]\n"
+          (format "[ff:%s]" org-e-platypus-default-font)
+          (when title
+           (format 
+            "\n\n\n\n\n[align:center][fsize:18pt]%s\n\n[fsize:12pt][align:left]\n" 
+            title))
+          (when author (format  "[align:center]%s\n\n[align:left]" author))
+          (when date (format  "[align:center]%s\n\n[align:left]" date))
+          "\n[pg]\n"
+          contents)))
 
 
 
@@ -516,11 +547,29 @@ holding contextual information."
 		 ;; title and the other for the contents.
 		 (section-fmt
 		  (case level
-			(1 "[fsize:16pt]%s[fsize:12pt]\n%s")
-			(2 "[fsize:14pt]%s[fsize:12pt]\n%s")
-			(3 "[+i]%s[-i]\n%s")
+			(1 "\n[fsize:16pt]%s[fsize:12pt]\n%s")
+			(2 "\n[fsize:14pt]%s[fsize:12pt]\n%s")
+			(3 "\n[+i]%s[-i]\n%s")
 			(t nil)))
-		 (text (org-export-data (org-element-property :title headline) info)))
+		 (text (org-export-data (org-element-property :title headline) info))
+         (todo
+          (and (plist-get info :with-todo-keywords)
+               (let ((todo (org-element-property :todo-keyword headline)))
+                 (and todo (org-export-data todo info)))))
+         (todo-type (and todo (org-element-property :todo-type headline)))
+         (tags (and (plist-get info :with-tags)
+                    (org-export-get-tags headline info)))
+         (priority (and (plist-get info :with-priority)
+                        (org-element-property :priority headline)))
+
+         (full-text  (concat
+                       (when todo
+                         (format "[+b]%s\[-b]  " todo))
+                       (when priority (format "  [\\#%c]  " priority))
+                       text
+                       (when tags
+                         (format " [+u]:%s:[-u] "
+                                 (mapconcat 'identity tags ":"))))))
 
     (cond
      ;; Case 1: This is a footnote section: ignore it.
@@ -548,7 +597,11 @@ holding contextual information."
 		   low-level-body))))
 
      ;; Case 3. Standard headline.  Export it as a section.
-     (t (format section-fmt text contents )))))
+;;      (numberedp  
+;;       (format section-fmt
+;;               (concat  (org-e-platypus--get-level level)
+;;                        full-text) (or contents " ")))
+     (t (format section-fmt full-text (or contents " ") )))))
 
 ;;; Horizontal Rule
 ;; Not supported
@@ -622,28 +675,20 @@ contextual information."
   (let* ((bullet (org-element-property :bullet item))
          (type (org-element-property :type (org-element-property :parent item)))
          (checkbox (case (org-element-property :checkbox item)
-                     (on "[X]")			;;
-                     (off "[ ]")					;;
-                     (trans "[-]"))) ;;
+                     (on "[X]")
+                     (off "[ ]")
+                     (trans "[-]")))
 
          (tag (let ((tag (org-element-property :tag item)))
                 ;; Check-boxes must belong to the tag.
                 (and tag (format "[+b]%s[-b]"
                                  (concat checkbox
-                                         (org-export-data tag info)))))))
+                                         (org-export-data tag info))))))
+         (marker (cond  ((eq type 'ordered)  
+                         (format "%s  " (org-trim bullet)))
+                        (t "") )))
 
-    (if (and (null tag )
-			 (null checkbox))
-		(let* ((bullet (org-trim bullet))
-			   (marker (cond  ((string= "-" bullet) "-")
-							  ((string= "*" bullet) "*")
-							  ((eq type 'ordered)
-							   (format "%s " (org-trim bullet)))
-							  (t "*"))))
-		  (concat marker "[]\n"
-				  (org-trim (or contents " " "[]\n"))))
-      (concat (or tag (concat " " checkbox)) "[]\n"
-              (org-trim (or contents " " "[]\n"))))))
+    (concat marker (org-trim (or contents " " )) "[]\n")))
 
 ;;; Keyword
 
@@ -654,13 +699,13 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
   (let ((key (org-element-property :key keyword))
         (value (org-element-property :value keyword)))
     (cond
-     ((string= key "MAN") value))))
+     ((string= key "PLATYPUS") value))))
 
 
-;;; Man Environment
+;;; Platypus Environment
 
-(defun org-e-platypus-man-environment (man-environment contents info)
-  "Transcode a MAN-ENVIRONMENT element from Org to Man.
+(defun org-e-platypus-platypus-environment (platypus-environment contents info)
+  "Transcode a MAN-ENVIRONMENT element from Org to Platypus
 CONTENTS is nil.  INFO is a plist holding contextual information."
   (let ((label (org-element-property :name man-environment))
         (value (org-remove-indentation
@@ -679,7 +724,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 
 ;;; Man Fragment
 
-(defun org-e-platypus-man-fragment (man-fragment contents info)
+(defun org-e-platypus-platypus-fragment (man-fragment contents info)
   "Transcode a MAN-FRAGMENT object from Org to Man.
 CONTENTS is nil.  INFO is a plist holding contextual information."
   (org-element-property :value man-fragment))
@@ -750,7 +795,7 @@ the plist used as a communication channel."
                     (plist-get (nth 1 parent) :bullet ))
                (setq fixed-paragraph (concat "" contents)))
               ((eq parent-type 'section)
-               (setq fixed-paragraph (concat "\n\n" contents)))
+               (setq fixed-paragraph (concat "\n" contents)))
               ((eq parent-type 'footnote-definition)
                (setq fixed-paragraph contents))
               (t (setq fixed-paragraph (concat "" contents))))
@@ -763,8 +808,12 @@ the plist used as a communication channel."
   "Transcode a PLAIN-LIST element from Org to Man.
 CONTENTS is the contents of the list.  INFO is a plist holding
 contextual information."
-  (concat "[list]" contents "[-list]")
-)
+  (let* ((type (org-element-property :type plain-list))
+         (platypus-format (cond
+                      ((eq type 'unordered) "[list]\n%s[-list]\n")
+                      (t "\n%s"))))
+
+    (format platypus-format contents)))
 
 
 ;;; Plain Text
@@ -1038,13 +1087,13 @@ channel."
   "Transcode a VERSE-BLOCK element from Org to Man.
 CONTENTS is verse block contents. INFO is a plist holding
 contextual information."
-  (format ".RS\n.ft I\n%s\n.ft\n.RE" contents))
+  (format "[code][+i]%s[-i][-code]" contents))
 
 
 
 ;;; Interactive functions
 
-(defun org-e-platypus-export-to-pla
+(defun org-e-platypus-export-to-platypus
   (&optional subtreep visible-only body-only ext-plist pub-dir)
   "Export current buffer to a Man file.
 
@@ -1072,6 +1121,11 @@ directory.
 
 Return output file's name."
   (interactive)
+  (setq  org-export-platypus-header-alist
+         '(("1" . 0)
+           ("2" . 0)
+           ("3" . 0)
+           ("4" . 0)))
   (let ((outfile (org-export-output-file-name ".pla"  subtreep pub-dir)))
     (org-export-to-file
      'e-platypus outfile subtreep visible-only body-only ext-plist)))
@@ -1105,40 +1159,40 @@ directory.
 Return PDF file's name."
   (interactive)
   (org-e-platypus-compile
-   (org-e-platypus-export-to-man
+   (org-e-platypus-export-to-platypus
     subtreep visible-only body-only ext-plist pub-dir)))
 
-(defun org-e-platypus-compile (grofffile)
-  "Compile a Groff file.
+(defun org-e-platypus-compile (platypusfile)
+  "Compile a Platypus file.
 
-GROFFFILE is the name of the file being compiled.  Processing is
+PLATYPUSFILE is the name of the file being compiled.  Processing is
 done through the command specified in `org-e-platypus-pdf-process'.
 
 Return PDF file name or an error if it couldn't be produced."
   (let* ((wconfig (current-window-configuration))
-         (grofffile (file-truename grofffile))
-         (base (file-name-sans-extension grofffile))
+         (platypusfile (file-truename platypusfile))
+         (base (file-name-sans-extension platypusfile))
          errors)
-    (message (format "Processing Groff file %s ..." grofffile))
+    (message (format "Processing Platypus file %s ..." platypusfile))
     (unwind-protect
         (progn
           (cond
            ;; A function is provided: Apply it.
            ((functionp org-e-platypus-pdf-process)
-            (funcall org-e-platypus-pdf-process (shell-quote-argument grofffile)))
+            (funcall org-e-platypus-pdf-process (shell-quote-argument platypusfile)))
            ;; A list is provided: Replace %b, %f and %o with appropriate
            ;; values in each command before applying it.  Output is
-           ;; redirected to "*Org PDF Groff Output*" buffer.
+           ;; redirected to "*Org PDF Platypus Output*" buffer.
            ((consp org-e-platypus-pdf-process)
-            (let* ((out-dir (or (file-name-directory grofffile) "./"))
-                   (outbuf (get-buffer-create "*Org PDF Groff Output*")))
+            (let* ((out-dir (or (file-name-directory platypusfile) "./"))
+                   (outbuf (get-buffer-create "*Org PDF Platypus Output*")))
               (mapc
                (lambda (command)
                  (shell-command
                   (replace-regexp-in-string
                    "%b" (shell-quote-argument base)
                    (replace-regexp-in-string
-                    "%f" (shell-quote-argument grofffile)
+                    "%f" (shell-quote-argument platypusfile)
                     (replace-regexp-in-string
                      "%o" (shell-quote-argument out-dir) command t t) t t) t t)
                   outbuf))
@@ -1166,7 +1220,7 @@ Return PDF file name or an error if it couldn't be produced."
       (set-window-configuration wconfig))))
 
 (defun org-e-platypus-collect-errors (buffer)
-  "Collect some kind of errors from \"groff\" output
+  "Collect some kind of errors from \"platypus\" output
 BUFFER is the buffer containing output.
 Return collected error types as a string, or nil if there was
 none."
