@@ -1,0 +1,44 @@
+extension "pla"
+doctemplate
+"
+$header
+$title
+"
+"
+$footer
+"
+end
+
+nodoctemplate
+"
+[code|lines:1,5]
+[ff:COURIER]
+"
+"
+[code]
+"
+end
+
+bold "[+b]$text[-b]"
+italics "[+i]$text[-i]"
+underline "[+u]$text[-u]"
+fixed "$text"
+
+anchor "$infilename : $linenum - $text"
+reference "$text \(-> $infile:$linenum, page : $infilename:$linenum"
+
+lineprefix " "
+
+translations
+##"_" "\_"
+##"\n" " \\\\\n"
+##" " "\\ "
+##"\t" "\\ \\ \\ \\ \\ \\ \\ \\ "
+"\t" "    "
+"|" "|"
+"---" "---"
+"--" "-"
+"[" "/["
+"]" "]"
+"/" "[/]"
+end
