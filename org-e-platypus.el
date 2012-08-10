@@ -44,10 +44,12 @@
 (defvar org-export-platypus-default-packages-alist)
 (defvar org-export-platypus-packages-alist)
 (defvar org-export-platypus-header-alist
-  '(("1" . 0)
-    ("2" . 0)
-    ("3" . 0)
-    ("4" . 0)))
+  '(("1" . 1)
+    ("2" . 1)
+    ("3" . 1)
+    ("4" . 1)))
+
+(defvar org-export-platypus-current-level 1)
 
 
 
@@ -356,18 +358,28 @@ This function shouldn't be used for floats.  See
 
     (if level-count
         (progn
-          (setcdr (assoc (number-to-string level)
-                         org-export-platypus-header-alist)
-                  (+ (cdr level-count) 1 ))
-
           (dotimes (i level)
             (setq result 
                   (concat result 
                           (number-to-string 
                            (cdr (assoc (number-to-string (+ i 1))
                                        org-export-platypus-header-alist )))
-                          "."))))
-      "") (concat result "  ")))
+                          ".")))
+          (if (and (> org-export-platypus-current-level
+                      1)              
+                (< level org-export-platypus-current-level))
+              (progn 
+                (setcdr (assoc (number-to-string 
+                                org-export-platypus-current-level)
+                               org-export-platypus-header-alist)
+                        1)
+                (setq org-export-platypus-current-level level))
+               (progn 
+                 (setcdr (assoc (number-to-string level)
+                                org-export-platypus-header-alist)
+                         (+ (cdr level-count) 1 ))
+                 (setq org-export-platypus-current-level level))))
+               "") (concat result "  ")))
 
 
 
@@ -597,10 +609,10 @@ holding contextual information."
 		   low-level-body))))
 
      ;; Case 3. Standard headline.  Export it as a section.
-;;      (numberedp  
-;;       (format section-fmt
-;;               (concat  (org-e-platypus--get-level level)
-;;                        full-text) (or contents " ")))
+;;       (numberedp  
+;;        (format section-fmt
+;;                (concat  (org-e-platypus--get-level level)
+;;                         full-text) (or contents " ")))
      (t (format section-fmt full-text (or contents " ") )))))
 
 ;;; Horizontal Rule
@@ -1122,10 +1134,12 @@ directory.
 Return output file's name."
   (interactive)
   (setq  org-export-platypus-header-alist
-         '(("1" . 0)
-           ("2" . 0)
-           ("3" . 0)
-           ("4" . 0)))
+         '(("1" . 1)
+           ("2" . 1)
+           ("3" . 1)
+           ("4" . 1)))
+  (setq org-export-platypus-current-level 1)
+
   (let ((outfile (org-export-output-file-name ".pla"  subtreep pub-dir)))
     (org-export-to-file
      'e-platypus outfile subtreep visible-only body-only ext-plist)))
