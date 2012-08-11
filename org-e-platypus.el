@@ -596,10 +596,10 @@ holding contextual information."
 			 (concat
 			  ;; If the headline is the first sibling, start a list.
 			  (when (org-export-first-sibling-p headline info)
-				(format "%s\n" "[list]"))
+				"[list]\n")
 			  ;; Itemize headline
 			   text "[]\n"
-			  contents "[-list]\n")))
+			  contents "[-list]\n\n")))
 		;; If headline is not the last sibling simply return
 		;; LOW-LEVEL-BODY.  Otherwise, also close the list, before any
 		;; blank line.
@@ -822,7 +822,7 @@ CONTENTS is the contents of the list.  INFO is a plist holding
 contextual information."
   (let* ((type (org-element-property :type plain-list))
          (platypus-format (cond
-                      ((eq type 'unordered) "[list]\n%s[-list]\n")
+                      ((eq type 'unordered) "[list]\n%s[-list]\n\n")
                       (t "\n%s"))))
 
     (format platypus-format contents)))
