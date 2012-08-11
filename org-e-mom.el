@@ -125,40 +125,16 @@ structure of the values.")
 
 ;;; Preamble
 
-(defcustom org-e-mom-default-class "internal"
+(defcustom org-e-mom-default-class "typeset"
   "The default Mom class."
   :group 'org-export-e-mom
   :type '(string :tag "Mom class"))
 
 (defcustom org-e-mom-classes
-  '(("file" ".MT 1"
-     (:heading 'default :type "memo" :last-section "toc"))
-    ("internal" ".MT 0"
-     (:heading 'default :type "memo" :last-section "toc"))
-    ("programmer" ".MT 2"
-     (:heading 'default :type "memo" :last-section "toc"))
-    ("engineer" ".MT 3"
-     (:heading 'default :type "memo" :last-section "toc"))
-    ("external" ".MT 4"
-     (:heading 'default :type "memo" :last-section "toc"))
-    ("letter" ".MT 5"
-     (:heading 'default :type "memo" :last-section "sign"))
-    ("custom" ".so file"
-     (:heading custom-function :type "custom" :last-section "toc"))
-    ("dummy" ""
-     (:heading 'default :type "memo"))
-    ("ms" "ms"
-     (:heading 'default :type "cover" :last-section "toc"))
-    ("se_ms" "se_ms"
-     (:heading 'default :type "cover" :last-section "toc"))
-    ("block" "BL"
-     (:heading 'default :type "letter" :last-section "sign"))
-    ("semiblock" "SB"
-     (:heading 'default :type "letter" :last-section "sign"))
-    ("fullblock" "FB"
-     (:heading 'default :type "letter" :last-section "sign"))
-    ("simplified" "SP"
-     (:heading 'default :type "letter" :last-section "sign"))
+  '(("typeset" ".PRINTSTYLE TYPESET"
+     (:heading 'default :type "memo" :paper "LETTER" :last-section "toc"))
+    ("typewrite" ".PRINTSTYLE TYPEWRITE"
+     (:heading 'default :type "memo" :paper "LETTER" :last-section "sign"))
     ("none" "" (:heading 'default :type "custom")))
 
   ;; none means, no Cover or Memorandum Type and no calls to AU, AT, ND and TL
@@ -764,31 +740,9 @@ holding export options."
 
 
     (concat
-     (if justify-right
-         (case justify-right
-           ('yes ".SA 1 \n")
-           ('no ".SA 0 \n")
-           (t ""))
-       "")
-
-     (if hyphenate
-         (case hyphenate
-           ('yes ".nr Hy 1 \n")
-           ('no ".nr Hy 0 \n")
-           (t ""))
-       "")
 
      (cond
       ((string= type-option "custom") "")
-
-      ((and (stringp document-class-string)
-            (string= type-option "cover"))
-
-       (concat
-        (format ".COVER %s\n" document-class-string)
-        (org-e-mom--mt-head title contents attr info)
-        ".COVEND\n"))
-
       ((string= type-option "memo")
        (concat
         (org-e-mom--mt-head title contents attr info)
@@ -820,8 +774,6 @@ holding export options."
 
            (when (and sj-item (stringp sj-item))
              (format ".LO SJ \"%s\" \n"  sj-item))
-
-
            ".LT " document-class-string  "\n"))))
 
       (t ""))
@@ -830,7 +782,7 @@ holding export options."
 
      (cond
       ((string= last-option "toc")
-       ".TC")
+       ".TOC")
       ((string= last-option "sign")
        (let ((fc-item (plist-get attr :closing)))
          (concat (if (stringp fc-item)
@@ -839,13 +791,7 @@ holding export options."
                  ".SG\n")))
       (t ""))
 
-     (progn
-       (mapconcat
-        (lambda (item)
-          (when (string= (car item) "NS")
-            (replace-regexp-in-string
-                    "\\.PP\n" "" (cdr item))))
-        (reverse org-e-mom-special-content) "\n")))))
+     )))
 
 
 
@@ -1007,12 +953,12 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
             (format "\\*[%s]" ref-id)
           (progn
             (push ref-id org-e-mom-registered-references)
-            (format "\\*(Rf\n.RS \"%s\" \n%s\n.RF\n" ref-id  data)))
+            (format ".ENDNOTE \n%s\n.ENDNOTE OFF\n" data)))
       ;;
       ;; else it is a footnote
       ;;
 
-      (format "\\u\\s-2%s\\d\\s+2\n.FS %s\n%s\n.FE\n" n n data))))
+      (format "\\*[SUP]%s\\*[SUPX]\n.FOOTNOTE %s\n%s\n.FOOTNOTE OFF\n" n n data))))
 
 ;;; Headline
 
@@ -1599,7 +1545,7 @@ CONTENTS holds the contents of the block.  INFO is a plist
 holding contextual information."
   (org-e-mom--wrap-label
    quote-block
-   (format ".LEFT\n.FT I\n%s\n.FT R\n.QUAD J" contents)))
+   (format ".QUOTE\n.FT I\n%s\n.FT R\n.QUOTE OFF" contents)))
 
 
 ;;; Quote Section
@@ -1609,7 +1555,7 @@ holding contextual information."
 CONTENTS is nil.  INFO is a plist holding contextual information."
   (let ((value (org-remove-indentation
                 (org-element-property :value quote-section))))
-    (when value (format ".QUAD LEFT\n\\fI%s\\fP\n.QUAD J\n" value))))
+    (when value (format ".QUOTE\n\\fI%s\\fP\n.QUOTE OFF\n" value))))
 
 
 ;;; Radio Target
