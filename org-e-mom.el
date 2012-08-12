@@ -786,7 +786,6 @@ holding export options."
      ".HEAD_QUAD LEFT\n"
      ".SUBHEAD_FONT R\n"
      ".SUBHEAD_QUAD LEFT\n"
-
      contents
 
      (cond
@@ -987,10 +986,10 @@ holding contextual information."
          (classes-options (car (last classes)))
          (heading-command 
           (case level
-            (1 "HEAD")
-            (2 "SUBHEAD")
-            (3 "SUBSUBHEAD")
-            (4 "PARAHEAD")))
+            (1 ".HEAD")
+            (2 ".SUBHEAD")
+            (3 ".SUBSUBHEAD")
+            (4 ".PARAHEAD")))
          (heading-option (plist-get classes-options :heading ))
          (section-fmt
           (progn
@@ -999,7 +998,7 @@ holding contextual information."
                    (fboundp heading-option))
               (funcall heading-option level numberedp))
              ((> level 7) nil)
-             (t (concat "." heading-command  " \"%s\"\n%s")))))
+             (t (concat heading-command  " \"%s\"\n%s")))))
          ;; End of section-fmt
          (text (org-export-data (org-element-property :title headline) info))
          (todo
