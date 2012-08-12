@@ -131,10 +131,10 @@ structure of the values.")
   :type '(string :tag "Mom class"))
 
 (defcustom org-e-mom-classes
-  '(("typeset" ".PRINTSTYLE TYPESET"
-     (:heading 'default :type "memo" :paper "LETTER" :last-section "toc"))
-    ("typewrite" ".PRINTSTYLE TYPEWRITE"
-     (:heading 'default :type "memo" :paper "LETTER" :last-section "sign"))
+  '(("typeset" ".PRINTSTYLE TYPESET\n"
+     (:heading 'default :type "DEFAULT" :paper "LETTER" :last-section "toc"))
+    ("typewrite" ".PRINTSTYLE TYPEWRITE\n"
+     (:heading 'default :type "LETTER" :paper "LETTER" :last-section "sign"))
     ("none" "" (:heading 'default :type "custom")))
 
   ;; none means, no Cover or Memorandum Type and no calls to AU, AT, ND and TL
@@ -481,9 +481,9 @@ string defines the replacement string for this quote."
 ;;; Compilation
 
 (defcustom org-e-mom-pdf-process
-  '("pic %f | tbl | eqn | mom -mom -mwww | ps2pdf - > %b.pdf"
-    "pic %f | tbl | eqn | mom -mom -mwww | ps2pdf - > %b.pdf"
-    "pic %f | tbl | eqn | mom -mom -mwww | ps2pdf - > %b.pdf")
+  '("pic %f | tbl | eqn | groff -mom -mwww | ps2pdf - > %b.pdf"
+    "pic %f | tbl | eqn | groff -mom -mwww | ps2pdf - > %b.pdf"
+    "pic %f | tbl | eqn | groff -mom -mwww | ps2pdf - > %b.pdf")
 
   "Commands to process a Mom file to a PDF file.
 This is a list of strings, each of them will be given to the
@@ -496,12 +496,12 @@ extension) and %o by the base directory of the file."
           (repeat :tag "Shell command sequence"
                   (string :tag "Shell command"))
           (const :tag "2 runs of pdfmom"
-                 ("pic %f | tbl | eqn | mom -mom -mwww | ps2pdf - > %b.pdf"
-                  "pic %f | tbl | eqn | mom -mom -mwww | ps2pdf - > %b.pdf" ))
+                 ("pic %f | tbl | eqn | groff -mom -mwww | ps2pdf - > %b.pdf"
+                  "pic %f | tbl | eqn | groff -mom -mwww | ps2pdf - > %b.pdf" ))
           (const :tag "3 runs of pdfmom"
-                 ("pic %f | tbl | eqn | mom -mom -mwww | ps2pdf - > %b.pdf"
-                  "pic %f | tbl | eqn | mom -mom -mwww | ps2pdf - > %b.pdf"
-                  "pic %f | tbl | eqn | mom -mom -mwww | ps2pdf - > %b.pdf"))
+                 ("pic %f | tbl | eqn | groff -mom -mwww | ps2pdf - > %b.pdf"
+                  "pic %f | tbl | eqn | groff -mom -mwww | ps2pdf - > %b.pdf"
+                  "pic %f | tbl | eqn | groff -mom -mwww | ps2pdf - > %b.pdf"))
           (function)))
 
 (defcustom org-e-mom-logfiles-extensions
@@ -727,6 +727,7 @@ holding export options."
          (classes-options (car (last classes)))
          (heading-option (plist-get classes-options :heading ))
          (type-option (plist-get classes-options :type ))
+         (paper-option (plist-get classes-options :paper))
          (last-option (plist-get classes-options :last-section ))
          (hyphenate (plist-get attr :hyphenate))
          (justify-right (plist-get attr :justify-right))
@@ -742,12 +743,15 @@ holding export options."
     (concat
 
      (cond
-      ((string= type-option "custom") "")
-      ((string= type-option "memo")
+      ((string= type-option "CUSTOM") "")
+      ((string= type-option "DEFAULT")
        (concat
         (org-e-mom--mt-head title contents attr info)
-        document-class-string))
-      ((string= type-option "letter")
+        document-class-string
+        (concat ".DOCTYPE " type-option "\n")
+        (concat ".PAPER " paper-option "\n")
+        ".START\n"))
+      ((string= type-option "LETTER")
        (concat
         (org-e-mom--letter-head title contents attr info)
         (let ((sa-item (plist-get attr :salutation))
@@ -775,8 +779,13 @@ holding export options."
            (when (and sj-item (stringp sj-item))
              (format ".LO SJ \"%s\" \n"  sj-item))
            ".LT " document-class-string  "\n"))))
-
-      (t ""))
+      
+      (t "")
+      ".START\n")
+     ".HEAD_FONT R\n"
+     ".HEAD_QUAD LEFT\n"
+     ".SUBHEAD_FONT R\n"
+     ".SUBHEAD_QUAD LEFT\n"
 
      contents
 
@@ -797,7 +806,8 @@ holding export options."
 
 ;;; Transcode Functions
 
-;;; Babel Call
+;;
+; Babel Call
 ;;
 ;; Babel Calls are ignored.
 
@@ -850,7 +860,7 @@ channel."
 ;; Comments are ignored.
 
 
-;;; Comment Block
+;;; Comment Blockp
 ;;
 ;; Comment Blocks are ignored.
 
@@ -897,7 +907,7 @@ CONTENTS is nil.  INFO is a plist holding contextual
 information."
   (org-e-mom--wrap-label
    example-block
-   (format ".DS L\n%s\n.DE"
+   (format ".LEFT\n%s\n.QUAD J"
            (org-export-format-code-default example-block info))))
 
 
@@ -958,7 +968,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
       ;; else it is a footnote
       ;;
 
-      (format "\\*[SUP]%s\\*[SUPX]\n.FOOTNOTE %s\n%s\n.FOOTNOTE OFF\n" n n data))))
+      (format "\\c\n.FOOTNOTE\n%s\n.FOOTNOTE OFF\n" data))))
 
 ;;; Headline
 
@@ -989,7 +999,7 @@ holding contextual information."
                    (fboundp heading-option))
               (funcall heading-option level numberedp))
              ((> level 7) nil)
-             (t (concat heading-command  " \"%s\"\n%s")))))
+             (t (concat "." heading-command  " \"%s\"\n%s")))))
          ;; End of section-fmt
          (text (org-export-data (org-element-property :title headline) info))
          (todo
@@ -1074,8 +1084,11 @@ holding contextual information."
 
      ;; Case 4. Standard headline.  Export it as a section.
      (t
-      (format section-fmt full-text
-              (concat headline-label pre-blanks contents))))))
+      (concat 
+       (when numberedp 
+         (concat ".NUMBER_" heading-command "\n"))
+       (format section-fmt full-text
+               (concat headline-label pre-blanks contents)))))))
 
 
 ;;; Horizontal Rule
@@ -1684,7 +1697,7 @@ holding contextual information."
   "Transcode a SUBSCRIPT object from Org to Mom.
 CONTENTS is the contents of the object.  INFO is a plist holding
 contextual information."
-  (format  "\\*[DOWN 3]%s\\*[UP 3]" contents))
+  (format  "\\d\\s-2 %s\\s+2\\u" contents))
 
 ;;; Superscript "^_%s$
 
@@ -1983,7 +1996,7 @@ channel."
   "Transcode a VERSE-BLOCK element from Org to Mom.
 CONTENTS is verse block contents. INFO is a plist holding
 contextual information."
-  (format ".CENTER\n%s\n.ft\n.QUAD J" contents))
+  (format ".CENTER\n%s\n.QUAD J" contents))
 
 
 
