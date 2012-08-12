@@ -1084,11 +1084,8 @@ holding contextual information."
 
      ;; Case 4. Standard headline.  Export it as a section.
      (t
-      (concat 
-       (when numberedp 
-         (concat ".NUMBER_" heading-command "\n"))
-       (format section-fmt full-text
-               (concat headline-label pre-blanks contents)))))))
+      (format section-fmt full-text
+              (concat headline-label pre-blanks contents))))))
 
 
 ;;; Horizontal Rule
