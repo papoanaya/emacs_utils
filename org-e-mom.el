@@ -154,15 +154,11 @@ structure of the values.")
                          (list :tag "Heading")
                          (function :tag "Hook computing sectioning"))))))
 
-
 (defcustom org-e-mom-date-format
   (format-time-string "%Y-%m-%d")
   "Format string for .ND "
   :group 'org-export-e-mom
   :type 'boolean)
-
-
-
 
 ;;; Headline
 
@@ -481,9 +477,9 @@ string defines the replacement string for this quote."
 ;;; Compilation
 
 (defcustom org-e-mom-pdf-process
-  '("pic %f | tbl | eqn | groff -mom -mwww | ps2pdf - > %b.pdf"
-    "pic %f | tbl | eqn | groff -mom -mwww | ps2pdf - > %b.pdf"
-    "pic %f | tbl | eqn | groff -mom -mwww | ps2pdf - > %b.pdf")
+  '("pic %f | tbl | eqn | groff -mom  | ps2pdf - > %b.pdf"
+    "pic %f | tbl | eqn | groff -mom  | ps2pdf - > %b.pdf"
+    "pic %f | tbl | eqn | groff -mom  | ps2pdf - > %b.pdf")
 
   "Commands to process a Mom file to a PDF file.
 This is a list of strings, each of them will be given to the
@@ -495,13 +491,13 @@ extension) and %o by the base directory of the file."
   :type '(choice
           (repeat :tag "Shell command sequence"
                   (string :tag "Shell command"))
-          (const :tag "2 runs of pdfmom"
-                 ("pic %f | tbl | eqn | groff -mom -mwww | ps2pdf - > %b.pdf"
-                  "pic %f | tbl | eqn | groff -mom -mwww | ps2pdf - > %b.pdf" ))
-          (const :tag "3 runs of pdfmom"
-                 ("pic %f | tbl | eqn | groff -mom -mwww | ps2pdf - > %b.pdf"
-                  "pic %f | tbl | eqn | groff -mom -mwww | ps2pdf - > %b.pdf"
-                  "pic %f | tbl | eqn | groff -mom -mwww | ps2pdf - > %b.pdf"))
+          (const :tag "2 runs of groff -mom"
+                 ("pic %f | tbl | eqn | groff -mom  | ps2pdf - > %b.pdf"
+                  "pic %f | tbl | eqn | groff -mom  | ps2pdf - > %b.pdf" ))
+          (const :tag "3 runs of groff -mom"
+                 ("pic %f | tbl | eqn | groff -mom  | ps2pdf - > %b.pdf"
+                  "pic %f | tbl | eqn | groff -mom  | ps2pdf - > %b.pdf"
+                  "pic %f | tbl | eqn | groff -mom  | ps2pdf - > %b.pdf"))
           (function)))
 
 (defcustom org-e-mom-logfiles-extensions
@@ -517,11 +513,11 @@ These are the .aux, .log, .out, and .toc files."
   :type 'boolean)
 
 
-(defcustom org-e-mom-organization "Org User"
-  "Name of the organization used to populate the .AF command."
+(defcustom org-e-mom-default-quad ".QUAD JUSTIFY"
+  "Defines default justification to be used after a non
+filled mode is used."
   :group 'org-export-e-mom
-  :type 'string)
-
+  :type 'boolean)
 
 ;; Preamble
 
@@ -749,8 +745,7 @@ holding export options."
         (org-e-mom--mt-head title contents attr info)
         document-class-string
         (concat ".DOCTYPE " type-option "\n")
-        (concat ".PAPER " paper-option "\n")
-        ".START\n"))
+        (concat ".PAPER " paper-option "\n")))
       ((string= type-option "LETTER")
        (concat
         (org-e-mom--letter-head title contents attr info)
@@ -780,12 +775,8 @@ holding export options."
              (format ".LO SJ \"%s\" \n"  sj-item))
            ".LT " document-class-string  "\n"))))
       
-      (t "")
-      ".START\n")
-     ".HEAD_FONT R\n"
-     ".HEAD_QUAD LEFT\n"
-     ".SUBHEAD_FONT R\n"
-     ".SUBHEAD_QUAD LEFT\n"
+      (t ""))
+     ".START\n"
      contents
 
      (cond
@@ -828,8 +819,8 @@ CONTENTS holds the contents of the center block.  INFO is a plist
 holding contextual information."
   (org-e-mom--wrap-label
    center-block
-   (format ".DS C \n%s\n.DE" contents)))
-
+   (format ".CENTER\n%s\n%s\n" contents 
+           org-e-mom-default-quad)))
 
 ;;; Clock
 
@@ -906,7 +897,7 @@ CONTENTS is nil.  INFO is a plist holding contextual
 information."
   (org-e-mom--wrap-label
    example-block
-   (format ".LEFT\n%s\n.QUAD J"
+   (format ".QUOTE\n%s\n.QUOTE OFF"
            (org-export-format-code-default example-block info))))
 
 
@@ -1172,7 +1163,7 @@ holding contextual information."
                          "%s\n"
                          ".SP"
                          "%s\n"
-                         ".QUAD J")
+                         org-e-mom-default-quad)
                  full-title contents))))))
 
 
@@ -1196,32 +1187,26 @@ contextual information."
 	 (type (org-element-property
 		:type (org-element-property :parent item)))
          (checkbox (case (org-element-property :checkbox item)
-                     (on "\\o'\\(sq\\(mu'")
-                     (off "\\(sq")
-                     (trans "\\o'\\(sq\\(mi'"   )))
+                     (on "\\o'\\(sq\\(mu'\\ ")
+                     (off "\\(sq\\ ")
+                     (trans "\\o'\\(sq\\(mi'\\ ")))
 
          (tag (let ((tag (org-element-property :tag item)))
                 ;; Check-boxes must belong to the tag.
                 (and tag (format "%s"
                                  (concat checkbox
                                          (org-export-data tag info)))))))
-
 	(cond
+     ((eq type 'descriptive)
+      (concat "\\*[BD]" tag "\\*[PREV]\\ \\ \\ \\ " 
+              contents "\n.BR\n"))
 	 ((or checkbox tag)
-	  (concat ".ITEM ""\"" (or tag (concat "\\ " checkbox)) "\""
-              "\n"
+	  (concat ".ITEM \n" (or tag (concat "\\ " checkbox))
               (org-trim (or contents " " )))  )
-     ((eq type 'ordered)
+     (t
       (concat ".ITEM"
               "\n"
-              (org-trim (or contents " " ))))
-     (t
-      (let* ((bullet (org-trim bullet))
-             (marker (cond  ((string= "-" bullet) "\\(em")
-                            ((string= "*" bullet) "\\(bu")
-                            (t "\\(dg"))))
-        (concat ".ITEM " marker "\n"
-                (org-trim (or contents " " ))))))))
+              (org-trim (or contents " " )))))))
 
 
 
@@ -1318,8 +1303,8 @@ used as a communication channel."
      (cond
       ((string-match ".\.pic$" path)
        (format "\n.PS\ncopy \"%s\"\n.PE" path ))
-      (t (format "\n.QUAD LEFT\n.PSPIC %s \"%s\" %s %s\n.QUAD J"
-                 placement path width height )))
+      (t (format "\n.QUAD LEFT\n.PSPIC %s \"%s\" %s %s\n%s"
+                 placement path width height org-e-mom-default-quad)))
      (unless disable-caption (format "\n%s\"" caption )))))
 
 
@@ -1459,15 +1444,28 @@ contextual information."
          (attr (mapconcat #'identity
                           (org-element-property :attr_mom plain-list)
                           " "))
+         
+         (bullet (org-trim 
+                  (org-element-property :bullet (nth 2 plain-list))))
+         (marker (cond  ((string= "-" bullet) "DASH")
+                            ((string= "*" bullet) "BULLET")
+                            (t "USER \"\\(dg\"")))
          (mom-type (cond
-                      ((eq type 'ordered) ".LIST DIGIT")
-                      ((eq type 'unordered) ".LIST BULLET")
-                      ((eq type 'descriptive) ""))))
-    (org-e-mom--wrap-label
-     plain-list
-     (format "%s\n%s\n.LIST OFF"
-             mom-type
-             contents ))))
+                    ((eq type 'ordered) ".LIST DIGIT")
+                    ((eq type 'unordered) (concat ".LIST " marker))
+                    ((eq type 'descriptive) ".HI 0.5i \n"))))
+
+    (if (eq type 'descriptive)
+        (org-e-mom--wrap-label
+         plain-list
+         (format "%s\n%s\n.IQ\n"
+                 mom-type
+                 contents))
+      (org-e-mom--wrap-label
+       plain-list
+       (format "%s\n%s\n.LIST OFF"
+               mom-type
+               contents)))))
 
 
 ;;; Plain Text
@@ -1543,7 +1541,7 @@ CONTENTS is nil.  INFO is a plist holding contextual
 information."
   ;; The property drawer isn't exported but we want separating blank
   ;; lines nonetheless.
-  "")
+  contents)
 
 
 ;;; Quote Block
@@ -1554,7 +1552,7 @@ CONTENTS holds the contents of the block.  INFO is a plist
 holding contextual information."
   (org-e-mom--wrap-label
    quote-block
-   (format ".QUOTE\n.FT I\n%s\n.FT R\n.QUOTE OFF" contents)))
+   (format ".BLOCKQUOTE\n.FT I\n%s\n.FT R\n.BLOCKQUOTE OFF" contents)))
 
 
 ;;; Quote Section
@@ -1727,11 +1725,12 @@ contextual information."
                                    (org-element-property :attr_mom table) " ")))))
           (and attr (plist-get attr :verbatim))))
 
-    (format ".LEFT\n\\fC%s\\fP\n.QUAD J"
+    (format ".LEFT\n\\fC%s\\fP\n%s"
             ;; Re-create table, without affiliated keywords.
             (org-trim
              (org-element-interpret-data
-              `(table nil ,@(org-element-contents table))))))
+              `(table nil ,@(org-element-contents table))))  
+            org-e-mom-default-quad))
 
    ;; Case 2: Standard table.
    (t (org-e-mom-table--org-table table contents info))))
@@ -1992,7 +1991,7 @@ channel."
   "Transcode a VERSE-BLOCK element from Org to Mom.
 CONTENTS is verse block contents. INFO is a plist holding
 contextual information."
-  (format ".CENTER\n%s\n.QUAD J" contents))
+  (format ".CENTER\n%s\n%s" contents org-e-mom-default-quad))
 
 
 
