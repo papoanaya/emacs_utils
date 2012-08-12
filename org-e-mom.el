@@ -749,30 +749,13 @@ holding export options."
       ((string= type-option "LETTER")
        (concat
         (org-e-mom--letter-head title contents attr info)
-        (let ((sa-item (plist-get attr :salutation))
-              (cn-item (plist-get attr :confidential))
-              (sj-item (plist-get attr :subject))
-              (rn-item (plist-get attr :reference))
-              (at-item (plist-get attr :attention)))
+        (let ((sa-item (plist-get attr :salutation)))
 
           (concat
 
            (if (stringp sa-item)
-               (format ".LO SA \"%s\" \n"  sa-item)
-             ".LO SA\n")
-
-           (when cn-item
-             (if (stringp cn-item)
-                 (format ".LO CN \"%s\"\n" cn-item)
-               ".LO CN\n"))
-
-           (when (and at-item (stringp at-item))
-             (format ".LO AT \"%s\" \n"  at-item))
-           (when (and title rn-item)
-             (format ".LO RN \"%s\"\n" title))
-
-           (when (and sj-item (stringp sj-item))
-             (format ".LO SJ \"%s\" \n"  sj-item))
+               (format ".GREETINGS %s\n.SP\n"  sa-item) "\n")
+ 
            ".LT " document-class-string  "\n"))))
       
       (t ""))
@@ -785,12 +768,9 @@ holding export options."
       ((string= last-option "sign")
        (let ((fc-item (plist-get attr :closing)))
          (concat (if (stringp fc-item)
-                     (format ".FC \"%s\" \n" fc-item)
-                   ".FC\n")
-                 ".SG\n")))
-      (t ""))
-
-     )))
+                     (format ".CLOSING\n%s\n.SP\n" fc-item)
+                   "\n"))))
+      (t "")))))
 
 
 
