@@ -686,7 +686,7 @@ See `org-e-mom-text-markup-alist' for details."
 
 
     (concat
-     
+
      (let ((date (org-export-data (plist-get info :date) info)))
        (and date (format ".DATE \n%s\n.SP" date)))
 
@@ -733,11 +733,14 @@ holding export options."
             (org-element-normalize-string
              (let* ((header (nth 1 (assoc class org-e-mom-classes)))
                     (document-class-item (if (stringp header) header "")))
-               document-class-item)))))
-
+               document-class-item))))
+         (headline-type (car 
+                         (org-element-map
+                          (plist-get info :parse-tree) 'headline 
+                          #'identity info)))
+         (numberedp (org-export-numbered-headline-p headline-type info)))
 
     (concat
-
      (cond
       ((string= type-option "CUSTOM") "")
       ((string= type-option "DEFAULT")
@@ -755,11 +758,19 @@ holding export options."
 
            (if (stringp sa-item)
                (format ".GREETINGS %s\n.SP\n"  sa-item) "\n")
- 
+
            ".LT " document-class-string  "\n"))))
-      
+
       (t ""))
      ".START\n"
+
+     (when numberedp 
+       (concat 
+        ".NUMBER_HEADS\n"
+        ".NUMBER_SUBHEADS\n"
+        ".NUMBER_SUBSUBHEADS\n"
+        ".NUMBER_PARAHEADS\n"))
+
      contents
 
      (cond
@@ -799,7 +810,7 @@ CONTENTS holds the contents of the center block.  INFO is a plist
 holding contextual information."
   (org-e-mom--wrap-label
    center-block
-   (format ".CENTER\n%s\n%s\n" contents 
+   (format ".CENTER\n%s\n%s\n" contents
            org-e-mom-default-quad)))
 
 ;;; Clock
@@ -955,7 +966,7 @@ holding contextual information."
 
          (classes (assoc class org-e-mom-classes))
          (classes-options (car (last classes)))
-         (heading-command 
+         (heading-command
           (case level
             (1 ".HEAD")
             (2 ".SUBHEAD")
@@ -1178,7 +1189,7 @@ contextual information."
                                          (org-export-data tag info)))))))
 	(cond
      ((eq type 'descriptive)
-      (concat ".HI 1.0i\n \\*[BD]" tag "\\*[PREV]\\ \\ \\ \\ " 
+      (concat ".HI 1.0i\n \\*[BD]" tag "\\*[PREV]\\ \\ \\ \\ "
               contents "\n.BR\n"))
 	 ((or checkbox tag)
 	  (concat ".ITEM \n" (or tag (concat "\\ " checkbox))
@@ -1424,8 +1435,8 @@ contextual information."
          (attr (mapconcat #'identity
                           (org-element-property :attr_mom plain-list)
                           " "))
-         
-         (bullet (org-trim 
+
+         (bullet (org-trim
                   (org-element-property :bullet (nth 2 plain-list))))
          (marker (cond  ((string= "-" bullet) "DASH")
                             ((string= "*" bullet) "BULLET")
@@ -1709,7 +1720,7 @@ contextual information."
             ;; Re-create table, without affiliated keywords.
             (org-trim
              (org-element-interpret-data
-              `(table nil ,@(org-element-contents table))))  
+              `(table nil ,@(org-element-contents table))))
             org-e-mom-default-quad))
 
    ;; Case 2: Standard table.
