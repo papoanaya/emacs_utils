@@ -1178,7 +1178,7 @@ contextual information."
                                          (org-export-data tag info)))))))
 	(cond
      ((eq type 'descriptive)
-      (concat "\\*[BD]" tag "\\*[PREV]\\ \\ \\ \\ " 
+      (concat ".HI 1.0i\n \\*[BD]" tag "\\*[PREV]\\ \\ \\ \\ " 
               contents "\n.BR\n"))
 	 ((or checkbox tag)
 	  (concat ".ITEM \n" (or tag (concat "\\ " checkbox))
@@ -1433,12 +1433,12 @@ contextual information."
          (mom-type (cond
                     ((eq type 'ordered) ".LIST DIGIT")
                     ((eq type 'unordered) (concat ".LIST " marker))
-                    ((eq type 'descriptive) ".HI 0.5i \n"))))
+                    ((eq type 'descriptive) ".IL 2.0i \n"))))
 
     (if (eq type 'descriptive)
         (org-e-mom--wrap-label
          plain-list
-         (format "%s\n%s\n.IQ\n"
+         (format "%s\n%s\n.IQ CLEAR\n"
                  mom-type
                  contents))
       (org-e-mom--wrap-label
