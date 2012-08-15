@@ -1072,7 +1072,7 @@ information."
   "Transcode a TIMESTAMP object from Org to Man.
   CONTENTS is nil.  INFO is a plist holding contextual
   information."
-  "contents" )
+contents)
 
 
 ;;; Underline
@@ -1081,7 +1081,7 @@ information."
   "Transcode UNDERLINE from Org to Man.
 CONTENTS is the text with underline markup.  INFO is a plist
 holding contextual information."
-  (format "[+u]%s[-i]" contents))
+  (format "[+u]%s[-u]" contents))
 
 
 ;;; Verbatim
