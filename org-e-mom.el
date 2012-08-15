@@ -773,6 +773,8 @@ holding export options."
 
      contents
 
+     (when org-e-mom-registered-references ".ENDNOTES\n")
+
      (cond
       ((string= last-option "toc")
        ".TOC")
@@ -944,7 +946,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
             (format "\\*[%s]" ref-id)
           (progn
             (push ref-id org-e-mom-registered-references)
-            (format ".ENDNOTE \n%s\n.ENDNOTE OFF\n" data)))
+            (format "\\c\n.ENDNOTE\n%s\n.ENDNOTE OFF\n" data)))
       ;;
       ;; else it is a footnote
       ;;
@@ -1099,7 +1101,7 @@ contextual information."
 
              (cmd (concat (expand-file-name "source-highlight")
                           " -s " lst-lang
-                          " -f mom_mm_color "
+                          " -f groff_mom_color "
                           " -i " in-file
                           " -o " out-file )))
 
@@ -1111,12 +1113,14 @@ contextual information."
               (delete-file in-file)
               (delete-file out-file)
               code-block)
-          (format ".CODE\\m[black]%s\\m[]\n.CODE OFF\n"
-                  code))))
+          (format ".LEFT\n.CODE BR \\m[black]%s\\m[]\n.CODE OFF\n%s\n"
+                  code org-e-mom-default-quad))))
 
      ;; Do not use a special package: transcode it verbatim.
      (t
-      (concat ".CODE\n" code "\n.CODE OFF\n")))))
+      (concat ".LEFT\n.CODE BR\n" code 
+              "\n.CODE OFF\n"  
+              org-e-mom-default-quad "\n")))))
 
 
 ;;; Inlinetask
@@ -1296,7 +1300,8 @@ used as a communication channel."
        (format "\n.PS\ncopy \"%s\"\n.PE" path ))
       (t (format "\n.QUAD LEFT\n.PSPIC %s \"%s\" %s %s\n%s"
                  placement path width height org-e-mom-default-quad)))
-     (unless disable-caption (format "\n%s\"" caption )))))
+     (unless disable-caption 
+       (format "\n.CENTER\n%s\n%s" caption org-e-mom-default-quad)))))
 
 
 
@@ -1621,8 +1626,9 @@ contextual information."
      ((not org-e-mom-source-highlight)
       (let ((caption-str (org-e-mom--caption/label-string caption label info)))
         (concat
-         (format ".CODE\n%s\n.CODE OFF"
-                 (org-export-format-code-default src-block info))
+         (format ".LEFT\n.CODE BR\n%s\n.CODE OFF\n%s\n"
+                 (org-export-format-code-default src-block info) 
+                 org-e-mom-default-quad)
          (unless  disable-caption (format "%s"  caption-str )))))
 
      ;; Case 2.  Source fontification.
@@ -1642,7 +1648,7 @@ contextual information."
 
               (cmd (concat "source-highlight"
                            " -s " lst-lang
-                           " -f mom_mm_color "
+                           " -f groff_mom_color "
                            " -i " in-file
                            " -o " out-file )))
 
@@ -1654,9 +1660,10 @@ contextual information."
                 (setq code-block  (org-file-contents out-file))
                 (delete-file in-file)
                 (delete-file out-file)
-                (format "%s\n"  code-block))
-            (format ".CODE\n%s\n.CODE OFF"
-                    code))
+                (format ".LEFT\n%s\n%s\n"  code-block 
+                        org-e-mom-default-quad))
+            (format ".LEFT\n.CODE BR\n%s\n.CODE OFF\n%s\n"
+                    code org-e-mom-default-quad))
           (unless disable-caption (format "%s" caption-str))))))))
 
 
@@ -1880,8 +1887,9 @@ This function assumes TABLE has `org' as its `:type' attribute."
                               final-line))
 
                     (if (not disable-caption)
-                        (format ".TB \"%s\""
-                                caption) ""))))))
+                        (format "\n.CENTER\n%s\n%s\n"
+                                caption 
+                                org-e-mom-default-quad) ""))))))
 
 ;;; Table Cell
 

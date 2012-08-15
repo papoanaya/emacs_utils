@@ -1,25 +1,28 @@
 extension "mom"
 doctemplate
 "
+$header
 .PRINTSTYLE TYPESET
 .PAPER LETTER
-.TITLE  "$title"
+.TITLE  \"$title\"
 .AUTHOR \"\"
 .START
-$header
-.QUOTE
+.CODE BR
 "
-".QUOTE OFF
+"
+\m[black]\m[]
+.CODE OFF
 $footer
 "
 end
 
 nodoctemplate
 "
-.QUOTE
+.CODE BR
 "
 "
-.QUOTE OFF"
+\m[black]\m[]
+.CODE OFF"
 end
 
 bold "\f[CB]$text\fP"
