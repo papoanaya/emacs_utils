@@ -241,7 +241,7 @@ string defines the replacement string for this quote."
 ;;; Compilation
 
 (defcustom org-e-platypus-pdf-process
-  '("~/platyrun -verbose  %f %b.pdf")
+  '("~/platypus/platyrun -verbose  %f %b.pdf")
 
   "Commands to process a Man file to a PDF file.
 This is a list of strings, each of them will be given to the
@@ -693,14 +693,22 @@ contextual information."
 
          (tag (let ((tag (org-element-property :tag item)))
                 ;; Check-boxes must belong to the tag.
-                (and tag (format "[+b]%s[-b]"
+                (and tag (format "%s"
                                  (concat checkbox
                                          (org-export-data tag info))))))
          (marker (cond  ((eq type 'ordered)  
                          (format "%s  " (org-trim bullet)))
                         (t "") )))
 
-    (concat marker (org-trim (or contents " " )) "[]\n")))
+    (cond ((eq type 'descriptive)
+           (concat 
+            (format "[code]%s   [-code]" tag )
+            (org-trim (or contents " ")) "[]\n"))
+           (t
+            (concat marker
+                    (when tag (format "    [+u]%s[-u]    " tag ))
+                    (when checkbox (format "   [code]%s[-code]   " checkbox))
+                    (org-trim (or contents " " )) "[]\n"))) ))
 
 ;;; Keyword
 
@@ -821,10 +829,23 @@ the plist used as a communication channel."
 CONTENTS is the contents of the list.  INFO is a plist holding
 contextual information."
   (let* ((type (org-element-property :type plain-list))
-         (platypus-format (cond
-                      ((eq type 'unordered) "[list]\n%s[-list]\n\n")
-                      (t "\n%s"))))
+         (bullet (org-trim
+                  (org-element-property :bullet (nth 2 plain-list))))
+         (marker 
+          (cond
+           ((string= "-" bullet) "{--}")
+           ((string= "*" bullet) "{bullet}")
+           (t "{ring}")))
 
+         (platypus-format (cond
+                           ((eq type 'unordered) 
+                            (concat 
+                             "\n[list|bullet:" 
+                             marker
+                             "]\n%s[-list]\n\n"))
+                           ((eq type 'descriptive)
+                            "\n[list|bullet:{---}]\n%s[-list]\n\n")
+                           (t "\n%s"))))
     (format platypus-format contents)))
 
 
