@@ -447,7 +447,7 @@ holding contextual information."
   "Transcode a CLOCK element from Org to Man.
 CONTENTS is nil.  INFO is a plist holding contextual
 information."
-  contents)
+(concat "[+i]" contents "[-i]\n\n"))
 
 
 ;;; Code
@@ -644,7 +644,7 @@ contextual information."
 
              (cmd (concat (expand-file-name "source-highlight")
                           " -s " lst-lang
-                          " -f groff_man"
+                          " -f platypus"
                           " -i " in-file
                           " -o " out-file )))
 
@@ -702,8 +702,10 @@ contextual information."
 
     (cond ((eq type 'descriptive)
            (concat 
-            (format "[code]%s   [-code]" tag )
-            (org-trim (or contents " ")) "[]\n"))
+            (format "\n[paraindent:0][+b][+u]%s[-b][-u]\n\n" tag )
+            "[paraindent:36pt]"
+            (org-trim (or contents " ")) 
+            "[]"))
            (t
             (concat marker
                     (when tag (format "    [+u]%s[-u]    " tag ))
@@ -844,7 +846,7 @@ contextual information."
                              marker
                              "]\n%s[-list]\n\n"))
                            ((eq type 'descriptive)
-                            "\n[list|bullet:{---}]\n%s[-list]\n\n")
+                            "\n%s\n[paraindent:0]\n\n")
                            (t "\n%s"))))
     (format platypus-format contents)))
 
@@ -960,7 +962,7 @@ contextual information."
 
               (cmd (concat "source-highlight"
                            " -s " lst-lang
-                           " -f groff_man "
+                           " -f platypus "
                            " -i " in-file
                            " -o " out-file)))
 
@@ -1024,7 +1026,7 @@ contextual information."
   "Transcode a TABLE element from Org to Man.
 CONTENTS is the contents of the table.  INFO is a plist holding
 contextual information."
-(format "[code]%s[-code]"
+(format "\n\n[code]\n%s\n[-code]\n\n"
             ;; Re-create table, without affiliated keywords.
             (org-trim
              (org-element-interpret-data
@@ -1111,7 +1113,9 @@ holding contextual information."
   "Transcode a VERBATIM object from Org to Man.
 CONTENTS is nil.  INFO is a plist used as a communication
 channel."
-  (format "[code]%s[-code]" contents))
+  (format "[ff:COURIER]%s[ff:%s]" 
+          (org-element-property :value verbatim)
+          org-e-platypus-default-font))
 
 
 ;;; Verse Block
