@@ -939,7 +939,7 @@ information."
 (defun org-groff-mm-export-block (export-block contents info)
   "Transcode a EXPORT-BLOCK element from Org to Groff.
 CONTENTS is nil.  INFO is a plist holding contextual information."
-  (when (string= (org-element-property :type export-block) "GROFF")
+  (when (string= (org-element-property :type export-block) "MM")
     (org-remove-indentation (org-element-property :value export-block))))
 
 ;;; Export Snippet
@@ -1238,7 +1238,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
   (let ((key (org-element-property :key keyword))
         (value (org-element-property :value keyword)))
     (cond
-     ((string= key "GROFF") value)
+     ((string= key "MM") value)
      (t nil))))
 
 ;;; Groff Environment
