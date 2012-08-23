@@ -525,7 +525,7 @@ These are the .aux, .log, .out, and .toc files."
 ;; does not execute
 
 (add-to-list 'org-element-block-name-alist
-             '("GROFF" . org-element-export-block-parser))
+             '("MM" . org-element-export-block-parser))
 
 (defvar org-groff-mm-registered-references nil)
 (defvar org-groff-mm-special-content nil)
