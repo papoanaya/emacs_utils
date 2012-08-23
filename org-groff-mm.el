@@ -32,8 +32,8 @@
 ;; export.  See contrib/lisp/org-export.el for more details on how
 ;; this exporter works.
 ;;
-;; It introduces two new buffer keywords: "GROFF_CLASS" and
-;; "GROFF_CLASS_OPTIONS".
+;; It introduces two new buffer keywords: "MM_CLASS" and
+;; "MM_CLASS_OPTIONS".
 
 ;;; Code:
 
@@ -105,9 +105,9 @@
 
 (defconst org-groff-mm-options-alist
   '((:date "DATE" nil org-groff-mm-date-format t)
-    (:groff-class "GROFF_CLASS" nil org-groff-mm-default-class t)
-    (:groff-class-options "GROFF_CLASS_OPTIONS" nil nil t)
-    (:groff-header-extra "GROFF_HEADER" nil nil newline))
+    (:mm-class "MM_CLASS" nil org-groff-mm-default-class t)
+    (:mm-class-options "MM_CLASS_OPTIONS" nil nil t)
+    (:mm-header-extra "MM_HEADER" nil nil newline))
 "Alist between Groff export properties and ways to set them.
 See `org-export-options-alist' for more information on the
 structure of the values.")
@@ -738,10 +738,10 @@ holding export options."
                 (format "(%s)"
                         (mapconcat
                          #'identity
-                         (list (plist-get info :groff-class-options))
+                         (list (plist-get info :mm-class-options))
                          " "))))
-         (class (plist-get info :groff-class))
-         (class-options (plist-get info :groff-class-options))
+         (class (plist-get info :mm-class))
+         (class-options (plist-get info :mm-class-options))
          (classes (assoc class org-groff-mm-classes))
          (classes-options (car (last classes)))
          (heading-option (plist-get classes-options :heading))
@@ -990,7 +990,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
   "Transcode an HEADLINE element from Org to Groff.
 CONTENTS holds the contents of the headline.  INFO is a plist
 holding contextual information."
-  (let* ((class (plist-get info :groff-class))
+  (let* ((class (plist-get info :mm-class))
          (level (org-export-get-relative-level headline info))
          (numberedp (org-export-numbered-headline-p headline info))
          ;; Section formatting will set two placeholders: one for the
@@ -1289,7 +1289,7 @@ used as a communication channel."
          (attr (read (format "(%s)"
             (mapconcat
              #'identity
-             (org-element-property :attr_groff parent)
+             (org-element-property :attr_mm parent)
              " "))))
          (placement
           (case (plist-get attr :position)
@@ -1419,8 +1419,8 @@ the plist used as a communication channel."
     (when parent
       (let* ((parent-type (car parent))
              (fixed-paragraph "")
-             (class (plist-get info :groff-class))
-             (class-options (plist-get info :groff-class-options))
+             (class (plist-get info :mm-class))
+             (class-options (plist-get info :mm-class-options))
              (classes (assoc class org-groff-mm-classes))
              (classes-options (car (last classes)))
              (paragraph-option (plist-get classes-options :paragraph)))
@@ -1446,7 +1446,7 @@ CONTENTS is the contents of the list.  INFO is a plist holding
 contextual information."
   (let* ((type (org-element-property :type plain-list))
          (attr (mapconcat #'identity
-                          (org-element-property :attr_groff plain-list)
+                          (org-element-property :attr_mm plain-list)
                           " "))
          (groff-type (cond
                       ((eq type 'ordered) ".AL")
@@ -1592,7 +1592,7 @@ contextual information."
          (attr
           (read (format "(%s)"
                    (mapconcat #'identity
-                              (org-element-property :attr_groff src-block)
+                              (org-element-property :attr_mm src-block)
                               " "))))
          (disable-caption (plist-get attr :disable-caption)))
 
@@ -1693,7 +1693,7 @@ contextual information."
         (let ((attr (read (format "(%s)"
                  (mapconcat
                   #'identity
-                                   (org-element-property :attr_groff table) " ")))))
+                                   (org-element-property :attr_mm table) " ")))))
           (and attr (plist-get attr :verbatim))))
 
     (format ".DS L\n\\fC%s\\fP\n.DE"
@@ -1753,7 +1753,7 @@ This function assumes TABLE has `org' as its `:type' attribute."
                    (org-element-property :caption table) label info))
          (attr (read (format "(%s)"
                              (mapconcat #'identity
-             (org-element-property :attr_groff table)
+             (org-element-property :attr_mm table)
              " "))))
          (divider (if (plist-get attr :divider) "|" " "))
 
@@ -1890,7 +1890,7 @@ a communication channel."
   (when (eq (org-element-property :type table-row) 'standard)
     (let* ((attr (mapconcat 'identity
                             (org-element-property
-                             :attr_groff (org-export-get-parent table-row))
+                             :attr_mm (org-export-get-parent table-row))
                             " "))
            ;; TABLE-ROW's borders are extracted from its first cell.
            (borders
