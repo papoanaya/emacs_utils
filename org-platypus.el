@@ -1,4 +1,4 @@
-;; org-e-platypus.el --- Man Back-End For Org Export Engine
+;; org-platypus.el --- Man Back-End For Org Export Engine
 
 ;; Copyright (C) 2011-2012  Free Software Foundation, Inc.
 
@@ -26,7 +26,7 @@
 ;;
 ;; To test it, run
 ;;
-;;   M-: (org-export-to-buffer 'e-platypus "*Test e-Platypus*") RET
+;;   M-: (org-export-to-buffer 'platypus "*Test platypus*") RET
 ;;
 ;; in an org-mode buffer then switch to the buffer to see the Man
 ;; export.  See contrib/lisp/org-export.el for more details on how
@@ -55,63 +55,63 @@
 
 ;;; Define Back-End
 
-(defvar org-e-platypus-translate-alist
-  '((babel-call . org-e-platypus-babel-call)
-    (bold . org-e-platypus-bold)
-    (center-block . org-e-platypus-center-block)
-    (clock . org-e-platypus-clock)
-    (code . org-e-platypus-code)
-    (comment . org-e-platypus-comment)
-    (comment-block . org-e-platypus-comment-block)
-    (drawer . org-e-platypus-drawer)
-    (dynamic-block . org-e-platypus-dynamic-block)
-    (entity . org-e-platypus-entity)
-    (example-block . org-e-platypus-example-block)
-    (export-block . org-e-platypus-export-block)
-    (export-snippet . org-e-platypus-export-snippet)
-    (fixed-width . org-e-platypus-fixed-width)
-    (footnote-definition . org-e-platypus-footnote-definition)
-    (footnote-reference . org-e-platypus-footnote-reference)
-    (headline . org-e-platypus-headline)
-    (horizontal-rule . org-e-platypus-horizontal-rule)
-    (inline-babel-call . org-e-platypus-inline-babel-call)
-    (inline-src-block . org-e-platypus-inline-src-block)
-    (inlinetask . org-e-platypus-inlinetask)
-    (italic . org-e-platypus-italic)
-    (item . org-e-platypus-item)
-    (keyword . org-e-platypus-keyword)
-    (man-environment . org-e-platypus-platypus-environment)
-    (man-fragment . org-e-platypus-platypus-fragment)
-    (line-break . org-e-platypus-line-break)
-    (link . org-e-platypus-link)
-    (macro . org-e-platypus-macro)
-    (paragraph . org-e-platypus-paragraph)
-    (plain-list . org-e-platypus-plain-list)
-    (plain-text . org-e-platypus-plain-text)
-    (planning . org-e-platypus-planning)
-    (property-drawer . org-e-platypus-property-drawer)
-    (quote-block . org-e-platypus-quote-block)
-    (quote-section . org-e-platypus-quote-section)
-    (radio-target . org-e-platypus-radio-target)
-    (section . org-e-platypus-section)
-    (special-block . org-e-platypus-special-block)
-    (src-block . org-e-platypus-src-block)
-    (statistics-cookie . org-e-platypus-statistics-cookie)
-    (strike-through . org-e-platypus-strike-through)
-    (subscript . org-e-platypus-subscript)
-    (superscript . org-e-platypus-superscript)
-    (table . org-e-platypus-table)
-    (table-cell . org-e-platypus-table-cell)
-    (table-row . org-e-platypus-table-row)
-    (target . org-e-platypus-target)
-    (template . org-e-platypus-template)
-    (timestamp . org-e-platypus-timestamp)
-    (underline . org-e-platypus-underline)
-    (verbatim . org-e-platypus-verbatim)
-    (verse-block . org-e-platypus-verse-block))
+(defvar org-platypus-translate-alist
+  '((babel-call . org-platypus-babel-call)
+    (bold . org-platypus-bold)
+    (center-block . org-platypus-center-block)
+    (clock . org-platypus-clock)
+    (code . org-platypus-code)
+    (comment . org-platypus-comment)
+    (comment-block . org-platypus-comment-block)
+    (drawer . org-platypus-drawer)
+    (dynamic-block . org-platypus-dynamic-block)
+    (entity . org-platypus-entity)
+    (example-block . org-platypus-example-block)
+    (export-block . org-platypus-export-block)
+    (export-snippet . org-platypus-export-snippet)
+    (fixed-width . org-platypus-fixed-width)
+    (footnote-definition . org-platypus-footnote-definition)
+    (footnote-reference . org-platypus-footnote-reference)
+    (headline . org-platypus-headline)
+    (horizontal-rule . org-platypus-horizontal-rule)
+    (inline-babel-call . org-platypus-inline-babel-call)
+    (inline-src-block . org-platypus-inline-src-block)
+    (inlinetask . org-platypus-inlinetask)
+    (italic . org-platypus-italic)
+    (item . org-platypus-item)
+    (keyword . org-platypus-keyword)
+    (man-environment . org-platypus-platypus-environment)
+    (man-fragment . org-platypus-platypus-fragment)
+    (line-break . org-platypus-line-break)
+    (link . org-platypus-link)
+    (macro . org-platypus-macro)
+    (paragraph . org-platypus-paragraph)
+    (plain-list . org-platypus-plain-list)
+    (plain-text . org-platypus-plain-text)
+    (planning . org-platypus-planning)
+    (property-drawer . org-platypus-property-drawer)
+    (quote-block . org-platypus-quote-block)
+    (quote-section . org-platypus-quote-section)
+    (radio-target . org-platypus-radio-target)
+    (section . org-platypus-section)
+    (special-block . org-platypus-special-block)
+    (src-block . org-platypus-src-block)
+    (statistics-cookie . org-platypus-statistics-cookie)
+    (strike-through . org-platypus-strike-through)
+    (subscript . org-platypus-subscript)
+    (superscript . org-platypus-superscript)
+    (table . org-platypus-table)
+    (table-cell . org-platypus-table-cell)
+    (table-row . org-platypus-table-row)
+    (target . org-platypus-target)
+    (template . org-platypus-template)
+    (timestamp . org-platypus-timestamp)
+    (underline . org-platypus-underline)
+    (verbatim . org-platypus-verbatim)
+    (verse-block . org-platypus-verse-block))
   "Alist between element or object types and translators.")
 
-(defconst org-e-platypus-options-alist
+(defconst org-platypus-options-alist
   '((:date "DATE" nil nil t)
     (:man-class "MAN_CLASS" nil nil t)
     (:man-class-options "MAN_CLASS_OPTIONS" nil nil t)
@@ -124,7 +124,7 @@ structure of the values.")
 
 ;;; User Configurable Variables
 
-(defgroup org-export-e-platypus nil
+(defgroup org-export-platypus nil
   "Options for exporting Org mode files to Man."
   :tag "Org Export Man"
   :group 'org-export)
@@ -132,13 +132,13 @@ structure of the values.")
 ;;; Tables
 
 
-(defcustom org-e-platypus-table-scientific-notation "%sE%s"
+(defcustom org-platypus-table-scientific-notation "%sE%s"
   "Format string to display numbers in scientific notation.
 The format should have \"%s\" twice, for mantissa and exponent
 \(i.e. \"%s\\\\times10^{%s}\").
 
 When nil, no transformation is made."
-  :group 'org-export-e-platypus
+  :group 'org-export-platypus
   :type '(choice
           (string :tag "Format string")
           (const :tag "No formatting")))
@@ -147,13 +147,13 @@ When nil, no transformation is made."
 ;;; Inlinetasks
 ;; Src blocks
 
-(defcustom org-e-platypus-source-highlight nil
+(defcustom org-platypus-source-highlight nil
   "Use GNU source highlight to embellish source blocks "
-  :group 'org-export-e-platypus
+  :group 'org-export-platypus
   :type 'boolean)
 
 
-(defcustom org-e-platypus-source-highlight-langs
+(defcustom org-platypus-source-highlight-langs
   '((emacs-lisp "lisp") (lisp "lisp") (clojure "lisp")
     (scheme "scheme")
     (c "c") (cc "cpp") (csharp "csharp") (d "d")
@@ -178,7 +178,7 @@ The value is the string that should be inserted as the language
 parameter for the listings package.  If the mode name and the
 listings name are the same, the language does not need an entry
 in this list - but it does not hurt if it is present."
-  :group 'org-export-e-platypus
+  :group 'org-export-platypus
   :type '(repeat
           (list
            (symbol :tag "Major mode       ")
@@ -186,13 +186,13 @@ in this list - but it does not hurt if it is present."
 
 
 
-(defvar org-e-platypus-custom-lang-environments nil
+(defvar org-platypus-custom-lang-environments nil
   "Alist mapping languages to language-specific Man environments.
 
 It is used during export of src blocks by the listings and
 man packages.  For example,
 
-  \(setq org-e-platypus-custom-lang-environments
+  \(setq org-platypus-custom-lang-environments
      '\(\(python \"pythoncode\"\)\)\)
 
 would have the effect that if org encounters begin_src python
@@ -204,7 +204,7 @@ during man export."
 
 ;;; Plain text
 
-(defcustom org-e-platypus-quotes
+(defcustom org-platypus-quotes
   '(("fr"
      ("\\(\\s-\\|[[(]\\|^\\)\"" . "«~")
      ("\\(\\S-\\)\"" . "~»")
@@ -225,7 +225,7 @@ The CDR of each item in this alist is a list of three CONS:
 For each item in a CONS, the first string is a regexp
 for allowed characters before/after the quote, the second
 string defines the replacement string for this quote."
-  :group 'org-export-e-platypus
+  :group 'org-export-platypus
   :type '(list
           (cons :tag "Opening quote"
                 (string :tag "Regexp for char before")
@@ -240,7 +240,7 @@ string defines the replacement string for this quote."
 
 ;;; Compilation
 
-(defcustom org-e-platypus-pdf-process
+(defcustom org-platypus-pdf-process
   '("~/platypus/platyrun -verbose  %f %b.pdf")
 
   "Commands to process a Man file to a PDF file.
@@ -268,20 +268,20 @@ its single argument."
                   "platyrun -verbose %f %b.pdf"))
           (function)))
 
-(defcustom org-e-platypus-logfiles-extensions nil
+(defcustom org-platypus-logfiles-extensions nil
   "The list of file extensions to consider as Man logfiles."
-  :group 'org-export-e-platypus
+  :group 'org-export-platypus
   :type '(repeat (string :tag "Extension")))
 
-(defcustom org-e-platypus-remove-logfiles nil
+(defcustom org-platypus-remove-logfiles nil
   "Non-nil means remove the logfiles produced by PDF production.
 These are the .aux, .log, .out, and .toc files."
-  :group 'org-export-e-platypus
+  :group 'org-export-platypus
   :type 'boolean)
 
-(defcustom org-e-platypus-default-font "TIMES_ROMAN"
+(defcustom org-platypus-default-font "TIMES_ROMAN"
   "Default Font"
-  :group 'org-export-e-platypus
+  :group 'org-export-platypus
   :type 'string)
 
 
@@ -300,7 +300,7 @@ These are the .aux, .log, .out, and .toc files."
 ;;; Internal Functions
 
 
-(defun org-e-platypus--caption/label-string (caption label info)
+(defun org-platypus--caption/label-string (caption label info)
   "Return caption and label Man string for floats.
 
 CAPTION is a cons cell of secondary strings, the car being the
@@ -310,7 +310,7 @@ information.
 
 If there's no caption nor label, return the empty string.
 
-For non-floats, see `org-e-platypus--wrap-label'."
+For non-floats, see `org-platypus--wrap-label'."
   (let ((label-str "" ))
     (cond
      ((and (not caption) (not label)) "")
@@ -327,7 +327,7 @@ For non-floats, see `org-e-platypus--wrap-label'."
 
 
 
-(defun org-e-platypus--quotation-marks (text info)
+(defun org-platypus--quotation-marks (text info)
   "Export quotation marks depending on language conventions.
 TEXT is a string containing quotation marks to be replaced.  INFO
 is a plist used as a communication channel."
@@ -336,21 +336,21 @@ is a plist used as a communication channel."
             (while (setq start (string-match (car l) text start))
               (let ((new-quote (concat (match-string 1 text) (cdr l))))
                 (setq text (replace-match new-quote  t t text))))))
-        (cdr (or (assoc (plist-get info :language) org-e-platypus-quotes)
+        (cdr (or (assoc (plist-get info :language) org-platypus-quotes)
                  ;; Falls back on English.
-                 (assoc "en" org-e-platypus-quotes)))) text)
+                 (assoc "en" org-platypus-quotes)))) text)
 
-(defun org-e-platypus--wrap-label (element output)
+(defun org-platypus--wrap-label (element output)
   "Wrap label associated to ELEMENT around OUTPUT, if appropriate.
 This function shouldn't be used for floats.  See
-`org-e-platypus--caption/label-string'."
+`org-platypus--caption/label-string'."
   (let ((label (org-element-property :name element)))
     (if (or (not output) (not label) (string= output "") (string= label ""))
         output
       (concat (format "%s[]\n" label) output))))
 
 
-(defun org-e-platypus--get-level (level)
+(defun org-platypus--get-level (level)
   "Formats a level numbered header to simulate numbered headers"
   (let* ((level-count (assoc (number-to-string level) 
                              org-export-platypus-header-alist))
@@ -386,7 +386,7 @@ This function shouldn't be used for floats.  See
 
 ;;; Template
 
-(defun org-e-platypus-template (contents info)
+(defun org-platypus-template (contents info)
   "Return complete document string after Man conversion.
 CONTENTS is the transcoded contents string.  INFO is a plist
 holding export options."
@@ -400,7 +400,7 @@ holding export options."
 
          (concat
           "[pagesize:LETTER]\n"
-          (format "[ff:%s]" org-e-platypus-default-font)
+          (format "[ff:%s]" org-platypus-default-font)
           (when title
            (format 
             "\n\n\n\n\n[align:center][fsize:18pt]%s\n\n[fsize:12pt][align:left]\n" 
@@ -422,7 +422,7 @@ holding export options."
 
 ;;; Bold
 
-(defun org-e-platypus-bold (bold contents info)
+(defun org-platypus-bold (bold contents info)
   "Transcode BOLD from Org to Man.
 CONTENTS is the text with bold markup.  INFO is a plist holding
 contextual information."
@@ -431,11 +431,11 @@ contextual information."
 
 ;;; Center Block
 
-(defun org-e-platypus-center-block (center-block contents info)
+(defun org-platypus-center-block (center-block contents info)
   "Transcode a CENTER-BLOCK element from Org to Man.
 CONTENTS holds the contents of the center block.  INFO is a plist
 holding contextual information."
-  (org-e-platypus--wrap-label
+  (org-platypus--wrap-label
    center-block
    (format "[align:center]%s\n\n[align:left]"
            contents)))
@@ -443,7 +443,7 @@ holding contextual information."
 
 ;;; Clock
 
-(defun org-e-platypus-clock (clock contents info)
+(defun org-platypus-clock (clock contents info)
   "Transcode a CLOCK element from Org to Man.
 CONTENTS is nil.  INFO is a plist holding contextual
 information."
@@ -452,7 +452,7 @@ information."
 
 ;;; Code
 
-(defun org-e-platypus-code (code contents info)
+(defun org-platypus-code (code contents info)
   "Transcode a CODE object from Org to Man.
 CONTENTS is nil.  INFO is a plist used as a communication
 channel."
@@ -471,7 +471,7 @@ channel."
 
 ;;; Drawer
 
-(defun org-e-platypus-drawer (drawer contents info)
+(defun org-platypus-drawer (drawer contents info)
   "Transcode a DRAWER element from Org to Man.
    DRAWER holds the drawer information
    CONTENTS holds the contents of the block.
@@ -481,16 +481,16 @@ channel."
 
 ;;; Dynamic Block
 
-(defun org-e-platypus-dynamic-block (dynamic-block contents info)
+(defun org-platypus-dynamic-block (dynamic-block contents info)
   "Transcode a DYNAMIC-BLOCK element from Org to Man.
 CONTENTS holds the contents of the block.  INFO is a plist
 holding contextual information.  See `org-export-data'."
-  (org-e-platypus--wrap-label dynamic-block contents))
+  (org-platypus--wrap-label dynamic-block contents))
 
 
 ;;; Entity
 
-(defun org-e-platypus-entity (entity contents info)
+(defun org-platypus-entity (entity contents info)
   "Transcode an ENTITY object from Org to Man.
 CONTENTS are the definition itself.  INFO is a plist holding
 contextual information."
@@ -499,17 +499,17 @@ contextual information."
 
 ;;; Example Block
 
-(defun org-e-platypus-example-block (example-block contents info)
+(defun org-platypus-example-block (example-block contents info)
   "Transcode an EXAMPLE-BLOCK element from Org to Man.
 CONTENTS is nil.  INFO is a plist holding contextual
 information."
-  (org-e-platypus--wrap-label
+  (org-platypus--wrap-label
    example-block
    (format "[code]%s[-code]"
            (org-export-format-code-default example-block info))))
 ;;; Export Block
 
-(defun org-e-platypus-export-block (export-block contents info)
+(defun org-platypus-export-block (export-block contents info)
   "Transcode a EXPORT-BLOCK element from Org to Man.
 CONTENTS is nil.  INFO is a plist holding contextual information."
   (when (string= (org-element-property :type export-block) "PLATYPUS")
@@ -518,24 +518,24 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 
 ;;; Export Snippet
 
-(defun org-e-platypus-export-snippet (export-snippet contents info)
+(defun org-platypus-export-snippet (export-snippet contents info)
   "Transcode a EXPORT-SNIPPET object from Org to Man.
 CONTENTS is nil.  INFO is a plist holding contextual information."
-  (when (eq (org-export-snippet-backend export-snippet) 'e-platypus)
+  (when (eq (org-export-snippet-backend export-snippet) 'platypus)
     (org-element-property :value export-snippet)))
 
 
 ;;; Fixed Width
 
-(defun org-e-platypus-fixed-width (fixed-width contents info)
+(defun org-platypus-fixed-width (fixed-width contents info)
   "Transcode a FIXED-WIDTH element from Org to Man.
 CONTENTS is nil.  INFO is a plist holding contextual information."
-  (org-e-platypus--wrap-label
+  (org-platypus--wrap-label
    fixed-width
    (format "[ff:COURIER]%s[ff:%s]"
            (org-remove-indentation
             (org-element-property :value fixed-width))
-           org-e-platypus-default-font)))
+           org-platypus-default-font)))
 
 
 ;;; Footnote Definition
@@ -549,7 +549,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 
 ;;; Headline
 
-(defun org-e-platypus-headline (headline contents info)
+(defun org-platypus-headline (headline contents info)
   "Transcode an HEADLINE element from Org to Man.
 CONTENTS holds the contents of the headline.  INFO is a plist
 holding contextual information."
@@ -611,7 +611,7 @@ holding contextual information."
      ;; Case 3. Standard headline.  Export it as a section.
 ;;       (numberedp  
 ;;        (format section-fmt
-;;                (concat  (org-e-platypus--get-level level)
+;;                (concat  (org-platypus--get-level level)
 ;;                         full-text) (or contents " ")))
      (t (format section-fmt full-text (or contents " ") )))))
 
@@ -624,13 +624,13 @@ holding contextual information."
 
 ;;; Inline Src Block
 
-(defun org-e-platypus-inline-src-block (inline-src-block contents info)
+(defun org-platypus-inline-src-block (inline-src-block contents info)
   "Transcode an INLINE-SRC-BLOCK element from Org to Man.
 CONTENTS holds the contents of the item.  INFO is a plist holding
 contextual information."
   (let* ((code (org-element-property :value inline-src-block)))
     (cond
-     (org-e-platypus-source-highlight
+     (org-platypus-source-highlight
       (let* ((tmpdir (if (featurep 'xemacs)
                          temp-directory
                        temporary-file-directory ))
@@ -640,7 +640,7 @@ contextual information."
                         (expand-file-name "reshilite" tmpdir)))
              (org-lang (org-element-property :language inline-src-block))
              (lst-lang (cadr (assq (intern org-lang)
-                                   org-e-platypus-source-highlight-langs)))
+                                   org-platypus-source-highlight-langs)))
 
              (cmd (concat (expand-file-name "source-highlight")
                           " -s " lst-lang
@@ -668,7 +668,7 @@ contextual information."
 ;;; Inlinetask
 ;;; Italic
 
-(defun org-e-platypus-italic (italic contents info)
+(defun org-platypus-italic (italic contents info)
   "Transcode ITALIC from Org to Man.
 CONTENTS is the text with italic markup.  INFO is a plist holding
 contextual information."
@@ -678,7 +678,7 @@ contextual information."
 ;;; Item
 
 
-(defun org-e-platypus-item (item contents info)
+(defun org-platypus-item (item contents info)
 
   "Transcode an ITEM element from Org to Man.
 CONTENTS holds the contents of the item.  INFO is a plist holding
@@ -715,7 +715,7 @@ contextual information."
 ;;; Keyword
 
 
-(defun org-e-platypus-keyword (keyword contents info)
+(defun org-platypus-keyword (keyword contents info)
   "Transcode a KEYWORD element from Org to Man.
 CONTENTS is nil.  INFO is a plist holding contextual information."
   (let ((key (org-element-property :key keyword))
@@ -726,7 +726,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 
 ;;; Platypus Environment
 
-(defun org-e-platypus-platypus-environment (platypus-environment contents info)
+(defun org-platypus-platypus-environment (platypus-environment contents info)
   "Transcode a MAN-ENVIRONMENT element from Org to Platypus
 CONTENTS is nil.  INFO is a plist holding contextual information."
   (let ((label (org-element-property :name man-environment))
@@ -746,7 +746,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 
 ;;; Man Fragment
 
-(defun org-e-platypus-platypus-fragment (man-fragment contents info)
+(defun org-platypus-platypus-fragment (man-fragment contents info)
   "Transcode a MAN-FRAGMENT object from Org to Man.
 CONTENTS is nil.  INFO is a plist holding contextual information."
   (org-element-property :value man-fragment))
@@ -754,7 +754,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 
 ;;; Line Break
 
-(defun org-e-platypus-line-break (line-break contents info)
+(defun org-platypus-line-break (line-break contents info)
   "Transcode a LINE-BREAK object from Org to Man.
 CONTENTS is nil.  INFO is a plist holding contextual information."
   "[]\n")
@@ -763,7 +763,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 ;;; Link
 
 
-(defun org-e-platypus-link (link desc info)
+(defun org-platypus-link (link desc info)
   "Transcode a LINK object from Org to Man.
 
 DESC is the description part of the link, or the empty string.
@@ -796,7 +796,7 @@ INFO is a plist holding contextual information.  See
 
 ;;; Macro
 
-(defun org-e-platypus-macro (macro contents info)
+(defun org-platypus-macro (macro contents info)
   "Transcode a MACRO element from Org to Man.
 CONTENTS is nil.  INFO is a plist holding contextual information."
   ;; Use available tools.
@@ -805,7 +805,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 
 ;;; Paragraph
 
-(defun org-e-platypus-paragraph (paragraph contents info)
+(defun org-platypus-paragraph (paragraph contents info)
   "Transcode a PARAGRAPH element from Org to Man.
 CONTENTS is the contents of the paragraph, as a string.  INFO is
 the plist used as a communication channel."
@@ -826,7 +826,7 @@ the plist used as a communication channel."
 
 ;;; Plain List
 
-(defun org-e-platypus-plain-list (plain-list contents info)
+(defun org-platypus-plain-list (plain-list contents info)
   "Transcode a PLAIN-LIST element from Org to Man.
 CONTENTS is the contents of the list.  INFO is a plist holding
 contextual information."
@@ -853,13 +853,13 @@ contextual information."
 
 ;;; Plain Text
 
-(defun org-e-platypus-plain-text (text info)
+(defun org-platypus-plain-text (text info)
   "Transcode a TEXT string from Org to Man.
 TEXT is the string to transcode.  INFO is a plist holding
 contextual information."
   ;; Protect
   ;; Handle quotation marks
-  (setq text (org-e-platypus--quotation-marks text info))
+  (setq text (org-platypus--quotation-marks text info))
   ;; Return value.
   text)
 
@@ -873,17 +873,17 @@ contextual information."
 
 ;;; Quote Block
 
-(defun org-e-platypus-quote-block (quote-block contents info)
+(defun org-platypus-quote-block (quote-block contents info)
   "Transcode a QUOTE-BLOCK element from Org to Man.
 CONTENTS holds the contents of the block.  INFO is a plist
 holding contextual information."
-  (org-e-platypus--wrap-label
+  (org-platypus--wrap-label
    quote-block
    (format "[code]\n%s\n[-code]" contents)))
 
 ;;; Quote Section
 
-(defun org-e-platypus-quote-section (quote-section contents info)
+(defun org-platypus-quote-section (quote-section contents info)
   "Transcode a QUOTE-SECTION element from Org to Man.
 CONTENTS is nil.  INFO is a plist holding contextual information."
   (let ((value (org-remove-indentation
@@ -893,7 +893,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 
 ;;; Radio Target
 
-(defun org-e-platypus-radio-target (radio-target text info)
+(defun org-platypus-radio-target (radio-target text info)
   "Transcode a RADIO-TARGET object from Org to Man.
 TEXT is the text of the target.  INFO is a plist holding
 contextual information."
@@ -902,7 +902,7 @@ contextual information."
 
 ;;; Section
 
-(defun org-e-platypus-section (section contents info)
+(defun org-platypus-section (section contents info)
   "Transcode a SECTION element from Org to Man.
 CONTENTS holds the contents of the section.  INFO is a plist
 holding contextual information."
@@ -911,19 +911,19 @@ holding contextual information."
 
 ;;; Special Block
 
-(defun org-e-platypus-special-block (special-block contents info)
+(defun org-platypus-special-block (special-block contents info)
   "Transcode a SPECIAL-BLOCK element from Org to Man.
 CONTENTS holds the contents of the block.  INFO is a plist
 holding contextual information."
   (let ((type (downcase (org-element-property :type special-block))))
-    (org-e-platypus--wrap-label
+    (org-platypus--wrap-label
      special-block
      (format "%s\n" contents))))
 
 
 ;;; Src Block
 
-(defun org-e-platypus-src-block (src-block contents info)
+(defun org-platypus-src-block (src-block contents info)
   "Transcode a SRC-BLOCK element from Org to Man.
 CONTENTS holds the contents of the item.  INFO is a plist holding
 contextual information."
@@ -934,19 +934,19 @@ contextual information."
          (code (org-element-property :value src-block))
          (custom-env (and lang
                           (cadr (assq (intern lang)
-                                      org-e-platypus-custom-lang-environments))))
+                                      org-platypus-custom-lang-environments))))
          (num-start (case (org-element-property :number-lines src-block)
                       (continued (org-export-get-loc src-block info))
                       (new 0)))
          (retain-labels (org-element-property :retain-labels src-block)))
     (cond
      ;; Case 1.  No source fontification.
-     ((not org-e-platypus-source-highlight)
-      (let ((caption-str (org-e-platypus--caption/label-string caption label info)))
+     ((not org-platypus-source-highlight)
+      (let ((caption-str (org-platypus--caption/label-string caption label info)))
          (concat
           (format "[code]%s[-code]"
                   (org-export-format-code-default src-block info)))))
-     ( (and org-e-platypus-source-highlight)
+     ( (and org-platypus-source-highlight)
        (let* ((tmpdir (if (featurep 'xemacs)
                           temp-directory
                         temporary-file-directory ))
@@ -958,7 +958,7 @@ contextual information."
 
               (org-lang (org-element-property :language src-block))
               (lst-lang (cadr (assq (intern org-lang)
-                                    org-e-platypus-source-highlight-langs)))
+                                    org-platypus-source-highlight-langs)))
 
               (cmd (concat "source-highlight"
                            " -s " lst-lang
@@ -980,7 +980,7 @@ contextual information."
 
 ;;; Statistics Cookie
 
-(defun org-e-platypus-statistics-cookie (statistics-cookie contents info)
+(defun org-platypus-statistics-cookie (statistics-cookie contents info)
   "Transcode a STATISTICS-COOKIE object from Org to Man.
 CONTENTS is nil.  INFO is a plist holding contextual information."
   (org-element-property :value statistics-cookie))
@@ -988,7 +988,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 
 ;;; Strike-Through
 
-(defun org-e-platypus-strike-through (strike-through contents info)
+(defun org-platypus-strike-through (strike-through contents info)
   "Transcode STRIKE-THROUGH from Org to Man.
 CONTENTS is the text with strike-through markup.  INFO is a plist
 holding contextual information."
@@ -996,7 +996,7 @@ holding contextual information."
 
 ;;; Subscript
 
-(defun org-e-platypus-subscript (subscript contents info)
+(defun org-platypus-subscript (subscript contents info)
   "Transcode a SUBSCRIPT object from Org to Man.
 CONTENTS is the contents of the object.  INFO is a plist holding
 contextual information."
@@ -1004,7 +1004,7 @@ contextual information."
 
 ;;; Superscript "^_%s$
 
-(defun org-e-platypus-superscript (superscript contents info)
+(defun org-platypus-superscript (superscript contents info)
   "Transcode a SUPERSCRIPT object from Org to Man.
 CONTENTS is the contents of the object.  INFO is a plist holding
 contextual information."
@@ -1013,16 +1013,16 @@ contextual information."
 
 ;;; Table
 ;;
-;; `org-e-platypus-table' is the entry point for table transcoding.  It
+;; `org-platypus-table' is the entry point for table transcoding.  It
 ;; takes care of tables with a "verbatim" attribute.  Otherwise, it
-;; delegates the job to either `org-e-platypus-table--table.el-table' or
-;; `org-e-platypus-table--org-table' functions, depending of the type of
+;; delegates the job to either `org-platypus-table--table.el-table' or
+;; `org-platypus-table--org-table' functions, depending of the type of
 ;; the table.
 ;;
-;; `org-e-platypus-table--align-string' is a subroutine used to build
+;; `org-platypus-table--align-string' is a subroutine used to build
 ;; alignment string for Org tables.
 
-(defun org-e-platypus-table (table contents info)
+(defun org-platypus-table (table contents info)
   "Transcode a TABLE element from Org to Man.
 CONTENTS is the contents of the table.  INFO is a plist holding
 contextual information."
@@ -1034,16 +1034,16 @@ contextual information."
 
 ;;; Table Cell
 
-(defun org-e-platypus-table-cell (table-cell contents info)
+(defun org-platypus-table-cell (table-cell contents info)
   "Transcode a TABLE-CELL element from Org to Man
 CONTENTS is the cell contents.  INFO is a plist used as
 a communication channel."
     (concat (if (and contents
-                     org-e-platypus-table-scientific-notation
+                     org-platypus-table-scientific-notation
                      (string-match orgtbl-exp-regexp contents))
                 ;; Use appropriate format string for scientific
                 ;; notation.
-              (format org-e-platypus-table-scientific-notation
+              (format org-platypus-table-scientific-notation
                         (match-string 1 contents)
                         (match-string 2 contents))
               contents )
@@ -1052,7 +1052,7 @@ a communication channel."
 
 ;;; Table Row
 
-(defun org-e-platypus-table-row (table-row contents info)
+(defun org-platypus-table-row (table-row contents info)
   "Transcode a TABLE-ROW element from Org to Man
 CONTENTS is the contents of the row.  INFO is a plist used as
 a communication channel."
@@ -1081,7 +1081,7 @@ a communication channel."
 
 ;;; Target
 
-(defun org-e-platypus-target (target contents info)
+(defun org-platypus-target (target contents info)
   "Transcode a TARGET object from Org to Man.
 CONTENTS is nil.  INFO is a plist holding contextual
 information."
@@ -1091,7 +1091,7 @@ information."
 
 ;;; Timestamp
 
-(defun org-e-platypus-timestamp (timestamp contents info)
+(defun org-platypus-timestamp (timestamp contents info)
   "Transcode a TIMESTAMP object from Org to Man.
   CONTENTS is nil.  INFO is a plist holding contextual
   information."
@@ -1100,7 +1100,7 @@ contents)
 
 ;;; Underline
 
-(defun org-e-platypus-underline (underline contents info)
+(defun org-platypus-underline (underline contents info)
   "Transcode UNDERLINE from Org to Man.
 CONTENTS is the text with underline markup.  INFO is a plist
 holding contextual information."
@@ -1109,18 +1109,18 @@ holding contextual information."
 
 ;;; Verbatim
 
-(defun org-e-platypus-verbatim (verbatim contents info)
+(defun org-platypus-verbatim (verbatim contents info)
   "Transcode a VERBATIM object from Org to Man.
 CONTENTS is nil.  INFO is a plist used as a communication
 channel."
   (format "[ff:COURIER]%s[ff:%s]" 
           (org-element-property :value verbatim)
-          org-e-platypus-default-font))
+          org-platypus-default-font))
 
 
 ;;; Verse Block
 
-(defun org-e-platypus-verse-block (verse-block contents info)
+(defun org-platypus-verse-block (verse-block contents info)
   "Transcode a VERSE-BLOCK element from Org to Man.
 CONTENTS is verse block contents. INFO is a plist holding
 contextual information."
@@ -1130,7 +1130,7 @@ contextual information."
 
 ;;; Interactive functions
 
-(defun org-e-platypus-export-to-platypus
+(defun org-platypus-export-to-platypus
   (&optional subtreep visible-only body-only ext-plist pub-dir)
   "Export current buffer to a Man file.
 
@@ -1167,9 +1167,9 @@ Return output file's name."
 
   (let ((outfile (org-export-output-file-name ".pla"  subtreep pub-dir)))
     (org-export-to-file
-     'e-platypus outfile subtreep visible-only body-only ext-plist)))
+     'platypus outfile subtreep visible-only body-only ext-plist)))
 
-(defun org-e-platypus-export-to-pdf
+(defun org-platypus-export-to-pdf
   (&optional subtreep visible-only body-only ext-plist pub-dir)
   "Export current buffer to Groff then process through to PDF.
 
@@ -1197,15 +1197,15 @@ directory.
 
 Return PDF file's name."
   (interactive)
-  (org-e-platypus-compile
-   (org-e-platypus-export-to-platypus
+  (org-platypus-compile
+   (org-platypus-export-to-platypus
     subtreep visible-only body-only ext-plist pub-dir)))
 
-(defun org-e-platypus-compile (platypusfile)
+(defun org-platypus-compile (platypusfile)
   "Compile a Platypus file.
 
 PLATYPUSFILE is the name of the file being compiled.  Processing is
-done through the command specified in `org-e-platypus-pdf-process'.
+done through the command specified in `org-platypus-pdf-process'.
 
 Return PDF file name or an error if it couldn't be produced."
   (let* ((wconfig (current-window-configuration))
@@ -1217,12 +1217,12 @@ Return PDF file name or an error if it couldn't be produced."
         (progn
           (cond
            ;; A function is provided: Apply it.
-           ((functionp org-e-platypus-pdf-process)
-            (funcall org-e-platypus-pdf-process (shell-quote-argument platypusfile)))
+           ((functionp org-platypus-pdf-process)
+            (funcall org-platypus-pdf-process (shell-quote-argument platypusfile)))
            ;; A list is provided: Replace %b, %f and %o with appropriate
            ;; values in each command before applying it.  Output is
            ;; redirected to "*Org PDF Platypus Output*" buffer.
-           ((consp org-e-platypus-pdf-process)
+           ((consp org-platypus-pdf-process)
             (let* ((out-dir (or (file-name-directory platypusfile) "./"))
                    (outbuf (get-buffer-create "*Org PDF Platypus Output*")))
               (mapc
@@ -1235,9 +1235,9 @@ Return PDF file name or an error if it couldn't be produced."
                     (replace-regexp-in-string
                      "%o" (shell-quote-argument out-dir) command t t) t t) t t)
                   outbuf))
-               org-e-platypus-pdf-process)
+               org-platypus-pdf-process)
               ;; Collect standard errors from output buffer.
-              (setq errors (org-e-platypus-collect-errors outbuf))))
+              (setq errors (org-platypus-collect-errors outbuf))))
            (t (error "No valid command to process to PDF")))
           (let ((pdffile (concat base ".pdf")))
             ;; Check for process failure.  Provide collected errors if
@@ -1247,8 +1247,8 @@ Return PDF file name or an error if it couldn't be produced."
                                (when errors (concat ": " errors))))
               ;; Else remove log files, when specified, and signal end of
               ;; process to user, along with any error encountered.
-              (when org-e-platypus-remove-logfiles
-                (dolist (ext org-e-platypus-logfiles-extensions)
+              (when org-platypus-remove-logfiles
+                (dolist (ext org-platypus-logfiles-extensions)
                   (let ((file (concat base "." ext)))
                     (when (file-exists-p file) (delete-file file)))))
               (message (concat "Process completed"
@@ -1258,7 +1258,7 @@ Return PDF file name or an error if it couldn't be produced."
             pdffile))
       (set-window-configuration wconfig))))
 
-(defun org-e-platypus-collect-errors (buffer)
+(defun org-platypus-collect-errors (buffer)
   "Collect some kind of errors from \"platypus\" output
 BUFFER is the buffer containing output.
 Return collected error types as a string, or nil if there was
@@ -1270,5 +1270,5 @@ none."
       nil )))
 
 
-(provide 'org-e-platypus)
-;;; org-e-platypus.el ends here
+(provide 'org-platypus)
+;;; org-platypus.el ends here

@@ -1,4 +1,4 @@
-;; org-e-mom.el --- Mom Back-End For Org Export Engine
+;; org-groff-mom.el --- Mom Back-End For Org Export Engine
 
 ;; Copyright (C) 2011-2012  Free Software Foundation, Inc.
 
@@ -27,7 +27,7 @@
 ;;
 ;; To test it, run
 ;;
-;;   M-: (org-export-to-buffer 'e-mom "*Test e-Mom*") RET
+;;   M-: (org-export-to-buffer 'groff-mom "*Test groff-mom*") RET
 ;;
 ;; in an org-mode buffer then switch to the buffer to see the Mom
 ;; export.  See contrib/lisp/org-export.el for more details on how
@@ -48,65 +48,65 @@
 
 ;;; Define Back-End
 
-(defvar org-e-mom-translate-alist
-  '((babel-call . org-e-mom-babel-call)
-    (bold . org-e-mom-bold)
-    (center-block . org-e-mom-center-block)
-    (clock . org-e-mom-clock)
-    (code . org-e-mom-code)
-    (comment . org-e-mom-comment)
-    (comment-block . org-e-mom-comment-block)
-    (drawer . org-e-mom-drawer)
-    (dynamic-block . org-e-mom-dynamic-block)
-    (entity . org-e-mom-entity)
-    (example-block . org-e-mom-example-block)
-    (export-block . org-e-mom-export-block)
-    (export-snippet . org-e-mom-export-snippet)
-    (fixed-width . org-e-mom-fixed-width)
-    (footnote-definition . org-e-mom-footnote-definition)
-    (footnote-reference . org-e-mom-footnote-reference)
-    (headline . org-e-mom-headline)
-    (horizontal-rule . org-e-mom-horizontal-rule)
-    (inline-babel-call . org-e-mom-inline-babel-call)
-    (inline-src-block . org-e-mom-inline-src-block)
-    (inlinetask . org-e-mom-inlinetask)
-    (italic . org-e-mom-italic)
-    (item . org-e-mom-item)
-    (keyword . org-e-mom-keyword)
-    (mom-environment . org-e-mom-mom-environment)
-    (mom-fragment . org-e-mom-mom-fragment)
-    (line-break . org-e-mom-line-break)
-    (link . org-e-mom-link)
-    (macro . org-e-mom-macro)
-    (paragraph . org-e-mom-paragraph)
-    (plain-list . org-e-mom-plain-list)
-    (plain-text . org-e-mom-plain-text)
-    (planning . org-e-mom-planning)
-    (property-drawer . org-e-mom-property-drawer)
-    (quote-block . org-e-mom-quote-block)
-    (quote-section . org-e-mom-quote-section)
-    (radio-target . org-e-mom-radio-target)
-    (section . org-e-mom-section)
-    (special-block . org-e-mom-special-block)
-    (src-block . org-e-mom-src-block)
-    (statistics-cookie . org-e-mom-statistics-cookie)
-    (strike-through . org-e-mom-strike-through)
-    (subscript . org-e-mom-subscript)
-    (superscript . org-e-mom-superscript)
-    (table . org-e-mom-table)
-    (table-cell . org-e-mom-table-cell)
-    (table-row . org-e-mom-table-row)
-    (target . org-e-mom-target)
-    (template . org-e-mom-template)
-    (timestamp . org-e-mom-timestamp)
-    (underline . org-e-mom-underline)
-    (verbatim . org-e-mom-verbatim)
-    (verse-block . org-e-mom-verse-block))
+(defvar org-groff-mom-translate-alist
+  '((babel-call . org-groff-mom-babel-call)
+    (bold . org-groff-mom-bold)
+    (center-block . org-groff-mom-center-block)
+    (clock . org-groff-mom-clock)
+    (code . org-groff-mom-code)
+    (comment . org-groff-mom-comment)
+    (comment-block . org-groff-mom-comment-block)
+    (drawer . org-groff-mom-drawer)
+    (dynamic-block . org-groff-mom-dynamic-block)
+    (entity . org-groff-mom-entity)
+    (example-block . org-groff-mom-example-block)
+    (export-block . org-groff-mom-export-block)
+    (export-snippet . org-groff-mom-export-snippet)
+    (fixed-width . org-groff-mom-fixed-width)
+    (footnote-definition . org-groff-mom-footnote-definition)
+    (footnote-reference . org-groff-mom-footnote-reference)
+    (headline . org-groff-mom-headline)
+    (horizontal-rule . org-groff-mom-horizontal-rule)
+    (inline-babel-call . org-groff-mom-inline-babel-call)
+    (inline-src-block . org-groff-mom-inline-src-block)
+    (inlinetask . org-groff-mom-inlinetask)
+    (italic . org-groff-mom-italic)
+    (item . org-groff-mom-item)
+    (keyword . org-groff-mom-keyword)
+    (mom-environment . org-groff-mom-mom-environment)
+    (mom-fragment . org-groff-mom-mom-fragment)
+    (line-break . org-groff-mom-line-break)
+    (link . org-groff-mom-link)
+    (macro . org-groff-mom-macro)
+    (paragraph . org-groff-mom-paragraph)
+    (plain-list . org-groff-mom-plain-list)
+    (plain-text . org-groff-mom-plain-text)
+    (planning . org-groff-mom-planning)
+    (property-drawer . org-groff-mom-property-drawer)
+    (quote-block . org-groff-mom-quote-block)
+    (quote-section . org-groff-mom-quote-section)
+    (radio-target . org-groff-mom-radio-target)
+    (section . org-groff-mom-section)
+    (special-block . org-groff-mom-special-block)
+    (src-block . org-groff-mom-src-block)
+    (statistics-cookie . org-groff-mom-statistics-cookie)
+    (strike-through . org-groff-mom-strike-through)
+    (subscript . org-groff-mom-subscript)
+    (superscript . org-groff-mom-superscript)
+    (table . org-groff-mom-table)
+    (table-cell . org-groff-mom-table-cell)
+    (table-row . org-groff-mom-table-row)
+    (target . org-groff-mom-target)
+    (template . org-groff-mom-template)
+    (timestamp . org-groff-mom-timestamp)
+    (underline . org-groff-mom-underline)
+    (verbatim . org-groff-mom-verbatim)
+    (verse-block . org-groff-mom-verse-block))
   "Alist between element or object types and translators.")
 
-(defconst org-e-mom-options-alist
-  '((:date "DATE" nil org-e-mom-date-format t)
-    (:mom-class "MOM_CLASS" nil org-e-mom-default-class t)
+(defconst org-groff-mom-options-alist
+  '((:date "DATE" nil org-groff-mom-date-format t)
+    (:mom-class "MOM_CLASS" nil org-groff-mom-default-class t)
     (:mom-class-options "MOM_CLASS_OPTIONS" nil nil t)
     (:mom-header-extra "MOM_HEADER" nil nil newline))
 "Alist between Mom export properties and ways to set them.
@@ -117,7 +117,7 @@ structure of the values.")
 
 ;;; User Configurable Variables
 
-(defgroup org-export-e-mom nil
+(defgroup org-export-groff-mom nil
   "Options for exporting Org mode files to Mom."
   :tag "Org Export Mom"
   :group 'org-export)
@@ -125,16 +125,21 @@ structure of the values.")
 
 ;;; Preamble
 
-(defcustom org-e-mom-default-class "typeset"
+(defcustom org-groff-mom-default-class "typeset"
   "The default Mom class."
-  :group 'org-export-e-mom
+  :group 'org-export-groff-mom
   :type '(string :tag "Mom class"))
 
-(defcustom org-e-mom-classes
+(defcustom org-groff-mom-classes
   '(("typeset" ".PRINTSTYLE TYPESET\n"
      (:heading 'default :type "DEFAULT" :paper "LETTER" :last-section "toc"))
     ("typewrite" ".PRINTSTYLE TYPEWRITE\n"
+     (:heading 'default :type "DEFAULT" :paper "LETTER" :last-section "toc"))
+    ("letterset" ".PRINTSTYLE TYPESET\n"
      (:heading 'default :type "LETTER" :paper "LETTER" :last-section "sign"))
+    ("lettertype" ".PRINTSTYLE TYPEWRITE\n"
+     (:heading 'default :type "LETTER" :paper "LETTER" :last-section "sign"))
+
     ("none" "" (:heading 'default :type "custom")))
 
   ;; none means, no Cover or Memorandum Type and no calls to AU, AT, ND and TL
@@ -145,7 +150,7 @@ structure of the values.")
 
   "This list describes the attributes for the documents being created.
    It allows for the creation of new "
-  :group 'org-export-e-mom
+  :group 'org-export-groff-mom
   :type '(repeat
           (list (string :tag "Document Type")
                 (string :tag "Header")
@@ -154,19 +159,19 @@ structure of the values.")
                          (list :tag "Heading")
                          (function :tag "Hook computing sectioning"))))))
 
-(defcustom org-e-mom-date-format
+(defcustom org-groff-mom-date-format
   (format-time-string "%Y-%m-%d")
   "Format string for .ND "
-  :group 'org-export-e-mom
+  :group 'org-export-groff-mom
   :type 'boolean)
 
 ;;; Headline
 
-(defconst org-e-mom-special-tags
+(defconst org-groff-mom-special-tags
   '("FROM" "TO" "ABSTRACT" "APPENDIX" "BODY" "NS"))
 
 
-(defcustom org-e-mom-format-headline-function nil
+(defcustom org-groff-mom-format-headline-function nil
   "Function to format headline text.
 
 This function will be called with 5 arguments:
@@ -181,7 +186,7 @@ The function result will be used in the section format string.
 As an example, one could set the variable to the following, in
 order to reproduce the default set-up:
 
-\(defun org-e-mom-format-headline (todo todo-type priority text tags)
+\(defun org-groff-mom-format-headline (todo todo-type priority text tags)
   \"Default format function for an headline.\"
   \(concat (when todo
             \(format \"\\fB%s\\fP \" todo))
@@ -191,32 +196,32 @@ order to reproduce the default set-up:
 	  \(when tags
             \(format \" %s \"
               \(mapconcat 'identity tags \":\"))))"
-  :group 'org-export-e-mom
+  :group 'org-export-groff-mom
   :type 'function)
 
 
 ;;; Timestamps
 
-(defcustom org-e-mom-active-timestamp-format "\\*[IT]%s\\*[PREV]"
+(defcustom org-groff-mom-active-timestamp-format "\\*[IT]%s\\*[PREV]"
   "A printf format string to be applied to active timestamps."
-  :group 'org-export-e-mom
+  :group 'org-export-groff-mom
   :type 'string)
 
-(defcustom org-e-mom-inactive-timestamp-format "\\*[IT]%s\\*[PREV]"
+(defcustom org-groff-mom-inactive-timestamp-format "\\*[IT]%s\\*[PREV]"
   "A printf format string to be applied to inactive timestamps."
-  :group 'org-export-e-mom
+  :group 'org-export-groff-mom
   :type 'string)
 
-(defcustom org-e-mom-diary-timestamp-format "\\*[IT]%s\\*[PREV]"
+(defcustom org-groff-mom-diary-timestamp-format "\\*[IT]%s\\*[PREV]"
   "A printf format string to be applied to diary timestamps."
-  :group 'org-export-e-mom
+  :group 'org-export-groff-mom
   :type 'string)
 
 
 ;;; Links
 
 
-(defcustom org-e-mom-inline-image-rules
+(defcustom org-groff-mom-inline-image-rules
   '(("file" . "\\.\\(pdf\\|ps\\|eps\\|pic\\)\\'")
     ("fuzzy" . "\\.\\(pdf\\|ps\\|eps\\|pic\\)\\'"))
   "Rules characterizing image files that can be inlined into Mom.
@@ -230,11 +235,11 @@ depend on the way the Mom file is processed.  When used with
 pdfmom, pdf, jpg and png images are OK.  When processing
 through dvi to Postscript, only ps and eps are allowed.  The
 default we use here encompasses both."
-  :group 'org-export-e-mom
+  :group 'org-export-groff-mom
   :type '(alist :key-type (string :tag "Type")
                 :value-type (regexp :tag "Path")))
 
-(defcustom org-e-mom-link-with-unknown-path-format "\\*[IT]%s\\*[PREV]"
+(defcustom org-groff-mom-link-with-unknown-path-format "\\*[IT]%s\\*[PREV]"
   "Format string for links with unknown path type."
   :group 'org-export-mom
   :type 'string)
@@ -243,24 +248,24 @@ default we use here encompasses both."
 ;;; Tables
 
 
-(defcustom org-e-mom-tables-centered t
+(defcustom org-groff-mom-tables-centered t
   "When non-nil, tables are exported in a center environment."
-  :group 'org-export-e-mom
+  :group 'org-export-groff-mom
   :type 'boolean)
 
-(defcustom org-e-mom-tables-verbatim nil
+(defcustom org-groff-mom-tables-verbatim nil
   "When non-nil, tables are exported verbatim."
-  :group 'org-export-e-mom
+  :group 'org-export-groff-mom
   :type 'boolean)
 
 
-(defcustom org-e-mom-table-scientific-notation "%sE%s"
+(defcustom org-groff-mom-table-scientific-notation "%sE%s"
   "Format string to display numbers in scientific notation.
 The format should have \"%s\" twice, for mantissa and exponent
 \(i.e. \"%s\\\\times10^{%s}\").
 
 When nil, no transformation is made."
-  :group 'org-export-e-mom
+  :group 'org-export-groff-mom
   :type '(choice
           (string :tag "Format string")
           (const :tag "No formatting")))
@@ -268,7 +273,7 @@ When nil, no transformation is made."
 
 ;;; Text markup
 
-(defcustom org-e-mom-text-markup-alist '((bold . "\\*[BD]%s\\*[PREV]")
+(defcustom org-groff-mom-text-markup-alist '((bold . "\\*[BD]%s\\*[PREV]")
                                            ;; from "verb"
                                            (code . "\\f[C]%s\\fP")
                                            (italic . "\\*[IT]%s\\*[PREV]")
@@ -283,14 +288,14 @@ a formatting string to wrap fontified text with it.
 
 If no association can be found for a given markup, text will be
 returned as-is."
-  :group 'org-export-e-mom
+  :group 'org-export-groff-mom
   :type 'alist
   :options '(bold code italic strike-through underline verbatim))
 
 
 ;;; Drawers
 
-(defcustom org-e-mom-format-drawer-function nil
+(defcustom org-groff-mom-format-drawer-function nil
   "Function called to format a drawer in Mom code.
 
 The function must accept two parameters:
@@ -302,16 +307,16 @@ The function should return the string to be exported.
 For example, the variable could be set to the following function
 in order to mimic default behaviour:
 
-\(defun org-e-mom-format-drawer-default \(name contents\)
+\(defun org-groff-mom-format-drawer-default \(name contents\)
   \"Format a drawer element for Mom export.\"
   contents\)"
-  :group 'org-export-e-mom
+  :group 'org-export-groff-mom
   :type 'function)
 
 
 ;;; Inlinetasks
 
-(defcustom org-e-mom-format-inlinetask-function nil
+(defcustom org-groff-mom-format-inlinetask-function nil
   "Function called to format an inlinetask in Mom code.
 
 The function must accept six parameters:
@@ -327,7 +332,7 @@ The function should return the string to be exported.
 For example, the variable could be set to the following function
 in order to mimic default behaviour:
 
-\(defun org-e-mom-format-inlinetask \(todo type priority name tags contents\)
+\(defun org-groff-mom-format-inlinetask \(todo type priority name tags contents\)
 \"Format an inline task element for Mom export.\"
   \(let ((full-title
 	 \(concat
@@ -343,19 +348,19 @@ in order to mimic default behaviour:
 		    \"%s\"
 		    \".DE\")
 	    full-title contents))"
-  :group 'org-export-e-mom
+  :group 'org-export-groff-mom
   :type 'function)
 
 
 ;; Src blocks
 
-(defcustom org-e-mom-source-highlight nil
+(defcustom org-groff-mom-source-highlight nil
   "Use GNU source highlight to embellish source blocks "
-  :group 'org-export-e-mom
+  :group 'org-export-groff-mom
   :type 'boolean)
 
 
-(defcustom org-e-mom-source-highlight-langs
+(defcustom org-groff-mom-source-highlight-langs
   '((emacs-lisp "lisp") (lisp "lisp") (clojure "lisp")
     (scheme "scheme")
     (c "c") (cc "cpp") (csharp "csharp") (d "d")
@@ -380,13 +385,13 @@ The value is the string that should be inserted as the language
 parameter for the listings package.  If the mode name and the
 listings name are the same, the language does not need an entry
 in this list - but it does not hurt if it is present."
-  :group 'org-export-e-mom
+  :group 'org-export-groff-mom
   :type '(repeat
           (list
            (symbol :tag "Major mode       ")
            (string :tag "Listings language"))))
 
-(defcustom org-e-mom-source-highlight-options nil
+(defcustom org-groff-mom-source-highlight-options nil
   "Association list of options for the mom listings package.
 
 These options are supplied as a comma-separated list to the
@@ -394,7 +399,7 @@ These options are supplied as a comma-separated list to the
 a list containing two strings: the name of the option, and the
 value.  For example,
 
-  (setq org-e-mom-source-highlight-options
+  (setq org-groff-mom-source-highlight-options
     '((\"basicstyle\" \"\\small\")
       (\"keywordstyle\" \"\\color{black}\\bfseries\\underbar\")))
 
@@ -403,7 +408,7 @@ black keywords.
 
 Note that the same options will be applied to blocks of all
 languages."
-  :group 'org-export-e-mom
+  :group 'org-export-groff-mom
   :type '(repeat
           (list
            (string :tag "Listings option name ")
@@ -411,13 +416,13 @@ languages."
 
 
 
-(defvar org-e-mom-custom-lang-environments nil
+(defvar org-groff-mom-custom-lang-environments nil
   "Alist mapping languages to language-specific Mom environments.
 
 It is used during export of src blocks by the listings and
 mom packages.  For example,
 
-  \(setq org-e-mom-custom-lang-environments
+  \(setq org-groff-mom-custom-lang-environments
      '\(\(python \"pythoncode\"\)\)\)
 
 would have the effect that if org encounters begin_src python
@@ -428,7 +433,7 @@ language.")
 
 ;;; Plain text
 
-(defcustom org-e-mom-quotes
+(defcustom org-groff-mom-quotes
   '(("fr"
      ("\\(\\s-\\|[[(]\\|^\\)\"" . "«~")
      ("\\(\\S-\\)\"" . "~»")
@@ -448,7 +453,7 @@ The CDR of each item in this alist is a list of three CONS:
 For each item in a CONS, the first string is a regexp
 for allowed characters before/after the quote, the second
 string defines the replacement string for this quote."
-  :group 'org-export-e-mom
+  :group 'org-export-groff-mom
   :type '(list
           (cons :tag "Opening quote"
                 (string :tag "Regexp for char before")
@@ -462,13 +467,13 @@ string defines the replacement string for this quote."
 
 
 
-(defcustom org-e-mom-special-char
+(defcustom org-groff-mom-special-char
   '(("(c)" . "\\\\(co")
     ("(tm)" . "\\\\(tm")
     ("(rg)" . "\\\\(rg"))
   "CONS list in which the value of the car
   is replace on the value of the CDR. "
-  :group 'org-export-e-mom
+  :group 'org-export-groff-mom
   :type '(list
           (cons :tag "Character Subtitute"
                 (string :tag "Original Character Group")
@@ -476,7 +481,7 @@ string defines the replacement string for this quote."
 
 ;;; Compilation
 
-(defcustom org-e-mom-pdf-process
+(defcustom org-groff-mom-pdf-process
   '("pic %f | tbl | eqn | groff -mom  | ps2pdf - > %b.pdf"
     "pic %f | tbl | eqn | groff -mom  | ps2pdf - > %b.pdf"
     "pic %f | tbl | eqn | groff -mom  | ps2pdf - > %b.pdf")
@@ -500,23 +505,23 @@ extension) and %o by the base directory of the file."
                   "pic %f | tbl | eqn | groff -mom  | ps2pdf - > %b.pdf"))
           (function)))
 
-(defcustom org-e-mom-logfiles-extensions
+(defcustom org-groff-mom-logfiles-extensions
   '("aux" "idx" "log" "out" "toc" "nav" "snm" "vrb")
   "The list of file extensions to consider as Mom logfiles."
-  :group 'org-export-e-mom
+  :group 'org-export-groff-mom
   :type '(repeat (string :tag "Extension")))
 
-(defcustom org-e-mom-remove-logfiles t
+(defcustom org-groff-mom-remove-logfiles t
   "Non-nil means remove the logfiles produced by PDF production.
 These are the .aux, .log, .out, and .toc files."
-  :group 'org-export-e-mom
+  :group 'org-export-groff-mom
   :type 'boolean)
 
 
-(defcustom org-e-mom-default-quad ".QUAD JUSTIFY"
+(defcustom org-groff-mom-default-quad ".QUAD JUSTIFY"
   "Defines default justification to be used after a non
 filled mode is used."
-  :group 'org-export-e-mom
+  :group 'org-export-groff-mom
   :type 'boolean)
 
 ;; Preamble
@@ -527,15 +532,15 @@ filled mode is used."
 (add-to-list 'org-element-block-name-alist
              '("MOM" . org-element-export-block-parser))
 
-(defvar org-e-mom-registered-references nil)
-(defvar org-e-mom-special-content nil)
+(defvar org-groff-mom-registered-references nil)
+(defvar org-groff-mom-special-content nil)
 
 
 
 ;;; Internal Functions
 
 
-(defun org-e-mom--caption/label-string (caption label info)
+(defun org-groff-mom--caption/label-string (caption label info)
   "Return caption and label Mom string for floats.
 
 CAPTION is a cons cell of secondary strings, the car being the
@@ -545,7 +550,7 @@ information.
 
 If there's no caption nor label, return the empty string.
 
-For non-floats, see `org-e-mom--wrap-label'."
+For non-floats, see `org-groff-mom--wrap-label'."
   (let ((label-str "" ))
     (cond
      ((and (not caption) (not label)) "")
@@ -561,7 +566,7 @@ For non-floats, see `org-e-mom--wrap-label'."
                 (org-export-data (car caption) info))))))
 
 
-(defun org-e-mom--quotation-marks (text info)
+(defun org-groff-mom--quotation-marks (text info)
   "Export quotation marks depending on language conventions.
 TEXT is a string containing quotation marks to be replaced.  INFO
 is a plist used as a communication channel."
@@ -570,24 +575,24 @@ is a plist used as a communication channel."
             (while (setq start (string-match (car l) text start))
               (let ((new-quote (concat (match-string 1 text) (cdr l))))
                 (setq text (replace-match new-quote  t t text))))))
-        (cdr (or (assoc (plist-get info :language) org-e-mom-quotes)
+        (cdr (or (assoc (plist-get info :language) org-groff-mom-quotes)
                  ;; Falls back on English.
-                 (assoc "en" org-e-mom-quotes))))
+                 (assoc "en" org-groff-mom-quotes))))
   text)
 
-(defun org-e-mom--wrap-label (element output)
+(defun org-groff-mom--wrap-label (element output)
   "Wrap label associated to ELEMENT around OUTPUT, if appropriate.
 This function shouldn't be used for floats.  See
-`org-e-mom--caption/label-string'."
+`org-groff-mom--caption/label-string'."
   (let ((label (org-element-property :name element)))
     (if (or (not output) (not label) (string= output "") (string= label ""))
         output
       (concat (format "%s\n.BR\n" label) output))))
 
-(defun org-e-mom--text-markup (text markup)
+(defun org-groff-mom--text-markup (text markup)
   "Format TEXT depending on MARKUP text markup.
-See `org-e-mom-text-markup-alist' for details."
-  (let ((fmt (cdr (assq markup org-e-mom-text-markup-alist))))
+See `org-groff-mom-text-markup-alist' for details."
+  (let ((fmt (cdr (assq markup org-groff-mom-text-markup-alist))))
     (cond
      ;; No format string: Return raw text.
      ((not fmt) text)
@@ -609,11 +614,11 @@ See `org-e-mom-text-markup-alist' for details."
      (t (format fmt text)))))
 
 
-(defun org-e-mom--get-tagged-content  (tag info)
-  (cdr  (assoc tag org-e-mom-special-content)))
+(defun org-groff-mom--get-tagged-content  (tag info)
+  (cdr  (assoc tag org-groff-mom-special-content)))
 
 
-(defun org-e-mom--mt-head (title contents attr info)
+(defun org-groff-mom--mt-head (title contents attr info)
   (concat
 
 
@@ -641,9 +646,9 @@ See `org-e-mom-text-markup-alist' for details."
                         (and auth (org-export-data auth info)))))
          (email (and (plist-get info :with-email)
                      (org-export-data (plist-get info :email) info)))
-         (from-data  (org-e-mom--get-tagged-content "FROM" info))
+         (from-data  (org-groff-mom--get-tagged-content "FROM" info))
 
-         (to-data  (org-e-mom--get-tagged-content "TO" info)))
+         (to-data  (org-groff-mom--get-tagged-content "TO" info)))
 
      (cond
       ((and author from-data)
@@ -666,15 +671,15 @@ See `org-e-mom-text-markup-alist' for details."
       (t ".AUTHOR \"\" \n")))))
 
 
-(defun org-e-mom--letter-head (title contents attr info)
+(defun org-groff-mom--letter-head (title contents attr info)
   (let ((author (and (plist-get info :with-author)
                      (let ((auth (plist-get info :author)))
                        (and auth (org-export-data auth info)))))
         (email (and (plist-get info :with-email)
                     (org-export-data (plist-get info :email) info)))
-        (from-data  (org-e-mom--get-tagged-content "FROM" info))
+        (from-data  (org-groff-mom--get-tagged-content "FROM" info))
         (at-item (plist-get attr :author-title)  )
-        (to-data  (org-e-mom--get-tagged-content "TO" info)))
+        (to-data  (org-groff-mom--get-tagged-content "TO" info)))
 
 
     ;; If FROM then get data from FROM
@@ -706,7 +711,7 @@ See `org-e-mom-text-markup-alist' for details."
 
 ;;; Template
 
-(defun org-e-mom-template (contents info)
+(defun org-groff-mom-template (contents info)
   "Return complete document string after Mom conversion.
 CONTENTS is the transcoded contents string.  INFO is a plist
 holding export options."
@@ -719,7 +724,7 @@ holding export options."
                          " "))))
          (class (plist-get info :mom-class))
          (class-options (plist-get info :mom-class-options))
-         (classes (assoc class org-e-mom-classes))
+         (classes (assoc class org-groff-mom-classes))
          (classes-options (car (last classes)))
          (heading-option (plist-get classes-options :heading ))
          (type-option (plist-get classes-options :type ))
@@ -731,7 +736,7 @@ holding export options."
          (document-class-string
           (progn
             (org-element-normalize-string
-             (let* ((header (nth 1 (assoc class org-e-mom-classes)))
+             (let* ((header (nth 1 (assoc class org-groff-mom-classes)))
                     (document-class-item (if (stringp header) header "")))
                document-class-item))))
          (headline-type (car 
@@ -745,13 +750,13 @@ holding export options."
       ((string= type-option "CUSTOM") "")
       ((string= type-option "DEFAULT")
        (concat
-        (org-e-mom--mt-head title contents attr info)
+        (org-groff-mom--mt-head title contents attr info)
         document-class-string
         (concat ".DOCTYPE " type-option "\n")
         (concat ".PAPER " paper-option "\n")))
       ((string= type-option "LETTER")
        (concat
-        (org-e-mom--letter-head title contents attr info)
+        (org-groff-mom--letter-head title contents attr info)
         (let ((sa-item (plist-get attr :salutation)))
 
           (concat
@@ -773,7 +778,7 @@ holding export options."
 
      contents
 
-     (when org-e-mom-registered-references ".ENDNOTES\n")
+     (when org-groff-mom-registered-references ".ENDNOTES\n")
 
      (cond
       ((string= last-option "toc")
@@ -797,33 +802,33 @@ holding export options."
 
 ;;; Bold
 
-(defun org-e-mom-bold (bold contents info)
+(defun org-groff-mom-bold (bold contents info)
   "Transcode BOLD from Org to Mom.
 CONTENTS is the text with bold markup.  INFO is a plist holding
 contextual information."
-  (org-e-mom--text-markup contents 'bold))
+  (org-groff-mom--text-markup contents 'bold))
 
 
 ;;; Center Block
 
-(defun org-e-mom-center-block (center-block contents info)
+(defun org-groff-mom-center-block (center-block contents info)
   "Transcode a CENTER-BLOCK element from Org to Mom.
 CONTENTS holds the contents of the center block.  INFO is a plist
 holding contextual information."
-  (org-e-mom--wrap-label
+  (org-groff-mom--wrap-label
    center-block
    (format ".CENTER\n%s\n%s\n" contents
-           org-e-mom-default-quad)))
+           org-groff-mom-default-quad)))
 
 ;;; Clock
 
-(defun org-e-mom-clock (clock contents info)
+(defun org-groff-mom-clock (clock contents info)
   "Transcode a CLOCK element from Org to Mom.
 CONTENTS is nil.  INFO is a plist holding contextual
 information."
   (concat
    (format "\\fB%s\\fP " org-clock-string)
-   (format org-e-mom-inactive-timestamp-format
+   (format org-groff-mom-inactive-timestamp-format
            (concat (org-translate-time (org-element-property :value clock))
                    (let ((time (org-element-property :time clock)))
                      (and time (format " (%s)" time)))))))
@@ -831,11 +836,11 @@ information."
 
 ;;; Code
 
-(defun org-e-mom-code (code contents info)
+(defun org-groff-mom-code (code contents info)
   "Transcode a CODE object from Org to Mom.
 CONTENTS is nil.  INFO is a plist used as a communication
 channel."
-  (org-e-mom--text-markup (org-element-property :value code) 'code))
+  (org-groff-mom--text-markup (org-element-property :value code) 'code))
 
 
 ;;; Comment
@@ -850,32 +855,32 @@ channel."
 
 ;;; Drawer
 
-(defun org-e-mom-drawer (drawer contents info)
+(defun org-groff-mom-drawer (drawer contents info)
   "Transcode a DRAWER element from Org to Mom.
 CONTENTS holds the contents of the block.  INFO is a plist
 holding contextual information."
   (let* ((name (org-element-property :drawer-name drawer))
-         (output (if (functionp org-e-mom-format-drawer-function)
-                     (funcall org-e-mom-format-drawer-function
+         (output (if (functionp org-groff-mom-format-drawer-function)
+                     (funcall org-groff-mom-format-drawer-function
                               name contents)
                    ;; If there's no user defined function: simply
                    ;; display contents of the drawer.
                    contents)))
-    (org-e-mom--wrap-label drawer output)))
+    (org-groff-mom--wrap-label drawer output)))
 
 
 ;;; Dynamic Block
 
-(defun org-e-mom-dynamic-block (dynamic-block contents info)
+(defun org-groff-mom-dynamic-block (dynamic-block contents info)
   "Transcode a DYNAMIC-BLOCK element from Org to Mom.
 CONTENTS holds the contents of the block.  INFO is a plist
 holding contextual information.  See `org-export-data'."
-  (org-e-mom--wrap-label dynamic-block contents))
+  (org-groff-mom--wrap-label dynamic-block contents))
 
 
 ;;; Entity
 
-(defun org-e-mom-entity (entity contents info)
+(defun org-groff-mom-entity (entity contents info)
   "Transcode an ENTITY object from Org to Mom.
 CONTENTS are the definition itself.  INFO is a plist holding
 contextual information."
@@ -884,11 +889,11 @@ contextual information."
 
 ;;; Example Block
 
-(defun org-e-mom-example-block (example-block contents info)
+(defun org-groff-mom-example-block (example-block contents info)
   "Transcode an EXAMPLE-BLOCK element from Org to Mom.
 CONTENTS is nil.  INFO is a plist holding contextual
 information."
-  (org-e-mom--wrap-label
+  (org-groff-mom--wrap-label
    example-block
    (format ".QUOTE\n%s\n.QUOTE OFF"
            (org-export-format-code-default example-block info))))
@@ -896,7 +901,7 @@ information."
 
 ;;; Export Block
 
-(defun org-e-mom-export-block (export-block contents info)
+(defun org-groff-mom-export-block (export-block contents info)
   "Transcode a EXPORT-BLOCK element from Org to Mom.
 CONTENTS is nil.  INFO is a plist holding contextual information."
   (when (string= (org-element-property :type export-block) "MOM")
@@ -905,18 +910,18 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 
 ;;; Export Snippet
 
-(defun org-e-mom-export-snippet (export-snippet contents info)
+(defun org-groff-mom-export-snippet (export-snippet contents info)
   "Transcode a EXPORT-SNIPPET object from Org to Mom.
 CONTENTS is nil.  INFO is a plist holding contextual information."
-  (when (eq (org-export-snippet-backend export-snippet) 'e-mom)
+  (when (eq (org-export-snippet-backend export-snippet) 'groff-mom)
     (org-element-property :value export-snippet)))
 
 ;;; Fixed Width
 
-(defun org-e-mom-fixed-width (fixed-width contents info)
+(defun org-groff-mom-fixed-width (fixed-width contents info)
   "Transcode a FIXED-WIDTH element from Org to Mom.
 CONTENTS is nil.  INFO is a plist holding contextual information."
-  (org-e-mom--wrap-label
+  (org-groff-mom--wrap-label
    fixed-width
    (format "\\fC\n%s\\fP"
            (org-remove-indentation
@@ -931,7 +936,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 ;; Footnotes are handled automatically in MOM.  Although manual
 ;; references can be added, not really required.
 
-(defun org-e-mom-footnote-reference (footnote-reference contents info)
+(defun org-groff-mom-footnote-reference (footnote-reference contents info)
   ;; Changing from info to footnote-reference
   (let* (( raw (org-export-get-footnote-definition footnote-reference info))
 		 (n (org-export-get-footnote-number footnote-reference info))
@@ -942,10 +947,10 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
     ;;
 
     (if (string-match "fn:rl" ref-id)
-        (if (member ref-id org-e-mom-registered-references)
+        (if (member ref-id org-groff-mom-registered-references)
             (format "\\*[%s]" ref-id)
           (progn
-            (push ref-id org-e-mom-registered-references)
+            (push ref-id org-groff-mom-registered-references)
             (format "\\c\n.ENDNOTE\n%s\n.ENDNOTE OFF\n" data)))
       ;;
       ;; else it is a footnote
@@ -955,7 +960,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 
 ;;; Headline
 
-(defun org-e-mom-headline (headline contents info)
+(defun org-groff-mom-headline (headline contents info)
   "Transcode an HEADLINE element from Org to Mom.
 CONTENTS holds the contents of the headline.  INFO is a plist
 holding contextual information."
@@ -966,7 +971,7 @@ holding contextual information."
          ;; Section formatting will set two placeholders: one for the
          ;; title and the other for the contents.
 
-         (classes (assoc class org-e-mom-classes))
+         (classes (assoc class org-groff-mom-classes))
          (classes-options (car (last classes)))
          (heading-command
           (case level
@@ -996,9 +1001,9 @@ holding contextual information."
                         (org-element-property :priority headline)))
          ;; Create the headline text along with a no-tag version.  The
          ;; latter is required to remove tags from table of contents.
-         (full-text (if (functionp org-e-mom-format-headline-function)
+         (full-text (if (functionp org-groff-mom-format-headline-function)
                         ;; User-defined formatting function.
-                        (funcall org-e-mom-format-headline-function
+                        (funcall org-groff-mom-format-headline-function
                                  todo todo-type priority text tags)
                       ;; Default formatting.
                       (concat
@@ -1010,9 +1015,9 @@ holding contextual information."
                          (format " \\fC:%s:\\fP "
                                  (mapconcat 'identity tags ":"))))))
          (full-text-no-tag
-          (if (functionp org-e-mom-format-headline-function)
+          (if (functionp org-groff-mom-format-headline-function)
               ;; User-defined formatting function.
-              (funcall org-e-mom-format-headline-function
+              (funcall org-groff-mom-format-headline-function
                        todo todo-type priority text nil)
             ;; Default formatting.
             (concat
@@ -1032,13 +1037,13 @@ holding contextual information."
 
     (cond
      ;; Case 1: Special Tag
-     ((member (car  tags)  org-e-mom-special-tags)
+     ((member (car  tags)  org-groff-mom-special-tags)
       (cond
        ((string= (car tags) "BODY") contents )
 
        (t
         (progn
-          (push (cons  (car tags) contents) org-e-mom-special-content)
+          (push (cons  (car tags) contents) org-groff-mom-special-content)
           nil))))
 
      ;; Case 2: This is a footnote section: ignore it.
@@ -1081,13 +1086,13 @@ holding contextual information."
 
 ;;; Inline Src Block
 
-(defun org-e-mom-inline-src-block (inline-src-block contents info)
+(defun org-groff-mom-inline-src-block (inline-src-block contents info)
   "Transcode an INLINE-SRC-BLOCK element from Org to Mom.
 CONTENTS holds the contents of the item.  INFO is a plist holding
 contextual information."
   (let* ((code (org-element-property :value inline-src-block)))
     (cond
-     (org-e-mom-source-highlight
+     (org-groff-mom-source-highlight
       (let* ((tmpdir (if (featurep 'xemacs)
                          temp-directory
                        temporary-file-directory ))
@@ -1097,7 +1102,7 @@ contextual information."
                         (expand-file-name "reshilite" tmpdir)))
              (org-lang (org-element-property :language inline-src-block))
              (lst-lang (cadr (assq (intern org-lang)
-                                   org-e-mom-source-highlight-langs)))
+                                   org-groff-mom-source-highlight-langs)))
 
              (cmd (concat (expand-file-name "source-highlight")
                           " -s " lst-lang
@@ -1114,19 +1119,19 @@ contextual information."
               (delete-file out-file)
               code-block)
           (format ".LEFT\n.CODE BR \\m[black]%s\\m[]\n.CODE OFF\n%s\n"
-                  code org-e-mom-default-quad))))
+                  code org-groff-mom-default-quad))))
 
      ;; Do not use a special package: transcode it verbatim.
      (t
       (concat ".LEFT\n.CODE BR\n" code 
               "\n.CODE OFF\n"  
-              org-e-mom-default-quad "\n")))))
+              org-groff-mom-default-quad "\n")))))
 
 
 ;;; Inlinetask
 
 
-(defun org-e-mom-inlinetask (inlinetask contents info)
+(defun org-groff-mom-inlinetask (inlinetask contents info)
   "Transcode an INLINETASK element from Org to Mom.
 CONTENTS holds the contents of the block.  INFO is a plist
 holding contextual information."
@@ -1139,13 +1144,13 @@ holding contextual information."
                    (org-export-get-tags inlinetask info)))
         (priority (and (plist-get info :with-priority)
                        (org-element-property :priority inlinetask))))
-    ;; If `org-e-mom-format-inlinetask-function' is provided, call it
+    ;; If `org-groff-mom-format-inlinetask-function' is provided, call it
     ;; with appropriate arguments.
-    (if (functionp org-e-mom-format-inlinetask-function)
-        (funcall org-e-mom-format-inlinetask-function
+    (if (functionp org-groff-mom-format-inlinetask-function)
+        (funcall org-groff-mom-format-inlinetask-function
                  todo todo-type priority title tags contents)
       ;; Otherwise, use a default template.
-      (org-e-mom--wrap-label
+      (org-groff-mom--wrap-label
        inlinetask
        (let ((full-title
               (concat
@@ -1158,23 +1163,23 @@ holding contextual information."
                          "%s\n"
                          ".SP"
                          "%s\n"
-                         org-e-mom-default-quad)
+                         org-groff-mom-default-quad)
                  full-title contents))))))
 
 
 ;;; Italic
 
-(defun org-e-mom-italic (italic contents info)
+(defun org-groff-mom-italic (italic contents info)
   "Transcode ITALIC from Org to Mom.
 CONTENTS is the text with italic markup.  INFO is a plist holding
 contextual information."
-  (org-e-mom--text-markup contents 'italic))
+  (org-groff-mom--text-markup contents 'italic))
 
 
 ;;; Item
 
 
-(defun org-e-mom-item (item contents info)
+(defun org-groff-mom-item (item contents info)
   "Transcode an ITEM element from Org to Mom.
 CONTENTS holds the contents of the item.  INFO is a plist holding
 contextual information."
@@ -1208,7 +1213,7 @@ contextual information."
 ;;; Keyword
 
 
-(defun org-e-mom-keyword (keyword contents info)
+(defun org-groff-mom-keyword (keyword contents info)
   "Transcode a KEYWORD element from Org to Mom.
 CONTENTS is nil.  INFO is a plist holding contextual information."
   (let ((key (org-element-property :key keyword))
@@ -1220,7 +1225,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 
 ;;; Mom Environment
 
-(defun org-e-mom-mom-environment (mom-environment contents info)
+(defun org-groff-mom-mom-environment (mom-environment contents info)
   "Transcode a MOM-ENVIRONMENT element from Org to Mom.
 CONTENTS is nil.  INFO is a plist holding contextual information."
   (let ((label (org-element-property :name mom-environment))
@@ -1240,7 +1245,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 
 ;;; Mom Fragment
 
-(defun org-e-mom-mom-fragment (mom-fragment contents info)
+(defun org-groff-mom-mom-fragment (mom-fragment contents info)
   "Transcode a MOM-FRAGMENT object from Org to Mom.
 CONTENTS is nil.  INFO is a plist holding contextual information."
   (org-element-property :value mom-fragment))
@@ -1248,7 +1253,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 
 ;;; Line Break
 
-(defun org-e-mom-line-break (line-break contents info)
+(defun org-groff-mom-line-break (line-break contents info)
   "Transcode a LINE-BREAK object from Org to Mom.
 CONTENTS is nil.  INFO is a plist holding contextual information."
   ".BR\n")
@@ -1261,7 +1266,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 ;;;
 
 
-(defun org-e-mom-link--inline-image (link info)
+(defun org-groff-mom-link--inline-image (link info)
   "Return Mom code for an inline image.
 LINK is the link pointing to the inline image.  INFO is a plist
 used as a communication channel."
@@ -1286,7 +1291,7 @@ used as a communication channel."
     (disable-caption (plist-get attr :disable-caption))
 
     (caption
-          (org-e-mom--caption/label-string
+          (org-groff-mom--caption/label-string
            (org-element-property :caption parent)
            (org-element-property :name parent)
            info)))
@@ -1299,13 +1304,13 @@ used as a communication channel."
       ((string-match ".\.pic$" path)
        (format "\n.PS\ncopy \"%s\"\n.PE" path ))
       (t (format "\n.QUAD LEFT\n.PSPIC %s \"%s\" %s %s\n%s"
-                 placement path width height org-e-mom-default-quad)))
+                 placement path width height org-groff-mom-default-quad)))
      (unless disable-caption 
-       (format "\n.CENTER\n%s\n%s" caption org-e-mom-default-quad)))))
+       (format "\n.CENTER\n%s\n%s" caption org-groff-mom-default-quad)))))
 
 
 
-(defun org-e-mom-link (link desc info)
+(defun org-groff-mom-link (link desc info)
   "Transcode a LINK object from Org to Mom.
 
 DESC is the description part of the link, or the empty string.
@@ -1317,7 +1322,7 @@ INFO is a plist holding contextual information.  See
          ;; Ensure DESC really exists, or set it to nil.
          (desc (and (not (string= desc "")) desc))
          (imagep (org-export-inline-image-p
-                  link org-e-mom-inline-image-rules))
+                  link org-groff-mom-inline-image-rules))
          (path (cond
                 ((member type '("http" "https" "ftp" "mailto"))
                  (concat type ":" raw-path))
@@ -1331,7 +1336,7 @@ INFO is a plist holding contextual information.  See
          protocol)
     (cond
      ;; Image file.
-     (imagep (org-e-mom-link--inline-image link info))
+     (imagep (org-groff-mom-link--inline-image link info))
      ;; import mom files
      ((and (string= type "file")
            (string-match ".\.mom$" raw-path))
@@ -1357,7 +1362,7 @@ INFO is a plist holding contextual information.  See
              (format "\\fI file://%s \\fP" destination)))
           ;; Fuzzy link points nowhere.
           ('nil
-           (format org-e-mom-link-with-unknown-path-format
+           (format org-groff-mom-link-with-unknown-path-format
                    (or desc
                        (org-export-data
                         (org-element-property :raw-link link) info))))
@@ -1385,12 +1390,12 @@ INFO is a plist holding contextual information.  See
      ;; External link without a description part.
      (path (format "\\fI%s\\fP" path))
      ;; No path, only description.  Try to do something useful.
-     (t (format org-e-mom-link-with-unknown-path-format desc)))))
+     (t (format org-groff-mom-link-with-unknown-path-format desc)))))
 
 
 ;;; Macro
 
-(defun org-e-mom-macro (macro contents info)
+(defun org-groff-mom-macro (macro contents info)
   "Transcode a MACRO element from Org to Mom.
 CONTENTS is nil.  INFO is a plist holding contextual information."
   ;; Use available tools.
@@ -1399,7 +1404,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 
 ;;; Paragraph
 
-(defun org-e-mom-paragraph (paragraph contents info)
+(defun org-groff-mom-paragraph (paragraph contents info)
   "Transcode a PARAGRAPH element from Org to Mom.
 CONTENTS is the contents of the paragraph, as a string.  INFO is
 the plist used as a communication channel."
@@ -1409,7 +1414,7 @@ the plist used as a communication channel."
              (fixed-paragraph "")
              (class (plist-get info :mom-class))
              (class-options (plist-get info :mom-class-options))
-             (classes (assoc class org-e-mom-classes))
+             (classes (assoc class org-groff-mom-classes))
              (classes-options (car (last classes)))
              (paragraph-option (plist-get classes-options :paragraph )))
         (cond
@@ -1432,7 +1437,7 @@ the plist used as a communication channel."
 
 ;;; Plain List
 
-(defun org-e-mom-plain-list (plain-list contents info)
+(defun org-groff-mom-plain-list (plain-list contents info)
   "Transcode a PLAIN-LIST element from Org to Mom.
 CONTENTS is the contents of the list.  INFO is a plist holding
 contextual information."
@@ -1452,12 +1457,12 @@ contextual information."
                     ((eq type 'descriptive) ".IL 2.0i \n"))))
 
     (if (eq type 'descriptive)
-        (org-e-mom--wrap-label
+        (org-groff-mom--wrap-label
          plain-list
          (format "%s\n%s\n.IQ CLEAR\n"
                  mom-type
                  contents))
-      (org-e-mom--wrap-label
+      (org-groff-mom--wrap-label
        plain-list
        (format "%s\n%s\n.LIST OFF"
                mom-type
@@ -1466,7 +1471,7 @@ contextual information."
 
 ;;; Plain Text
 
-(defun org-e-mom-plain-text (text info)
+(defun org-groff-mom-plain-text (text info)
   "Transcode a TEXT string from Org to Mom.
 TEXT is the string to transcode.  INFO is a plist holding
 contextual information."
@@ -1477,10 +1482,10 @@ contextual information."
 
 
   ;; Handle quotation marks
-  (setq text (org-e-mom--quotation-marks text info))
+  (setq text (org-groff-mom--quotation-marks text info))
 
-  (if org-e-mom-special-char
-      (dolist (special-char-list org-e-mom-special-char)
+  (if org-groff-mom-special-char
+      (dolist (special-char-list org-groff-mom-special-char)
         (setq text
               (replace-regexp-in-string (car special-char-list)
                                         (cdr special-char-list) text ))))
@@ -1498,7 +1503,7 @@ contextual information."
 
 ;;; Planning
 
-(defun org-e-mom-planning (planning contents info)
+(defun org-groff-mom-planning (planning contents info)
   "Transcode a PLANNING element from Org to Mom.
 CONTENTS is nil.  INFO is a plist holding contextual
 information."
@@ -1511,19 +1516,19 @@ information."
              (when closed
                (concat
                 (format "\\fR %s \\fP" org-closed-string)
-                (format org-e-mom-inactive-timestamp-format
+                (format org-groff-mom-inactive-timestamp-format
                         (org-translate-time closed)))))
            (let ((deadline (org-element-property :deadline planning)))
              (when deadline
                (concat
                 (format "\\fB %s \\fP" org-deadline-string)
-                (format org-e-mom-active-timestamp-format
+                (format org-groff-mom-active-timestamp-format
                         (org-translate-time deadline)))))
            (let ((scheduled (org-element-property :scheduled planning)))
              (when scheduled
                (concat
                 (format "\\fR %s \\fP" org-scheduled-string)
-                (format org-e-mom-active-timestamp-format
+                (format org-groff-mom-active-timestamp-format
                         (org-translate-time scheduled)))))))
     "")
    ""))
@@ -1531,7 +1536,7 @@ information."
 
 ;;; Property Drawer
 
-(defun org-e-mom-property-drawer (property-drawer contents info)
+(defun org-groff-mom-property-drawer (property-drawer contents info)
   "Transcode a PROPERTY-DRAWER element from Org to Mom.
 CONTENTS is nil.  INFO is a plist holding contextual
 information."
@@ -1542,18 +1547,18 @@ information."
 
 ;;; Quote Block
 
-(defun org-e-mom-quote-block (quote-block contents info)
+(defun org-groff-mom-quote-block (quote-block contents info)
   "Transcode a QUOTE-BLOCK element from Org to Mom.
 CONTENTS holds the contents of the block.  INFO is a plist
 holding contextual information."
-  (org-e-mom--wrap-label
+  (org-groff-mom--wrap-label
    quote-block
    (format ".BLOCKQUOTE\n.FT I\n%s\n.FT R\n.BLOCKQUOTE OFF" contents)))
 
 
 ;;; Quote Section
 
-(defun org-e-mom-quote-section (quote-section contents info)
+(defun org-groff-mom-quote-section (quote-section contents info)
   "Transcode a QUOTE-SECTION element from Org to Mom.
 CONTENTS is nil.  INFO is a plist holding contextual information."
   (let ((value (org-remove-indentation
@@ -1563,7 +1568,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 
 ;;; Radio Target
 
-(defun org-e-mom-radio-target (radio-target text info)
+(defun org-groff-mom-radio-target (radio-target text info)
   "Transcode a RADIO-TARGET object from Org to Mom.
 TEXT is the text of the target.  INFO is a plist holding
 contextual information."
@@ -1575,7 +1580,7 @@ contextual information."
 
 ;;; Section
 
-(defun org-e-mom-section (section contents info)
+(defun org-groff-mom-section (section contents info)
   "Transcode a SECTION element from Org to Mom.
 CONTENTS holds the contents of the section.  INFO is a plist
 holding contextual information."
@@ -1584,19 +1589,19 @@ holding contextual information."
 
 ;;; Special Block
 
-(defun org-e-mom-special-block (special-block contents info)
+(defun org-groff-mom-special-block (special-block contents info)
   "Transcode a SPECIAL-BLOCK element from Org to Mom.
 CONTENTS holds the contents of the block.  INFO is a plist
 holding contextual information."
   (let ((type (downcase (org-element-property :type special-block))))
-    (org-e-mom--wrap-label
+    (org-groff-mom--wrap-label
      special-block
      (format "%s\n" contents))))
 
 
 ;;; Src Block
 
-(defun org-e-mom-src-block (src-block contents info)
+(defun org-groff-mom-src-block (src-block contents info)
   "Transcode a SRC-BLOCK element from Org to Mom.
 CONTENTS holds the contents of the item.  INFO is a plist holding
 contextual information."
@@ -1607,7 +1612,7 @@ contextual information."
          (code (org-element-property :value src-block))
          (custom-env (and lang
                           (cadr (assq (intern lang)
-                                      org-e-mom-custom-lang-environments))))
+                                      org-groff-mom-custom-lang-environments))))
          (num-start (case (org-element-property :number-lines src-block)
                       (continued (org-export-get-loc src-block info))
                       (new 0)))
@@ -1623,20 +1628,20 @@ contextual information."
 
     (cond
      ;; Case 1.  No source fontification.
-     ((not org-e-mom-source-highlight)
-      (let ((caption-str (org-e-mom--caption/label-string caption label info)))
+     ((not org-groff-mom-source-highlight)
+      (let ((caption-str (org-groff-mom--caption/label-string caption label info)))
         (concat
          (format ".LEFT\n.CODE BR\n%s\n.CODE OFF\n%s\n"
                  (org-export-format-code-default src-block info) 
-                 org-e-mom-default-quad)
+                 org-groff-mom-default-quad)
          (unless  disable-caption (format "%s"  caption-str )))))
 
      ;; Case 2.  Source fontification.
-     (org-e-mom-source-highlight
+     (org-groff-mom-source-highlight
        (let* ((tmpdir (if (featurep 'xemacs)
                           temp-directory
                         temporary-file-directory ))
-              (caption-str (org-e-mom--caption/label-string caption label info))
+              (caption-str (org-groff-mom--caption/label-string caption label info))
               (in-file  (make-temp-name
                          (expand-file-name "srchilite" tmpdir)))
               (out-file (make-temp-name
@@ -1644,7 +1649,7 @@ contextual information."
 
               (org-lang (org-element-property :language src-block))
               (lst-lang (cadr (assq (intern org-lang)
-                                    org-e-mom-source-highlight-langs)))
+                                    org-groff-mom-source-highlight-langs)))
 
               (cmd (concat "source-highlight"
                            " -s " lst-lang
@@ -1661,15 +1666,15 @@ contextual information."
                 (delete-file in-file)
                 (delete-file out-file)
                 (format ".LEFT\n%s\n%s\n"  code-block 
-                        org-e-mom-default-quad))
+                        org-groff-mom-default-quad))
             (format ".LEFT\n.CODE BR\n%s\n.CODE OFF\n%s\n"
-                    code org-e-mom-default-quad))
+                    code org-groff-mom-default-quad))
           (unless disable-caption (format "%s" caption-str))))))))
 
 
 ;;; Statistics Cookie
 
-(defun org-e-mom-statistics-cookie (statistics-cookie contents info)
+(defun org-groff-mom-statistics-cookie (statistics-cookie contents info)
   "Transcode a STATISTICS-COOKIE object from Org to Mom.
 CONTENTS is nil.  INFO is a plist holding contextual information."
   (org-element-property :value statistics-cookie))
@@ -1677,15 +1682,15 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 
 ;;; Strike-Through
 
-(defun org-e-mom-strike-through (strike-through contents info)
+(defun org-groff-mom-strike-through (strike-through contents info)
   "Transcode STRIKE-THROUGH from Org to Mom.
 CONTENTS is the text with strike-through markup.  INFO is a plist
 holding contextual information."
-  (org-e-mom--text-markup contents 'strike-through))
+  (org-groff-mom--text-markup contents 'strike-through))
 
 ;;; Subscript
 
-(defun org-e-mom-subscript (subscript contents info)
+(defun org-groff-mom-subscript (subscript contents info)
   "Transcode a SUBSCRIPT object from Org to Mom.
 CONTENTS is the contents of the object.  INFO is a plist holding
 contextual information."
@@ -1693,7 +1698,7 @@ contextual information."
 
 ;;; Superscript "^_%s$
 
-(defun org-e-mom-superscript (superscript contents info)
+(defun org-groff-mom-superscript (superscript contents info)
   "Transcode a SUPERSCRIPT object from Org to Mom.
 CONTENTS is the contents of the object.  INFO is a plist holding
 contextual information."
@@ -1702,21 +1707,21 @@ contextual information."
 
 ;;; Table
 ;;
-;; `org-e-mom-table' is the entry point for table transcoding.  It
+;; `org-groff-mom-table' is the entry point for table transcoding.  It
 ;; takes care of tables with a "verbatim" attribute.  Otherwise, it
-;; delegates the job to  `org-e-mom-table--org-table' function,
+;; delegates the job to  `org-groff-mom-table--org-table' function,
 ;; depending of the type of the table.
 ;;
-;; `org-e-mom-table--align-string' is a subroutine used to build
+;; `org-groff-mom-table--align-string' is a subroutine used to build
 ;; alignment string for Org tables.
 
-(defun org-e-mom-table (table contents info)
+(defun org-groff-mom-table (table contents info)
   "Transcode a TABLE element from Org to Mom.
 CONTENTS is the contents of the table.  INFO is a plist holding
 contextual information."
   (cond
    ;; Case 1: verbatim table.
-   ((or org-e-mom-tables-verbatim
+   ((or org-groff-mom-tables-verbatim
         (let ((attr (read (format "(%s)"
                  (mapconcat
                   #'identity
@@ -1728,12 +1733,12 @@ contextual information."
             (org-trim
              (org-element-interpret-data
               `(table nil ,@(org-element-contents table))))
-            org-e-mom-default-quad))
+            org-groff-mom-default-quad))
 
    ;; Case 2: Standard table.
-   (t (org-e-mom-table--org-table table contents info))))
+   (t (org-groff-mom-table--org-table table contents info))))
 
-(defun org-e-mom-table--align-string (divider table info)
+(defun org-groff-mom-table--align-string (divider table info)
   "Return an appropriate Mom alignment string.
 TABLE is the considered table.  INFO is a plist used as
 a communication channel."
@@ -1768,7 +1773,7 @@ a communication channel."
        info)
     (apply 'concat (reverse alignment))))
 
-(defun org-e-mom-table--org-table (table contents info)
+(defun org-groff-mom-table--org-table (table contents info)
   "Return appropriate Mom code for an Org table.
 
 TABLE is the table type element to transcode.  CONTENTS is its
@@ -1777,7 +1782,7 @@ channel.
 
 This function assumes TABLE has `org' as its `:type' attribute."
   (let* ((label (org-element-property :name table))
-         (caption (org-e-mom--caption/label-string
+         (caption (org-groff-mom--caption/label-string
                    (org-element-property :caption table) label info))
          (attr (read (format "(%s)"
                              (mapconcat #'identity
@@ -1786,7 +1791,7 @@ This function assumes TABLE has `org' as its `:type' attribute."
          (divider (if (plist-get attr :divider) "|" " "))
 
          ;; Determine alignment string.
-         (alignment (org-e-mom-table--align-string divider table info))
+         (alignment (org-groff-mom-table--align-string divider table info))
 
          ;; Extract others display options.
 
@@ -1803,7 +1808,7 @@ This function assumes TABLE has `org' as its `:type' attribute."
                         ('center "center")
                         ('left nil)
                         (t
-                         (if org-e-mom-tables-centered
+                         (if org-groff-mom-tables-centered
                              "center"
                            "" )))
 
@@ -1889,21 +1894,21 @@ This function assumes TABLE has `org' as its `:type' attribute."
                     (if (not disable-caption)
                         (format "\n.CENTER\n%s\n%s\n"
                                 caption 
-                                org-e-mom-default-quad) ""))))))
+                                org-groff-mom-default-quad) ""))))))
 
 ;;; Table Cell
 
-(defun org-e-mom-table-cell (table-cell contents info)
+(defun org-groff-mom-table-cell (table-cell contents info)
   "Transcode a TABLE-CELL element from Org to Mom
 CONTENTS is the cell contents.  INFO is a plist used as
 a communication channel."
   (progn
     (concat (if (and contents
-                     org-e-mom-table-scientific-notation
+                     org-groff-mom-table-scientific-notation
                      (string-match orgtbl-exp-regexp contents))
                 ;; Use appropriate format string for scientific
                 ;; notation.
-                (format org-e-mom-table-scientific-notation
+                (format org-groff-mom-table-scientific-notation
                         (match-string 1 contents)
                         (match-string 2 contents))
               contents )
@@ -1912,7 +1917,7 @@ a communication channel."
 
 ;;; Table Row
 
-(defun org-e-mom-table-row (table-row contents info)
+(defun org-groff-mom-table-row (table-row contents info)
   "Transcode a TABLE-ROW element from Org to Mom
 CONTENTS is the contents of the row.  INFO is a plist used as
 a communication channel."
@@ -1943,7 +1948,7 @@ a communication channel."
 
 ;;; Target
 
-(defun org-e-mom-target (target contents info)
+(defun org-groff-mom-target (target contents info)
   "Transcode a TARGET object from Org to Mom.
 CONTENTS is nil.  INFO is a plist holding contextual
 information."
@@ -1953,50 +1958,50 @@ information."
 
 ;;; Timestamp
 
-(defun org-e-mom-timestamp (timestamp contents info)
+(defun org-groff-mom-timestamp (timestamp contents info)
   "Transcode a TIMESTAMP object from Org to Mom.
 CONTENTS is nil.  INFO is a plist holding contextual
 information."
   (let ((value (org-translate-time (org-element-property :value timestamp)))
         (type (org-element-property :type timestamp)))
     (cond ((memq type '(active active-range))
-           (format org-e-mom-active-timestamp-format value))
+           (format org-groff-mom-active-timestamp-format value))
           ((memq type '(inactive inactive-range))
-           (format org-e-mom-inactive-timestamp-format value))
-          (t (format org-e-mom-diary-timestamp-format value)))))
+           (format org-groff-mom-inactive-timestamp-format value))
+          (t (format org-groff-mom-diary-timestamp-format value)))))
 
 
 ;;; Underline
 
-(defun org-e-mom-underline (underline contents info)
+(defun org-groff-mom-underline (underline contents info)
   "Transcode UNDERLINE from Org to Mom.
 CONTENTS is the text with underline markup.  INFO is a plist
 holding contextual information."
-  (org-e-mom--text-markup contents 'underline))
+  (org-groff-mom--text-markup contents 'underline))
 
 
 ;;; Verbatim
 
-(defun org-e-mom-verbatim (verbatim contents info)
+(defun org-groff-mom-verbatim (verbatim contents info)
   "Transcode a VERBATIM object from Org to Mom.
 CONTENTS is nil.  INFO is a plist used as a communication
 channel."
-  (org-e-mom--text-markup (org-element-property :value verbatim) 'verbatim))
+  (org-groff-mom--text-markup (org-element-property :value verbatim) 'verbatim))
 
 
 ;;; Verse Block
 
-(defun org-e-mom-verse-block (verse-block contents info)
+(defun org-groff-mom-verse-block (verse-block contents info)
   "Transcode a VERSE-BLOCK element from Org to Mom.
 CONTENTS is verse block contents. INFO is a plist holding
 contextual information."
-  (format ".CENTER\n%s\n%s" contents org-e-mom-default-quad))
+  (format ".CENTER\n%s\n%s" contents org-groff-mom-default-quad))
 
 
 
 ;;; Interactive functions
 
-(defun org-e-mom-export-to-mom
+(defun org-groff-mom-export-to-mom
   (&optional subtreep visible-only body-only ext-plist pub-dir)
   "Export current buffer to a Mom file.
 
@@ -2023,14 +2028,14 @@ Return output file's name."
 
   (interactive)
 
-  (setq org-e-mom-registered-references nil)
-  (setq org-e-mom-special-content nil)
+  (setq org-groff-mom-registered-references nil)
+  (setq org-groff-mom-special-content nil)
 
   (let ((outfile (org-export-output-file-name ".mom" subtreep pub-dir)))
     (org-export-to-file
-     'e-mom outfile subtreep visible-only body-only ext-plist)))
+     'groff-mom outfile subtreep visible-only body-only ext-plist)))
 
-(defun org-e-mom-export-to-pdf
+(defun org-groff-mom-export-to-pdf
   (&optional subtreep visible-only body-only ext-plist pub-dir)
   "Export current buffer to Mom then process through to PDF.
 
@@ -2055,15 +2060,15 @@ directory.
 
 Return PDF file's name."
   (interactive)
-  (org-e-mom-compile
-   (org-e-mom-export-to-mom
+  (org-groff-mom-compile
+   (org-groff-mom-export-to-mom
     subtreep visible-only body-only ext-plist pub-dir)))
 
-(defun org-e-mom-compile (momfile)
+(defun org-groff-mom-compile (momfile)
   "Compile a Mom file.
 
 MOMFILE is the name of the file being compiled.  Processing is
-done through the command specified in `org-e-mom-pdf-process'.
+done through the command specified in `org-groff-mom-pdf-process'.
 
 Return PDF file name or an error if it couldn't be produced."
   (let* ((wconfig (current-window-configuration))
@@ -2075,12 +2080,12 @@ Return PDF file name or an error if it couldn't be produced."
         (progn
           (cond
            ;; A function is provided: Apply it.
-           ((functionp org-e-mom-pdf-process)
-            (funcall org-e-mom-pdf-process (shell-quote-argument momfile)))
+           ((functionp org-groff-mom-pdf-process)
+            (funcall org-groff-mom-pdf-process (shell-quote-argument momfile)))
            ;; A list is provided: Replace %b, %f and %o with appropriate
            ;; values in each command before applying it.  Output is
            ;; redirected to "*Org PDF Mom Output*" buffer.
-           ((consp org-e-mom-pdf-process)
+           ((consp org-groff-mom-pdf-process)
             (let* ((out-dir (or (file-name-directory momfile) "./"))
                    (outbuf (get-buffer-create "*Org PDF Mom Output*")))
               (mapc
@@ -2094,9 +2099,9 @@ Return PDF file name or an error if it couldn't be produced."
                      "%o" (shell-quote-argument out-dir) command t t)
 		    t t) t t)
                   outbuf))
-               org-e-mom-pdf-process)
+               org-groff-mom-pdf-process)
               ;; Collect standard errors from output buffer.
-              (setq errors (org-e-mom-collect-errors outbuf))))
+              (setq errors (org-groff-mom-collect-errors outbuf))))
            (t (error "No valid command to process to PDF")))
           (let ((pdffile (concat base ".pdf")))
             ;; Check for process failure.  Provide collected errors if
@@ -2106,8 +2111,8 @@ Return PDF file name or an error if it couldn't be produced."
                                (when errors (concat ": " errors))))
               ;; Else remove log files, when specified, and signal end of
               ;; process to user, along with any error encountered.
-              (when org-e-mom-remove-logfiles
-                (dolist (ext org-e-mom-logfiles-extensions)
+              (when org-groff-mom-remove-logfiles
+                (dolist (ext org-groff-mom-logfiles-extensions)
                   (let ((file (concat base "." ext)))
                     (when (file-exists-p file) (delete-file file)))))
               (message (concat "Process completed"
@@ -2117,7 +2122,7 @@ Return PDF file name or an error if it couldn't be produced."
             pdffile))
       (set-window-configuration wconfig))))
 
-(defun org-e-mom-collect-errors (buffer)
+(defun org-groff-mom-collect-errors (buffer)
   "Collect some kind of errors from \"mom\" output
 BUFFER is the buffer containing output.
 Return collected error types as a string, or nil if there was
@@ -2129,5 +2134,5 @@ none."
       nil )))
 
 
-(provide 'org-e-mom)
-;;; org-e-mom.el ends here
+(provide 'org-groff-mom)
+;;; org-groff-mom.el ends here
