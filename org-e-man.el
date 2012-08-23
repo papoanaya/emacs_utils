@@ -1,4 +1,4 @@
-;; org-groff-man.el --- Man Back-End For Org Export Engine
+;; org-e-man.el --- Man Back-End For Org Export Engine
 
 ;; Copyright (C) 2011-2012  Free Software Foundation, Inc.
 
@@ -26,7 +26,7 @@
 ;;
 ;; To test it, run
 ;;
-;;   M-: (org-export-to-buffer 'groff-man "*Test groff-man*") RET
+;;   M-: (org-export-to-buffer 'e-man "*Test e-Man*") RET
 ;;
 ;; in an org-mode buffer then switch to the buffer to see the Man
 ;; export.  See contrib/lisp/org-export.el for more details on how
@@ -49,63 +49,63 @@
 
 ;;; Define Back-End
 
-(defvar org-groff-man-translate-alist
-  '((babel-call . org-groff-man-babel-call)
-    (bold . org-groff-man-bold)
-    (center-block . org-groff-man-center-block)
-    (clock . org-groff-man-clock)
-    (code . org-groff-man-code)
-    (comment . org-groff-man-comment)
-    (comment-block . org-groff-man-comment-block)
-    (drawer . org-groff-man-drawer)
-    (dynamic-block . org-groff-man-dynamic-block)
-    (entity . org-groff-man-entity)
-    (example-block . org-groff-man-example-block)
-    (export-block . org-groff-man-export-block)
-    (export-snippet . org-groff-man-export-snippet)
-    (fixed-width . org-groff-man-fixed-width)
-    (footnote-definition . org-groff-man-footnote-definition)
-    (footnote-reference . org-groff-man-footnote-reference)
-    (headline . org-groff-man-headline)
-    (horizontal-rule . org-groff-man-horizontal-rule)
-    (inline-babel-call . org-groff-man-inline-babel-call)
-    (inline-src-block . org-groff-man-inline-src-block)
-    (inlinetask . org-groff-man-inlinetask)
-    (italic . org-groff-man-italic)
-    (item . org-groff-man-item)
-    (keyword . org-groff-man-keyword)
-    (man-environment . org-groff-man-man-environment)
-    (man-fragment . org-groff-man-man-fragment)
-    (line-break . org-groff-man-line-break)
-    (link . org-groff-man-link)
-    (macro . org-groff-man-macro)
-    (paragraph . org-groff-man-paragraph)
-    (plain-list . org-groff-man-plain-list)
-    (plain-text . org-groff-man-plain-text)
-    (planning . org-groff-man-planning)
-    (property-drawer . org-groff-man-property-drawer)
-    (quote-block . org-groff-man-quote-block)
-    (quote-section . org-groff-man-quote-section)
-    (radio-target . org-groff-man-radio-target)
-    (section . org-groff-man-section)
-    (special-block . org-groff-man-special-block)
-    (src-block . org-groff-man-src-block)
-    (statistics-cookie . org-groff-man-statistics-cookie)
-    (strike-through . org-groff-man-strike-through)
-    (subscript . org-groff-man-subscript)
-    (superscript . org-groff-man-superscript)
-    (table . org-groff-man-table)
-    (table-cell . org-groff-man-table-cell)
-    (table-row . org-groff-man-table-row)
-    (target . org-groff-man-target)
-    (template . org-groff-man-template)
-    (timestamp . org-groff-man-timestamp)
-    (underline . org-groff-man-underline)
-    (verbatim . org-groff-man-verbatim)
-    (verse-block . org-groff-man-verse-block))
+(defvar org-e-man-translate-alist
+  '((babel-call . org-e-man-babel-call)
+    (bold . org-e-man-bold)
+    (center-block . org-e-man-center-block)
+    (clock . org-e-man-clock)
+    (code . org-e-man-code)
+    (comment . org-e-man-comment)
+    (comment-block . org-e-man-comment-block)
+    (drawer . org-e-man-drawer)
+    (dynamic-block . org-e-man-dynamic-block)
+    (entity . org-e-man-entity)
+    (example-block . org-e-man-example-block)
+    (export-block . org-e-man-export-block)
+    (export-snippet . org-e-man-export-snippet)
+    (fixed-width . org-e-man-fixed-width)
+    (footnote-definition . org-e-man-footnote-definition)
+    (footnote-reference . org-e-man-footnote-reference)
+    (headline . org-e-man-headline)
+    (horizontal-rule . org-e-man-horizontal-rule)
+    (inline-babel-call . org-e-man-inline-babel-call)
+    (inline-src-block . org-e-man-inline-src-block)
+    (inlinetask . org-e-man-inlinetask)
+    (italic . org-e-man-italic)
+    (item . org-e-man-item)
+    (keyword . org-e-man-keyword)
+    (man-environment . org-e-man-man-environment)
+    (man-fragment . org-e-man-man-fragment)
+    (line-break . org-e-man-line-break)
+    (link . org-e-man-link)
+    (macro . org-e-man-macro)
+    (paragraph . org-e-man-paragraph)
+    (plain-list . org-e-man-plain-list)
+    (plain-text . org-e-man-plain-text)
+    (planning . org-e-man-planning)
+    (property-drawer . org-e-man-property-drawer)
+    (quote-block . org-e-man-quote-block)
+    (quote-section . org-e-man-quote-section)
+    (radio-target . org-e-man-radio-target)
+    (section . org-e-man-section)
+    (special-block . org-e-man-special-block)
+    (src-block . org-e-man-src-block)
+    (statistics-cookie . org-e-man-statistics-cookie)
+    (strike-through . org-e-man-strike-through)
+    (subscript . org-e-man-subscript)
+    (superscript . org-e-man-superscript)
+    (table . org-e-man-table)
+    (table-cell . org-e-man-table-cell)
+    (table-row . org-e-man-table-row)
+    (target . org-e-man-target)
+    (template . org-e-man-template)
+    (timestamp . org-e-man-timestamp)
+    (underline . org-e-man-underline)
+    (verbatim . org-e-man-verbatim)
+    (verse-block . org-e-man-verse-block))
   "Alist between element or object types and translators.")
 
-(defconst org-groff-man-options-alist
+(defconst org-e-man-options-alist
   '((:date "DATE" nil nil t)
     (:man-class "MAN_CLASS" nil nil t)
     (:man-class-options "MAN_CLASS_OPTIONS" nil nil t)
@@ -118,7 +118,7 @@ structure of the values.")
 
 ;;; User Configurable Variables
 
-(defgroup org-export-groff-man nil
+(defgroup org-export-e-man nil
   "Options for exporting Org mode files to Man."
   :tag "Org Export Man"
   :group 'org-export)
@@ -126,24 +126,24 @@ structure of the values.")
 ;;; Tables
 
 
-(defcustom org-groff-man-tables-centered t
+(defcustom org-e-man-tables-centered t
   "When non-nil, tables are exported in a center environment."
-  :group 'org-export-groff-man
+  :group 'org-export-e-man
   :type 'boolean)
 
-(defcustom org-groff-man-tables-verbatim nil
+(defcustom org-e-man-tables-verbatim nil
   "When non-nil, tables are exported verbatim."
-  :group 'org-export-groff-man
+  :group 'org-export-e-man
   :type 'boolean)
 
 
-(defcustom org-groff-man-table-scientific-notation "%sE%s"
+(defcustom org-e-man-table-scientific-notation "%sE%s"
   "Format string to display numbers in scientific notation.
 The format should have \"%s\" twice, for mantissa and exponent
 \(i.e. \"%s\\\\times10^{%s}\").
 
 When nil, no transformation is made."
-  :group 'org-export-groff-man
+  :group 'org-export-e-man
   :type '(choice
           (string :tag "Format string")
           (const :tag "No formatting")))
@@ -152,13 +152,13 @@ When nil, no transformation is made."
 ;;; Inlinetasks
 ;; Src blocks
 
-(defcustom org-groff-man-source-highlight nil
+(defcustom org-e-man-source-highlight nil
   "Use GNU source highlight to embellish source blocks "
-  :group 'org-export-groff-man
+  :group 'org-export-e-man
   :type 'boolean)
 
 
-(defcustom org-groff-man-source-highlight-langs
+(defcustom org-e-man-source-highlight-langs
   '((emacs-lisp "lisp") (lisp "lisp") (clojure "lisp")
     (scheme "scheme")
     (c "c") (cc "cpp") (csharp "csharp") (d "d")
@@ -183,7 +183,7 @@ The value is the string that should be inserted as the language
 parameter for the listings package.  If the mode name and the
 listings name are the same, the language does not need an entry
 in this list - but it does not hurt if it is present."
-  :group 'org-export-groff-man
+  :group 'org-export-e-man
   :type '(repeat
           (list
            (symbol :tag "Major mode       ")
@@ -191,13 +191,13 @@ in this list - but it does not hurt if it is present."
 
 
 
-(defvar org-groff-man-custom-lang-environments nil
+(defvar org-e-man-custom-lang-environments nil
   "Alist mapping languages to language-specific Man environments.
 
 It is used during export of src blocks by the listings and
 man packages.  For example,
 
-  \(setq org-groff-man-custom-lang-environments
+  \(setq org-e-man-custom-lang-environments
      '\(\(python \"pythoncode\"\)\)\)
 
 would have the effect that if org encounters begin_src python
@@ -209,7 +209,7 @@ during man export."
 
 ;;; Plain text
 
-(defcustom org-groff-man-quotes
+(defcustom org-e-man-quotes
   '(("fr"
      ("\\(\\s-\\|[[(]\\|^\\)\"" . "«~")
      ("\\(\\S-\\)\"" . "~»")
@@ -230,7 +230,7 @@ The CDR of each item in this alist is a list of three CONS:
 For each item in a CONS, the first string is a regexp
 for allowed characters before/after the quote, the second
 string defines the replacement string for this quote."
-  :group 'org-export-groff-man
+  :group 'org-export-e-man
   :type '(list
           (cons :tag "Opening quote"
                 (string :tag "Regexp for char before")
@@ -245,7 +245,7 @@ string defines the replacement string for this quote."
 
 ;;; Compilation
 
-(defcustom org-groff-man-pdf-process
+(defcustom org-e-man-pdf-process
   '("tbl %f | eqn | groff -man | ps2pdf - > %b.pdf"
     "tbl %f | eqn | groff -man | ps2pdf - > %b.pdf"
     "tbl %f | eqn | groff -man | ps2pdf - > %b.pdf")
@@ -275,16 +275,16 @@ its single argument."
                   "tbl %f | eqn | groff -mm | ps2pdf - > %b.pdf"))
           (function)))
 
-(defcustom org-groff-man-logfiles-extensions
+(defcustom org-e-man-logfiles-extensions
   '("log" "out" "toc")
   "The list of file extensions to consider as Man logfiles."
-  :group 'org-export-groff-man
+  :group 'org-export-e-man
   :type '(repeat (string :tag "Extension")))
 
-(defcustom org-groff-man-remove-logfiles t
+(defcustom org-e-man-remove-logfiles t
   "Non-nil means remove the logfiles produced by PDF production.
 These are the .aux, .log, .out, and .toc files."
-  :group 'org-export-groff-man
+  :group 'org-export-e-man
   :type 'boolean)
 
 
@@ -302,7 +302,7 @@ These are the .aux, .log, .out, and .toc files."
 ;;; Internal Functions
 
 
-(defun org-groff-man--caption/label-string (caption label info)
+(defun org-e-man--caption/label-string (caption label info)
   "Return caption and label Man string for floats.
 
 CAPTION is a cons cell of secondary strings, the car being the
@@ -312,7 +312,7 @@ information.
 
 If there's no caption nor label, return the empty string.
 
-For non-floats, see `org-groff-man--wrap-label'."
+For non-floats, see `org-e-man--wrap-label'."
   (let ((label-str "" ))
     (cond
      ((and (not caption) (not label)) "")
@@ -329,7 +329,7 @@ For non-floats, see `org-groff-man--wrap-label'."
 
 
 
-(defun org-groff-man--quotation-marks (text info)
+(defun org-e-man--quotation-marks (text info)
   "Export quotation marks depending on language conventions.
 TEXT is a string containing quotation marks to be replaced.  INFO
 is a plist used as a communication channel."
@@ -338,14 +338,14 @@ is a plist used as a communication channel."
             (while (setq start (string-match (car l) text start))
               (let ((new-quote (concat (match-string 1 text) (cdr l))))
                 (setq text (replace-match new-quote  t t text))))))
-        (cdr (or (assoc (plist-get info :language) org-groff-man-quotes)
+        (cdr (or (assoc (plist-get info :language) org-e-man-quotes)
                  ;; Falls back on English.
-                 (assoc "en" org-groff-man-quotes)))) text)
+                 (assoc "en" org-e-man-quotes)))) text)
 
-(defun org-groff-man--wrap-label (element output)
+(defun org-e-man--wrap-label (element output)
   "Wrap label associated to ELEMENT around OUTPUT, if appropriate.
 This function shouldn't be used for floats.  See
-`org-groff-man--caption/label-string'."
+`org-e-man--caption/label-string'."
   (let ((label (org-element-property :name element)))
     (if (or (not output) (not label) (string= output "") (string= label ""))
         output
@@ -354,7 +354,7 @@ This function shouldn't be used for floats.  See
 
 ;;; Template
 
-(defun org-groff-man-template (contents info)
+(defun org-e-man-template (contents info)
   "Return complete document string after Man conversion.
 CONTENTS is the transcoded contents string.  INFO is a plist
 holding export options."
@@ -391,7 +391,7 @@ holding export options."
 
 ;;; Bold
 
-(defun org-groff-man-bold (bold contents info)
+(defun org-e-man-bold (bold contents info)
   "Transcode BOLD from Org to Man.
 CONTENTS is the text with bold markup.  INFO is a plist holding
 contextual information."
@@ -400,11 +400,11 @@ contextual information."
 
 ;;; Center Block
 
-(defun org-groff-man-center-block (center-block contents info)
+(defun org-e-man-center-block (center-block contents info)
   "Transcode a CENTER-BLOCK element from Org to Man.
 CONTENTS holds the contents of the center block.  INFO is a plist
 holding contextual information."
-  (org-groff-man--wrap-label
+  (org-e-man--wrap-label
    center-block
    (format ".ce %d\n.nf\n%s\n.fi"
            (- (length (split-string contents "\n")) 1 )
@@ -413,7 +413,7 @@ holding contextual information."
 
 ;;; Clock
 
-(defun org-groff-man-clock (clock contents info)
+(defun org-e-man-clock (clock contents info)
   "Transcode a CLOCK element from Org to Man.
 CONTENTS is nil.  INFO is a plist holding contextual
 information."
@@ -422,7 +422,7 @@ information."
 
 ;;; Code
 
-(defun org-groff-man-code (code contents info)
+(defun org-e-man-code (code contents info)
   "Transcode a CODE object from Org to Man.
 CONTENTS is nil.  INFO is a plist used as a communication
 channel."
@@ -441,7 +441,7 @@ channel."
 
 ;;; Drawer
 
-(defun org-groff-man-drawer (drawer contents info)
+(defun org-e-man-drawer (drawer contents info)
   "Transcode a DRAWER element from Org to Man.
    DRAWER holds the drawer information
    CONTENTS holds the contents of the block.
@@ -451,16 +451,16 @@ channel."
 
 ;;; Dynamic Block
 
-(defun org-groff-man-dynamic-block (dynamic-block contents info)
+(defun org-e-man-dynamic-block (dynamic-block contents info)
   "Transcode a DYNAMIC-BLOCK element from Org to Man.
 CONTENTS holds the contents of the block.  INFO is a plist
 holding contextual information.  See `org-export-data'."
-  (org-groff-man--wrap-label dynamic-block contents))
+  (org-e-man--wrap-label dynamic-block contents))
 
 
 ;;; Entity
 
-(defun org-groff-man-entity (entity contents info)
+(defun org-e-man-entity (entity contents info)
   "Transcode an ENTITY object from Org to Man.
 CONTENTS are the definition itself.  INFO is a plist holding
 contextual information."
@@ -469,17 +469,17 @@ contextual information."
 
 ;;; Example Block
 
-(defun org-groff-man-example-block (example-block contents info)
+(defun org-e-man-example-block (example-block contents info)
   "Transcode an EXAMPLE-BLOCK element from Org to Man.
 CONTENTS is nil.  INFO is a plist holding contextual
 information."
-  (org-groff-man--wrap-label
+  (org-e-man--wrap-label
    example-block
    (format ".RS\n.nf\n%s\n.fi\n.RE"
            (org-export-format-code-default example-block info))))
 ;;; Export Block
 
-(defun org-groff-man-export-block (export-block contents info)
+(defun org-e-man-export-block (export-block contents info)
   "Transcode a EXPORT-BLOCK element from Org to Man.
 CONTENTS is nil.  INFO is a plist holding contextual information."
   (when (string= (org-element-property :type export-block) "MAN")
@@ -488,19 +488,19 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 
 ;;; Export Snippet
 
-(defun org-groff-man-export-snippet (export-snippet contents info)
+(defun org-e-man-export-snippet (export-snippet contents info)
   "Transcode a EXPORT-SNIPPET object from Org to Man.
 CONTENTS is nil.  INFO is a plist holding contextual information."
-  (when (eq (org-export-snippet-backend export-snippet) 'groff-man)
+  (when (eq (org-export-snippet-backend export-snippet) 'e-man)
     (org-element-property :value export-snippet)))
 
 
 ;;; Fixed Width
 
-(defun org-groff-man-fixed-width (fixed-width contents info)
+(defun org-e-man-fixed-width (fixed-width contents info)
   "Transcode a FIXED-WIDTH element from Org to Man.
 CONTENTS is nil.  INFO is a plist holding contextual information."
-  (org-groff-man--wrap-label
+  (org-e-man--wrap-label
    fixed-width
    (format "\\fC\n%s\\fP"
            (org-remove-indentation
@@ -518,7 +518,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 
 ;;; Headline
 
-(defun org-groff-man-headline (headline contents info)
+(defun org-e-man-headline (headline contents info)
   "Transcode an HEADLINE element from Org to Man.
 CONTENTS holds the contents of the headline.  INFO is a plist
 holding contextual information."
@@ -571,13 +571,13 @@ holding contextual information."
 
 ;;; Inline Src Block
 
-(defun org-groff-man-inline-src-block (inline-src-block contents info)
+(defun org-e-man-inline-src-block (inline-src-block contents info)
   "Transcode an INLINE-SRC-BLOCK element from Org to Man.
 CONTENTS holds the contents of the item.  INFO is a plist holding
 contextual information."
   (let* ((code (org-element-property :value inline-src-block)))
     (cond
-     (org-groff-man-source-highlight
+     (org-e-man-source-highlight
       (let* ((tmpdir (if (featurep 'xemacs)
                          temp-directory
                        temporary-file-directory ))
@@ -587,7 +587,7 @@ contextual information."
                         (expand-file-name "reshilite" tmpdir)))
              (org-lang (org-element-property :language inline-src-block))
              (lst-lang (cadr (assq (intern org-lang)
-                                   org-groff-man-source-highlight-langs)))
+                                   org-e-man-source-highlight-langs)))
 
              (cmd (concat (expand-file-name "source-highlight")
                           " -s " lst-lang
@@ -615,7 +615,7 @@ contextual information."
 ;;; Inlinetask
 ;;; Italic
 
-(defun org-groff-man-italic (italic contents info)
+(defun org-e-man-italic (italic contents info)
   "Transcode ITALIC from Org to Man.
 CONTENTS is the text with italic markup.  INFO is a plist holding
 contextual information."
@@ -625,7 +625,7 @@ contextual information."
 ;;; Item
 
 
-(defun org-groff-man-item (item contents info)
+(defun org-e-man-item (item contents info)
 
   "Transcode an ITEM element from Org to Man.
 CONTENTS holds the contents of the item.  INFO is a plist holding
@@ -661,7 +661,7 @@ contextual information."
 ;;; Keyword
 
 
-(defun org-groff-man-keyword (keyword contents info)
+(defun org-e-man-keyword (keyword contents info)
   "Transcode a KEYWORD element from Org to Man.
 CONTENTS is nil.  INFO is a plist holding contextual information."
   (let ((key (org-element-property :key keyword))
@@ -676,7 +676,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 
 ;;; Man Environment
 
-(defun org-groff-man-man-environment (man-environment contents info)
+(defun org-e-man-man-environment (man-environment contents info)
   "Transcode a MAN-ENVIRONMENT element from Org to Man.
 CONTENTS is nil.  INFO is a plist holding contextual information."
   (let ((label (org-element-property :name man-environment))
@@ -696,7 +696,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 
 ;;; Man Fragment
 
-(defun org-groff-man-man-fragment (man-fragment contents info)
+(defun org-e-man-man-fragment (man-fragment contents info)
   "Transcode a MAN-FRAGMENT object from Org to Man.
 CONTENTS is nil.  INFO is a plist holding contextual information."
   (org-element-property :value man-fragment))
@@ -704,7 +704,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 
 ;;; Line Break
 
-(defun org-groff-man-line-break (line-break contents info)
+(defun org-e-man-line-break (line-break contents info)
   "Transcode a LINE-BREAK object from Org to Man.
 CONTENTS is nil.  INFO is a plist holding contextual information."
   ".br\n")
@@ -713,7 +713,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 ;;; Link
 
 
-(defun org-groff-man-link (link desc info)
+(defun org-e-man-link (link desc info)
   "Transcode a LINK object from Org to Man.
 
 DESC is the description part of the link, or the empty string.
@@ -746,7 +746,7 @@ INFO is a plist holding contextual information.  See
 
 ;;; Macro
 
-(defun org-groff-man-macro (macro contents info)
+(defun org-e-man-macro (macro contents info)
   "Transcode a MACRO element from Org to Man.
 CONTENTS is nil.  INFO is a plist holding contextual information."
   ;; Use available tools.
@@ -755,7 +755,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 
 ;;; Paragraph
 
-(defun org-groff-man-paragraph (paragraph contents info)
+(defun org-e-man-paragraph (paragraph contents info)
   "Transcode a PARAGRAPH element from Org to Man.
 CONTENTS is the contents of the paragraph, as a string.  INFO is
 the plist used as a communication channel."
@@ -776,7 +776,7 @@ the plist used as a communication channel."
 
 ;;; Plain List
 
-(defun org-groff-man-plain-list (plain-list contents info)
+(defun org-e-man-plain-list (plain-list contents info)
   "Transcode a PLAIN-LIST element from Org to Man.
 CONTENTS is the contents of the list.  INFO is a plist holding
 contextual information."
@@ -784,7 +784,7 @@ contextual information."
 
 ;;; Plain Text
 
-(defun org-groff-man-plain-text (text info)
+(defun org-e-man-plain-text (text info)
   "Transcode a TEXT string from Org to Man.
 TEXT is the string to transcode.  INFO is a plist holding
 contextual information."
@@ -794,7 +794,7 @@ contextual information."
               "$\\" text nil t 1))
 
   ;; Handle quotation marks
-  (setq text (org-groff-man--quotation-marks text info))
+  (setq text (org-e-man--quotation-marks text info))
 
   ;; Handle break preservation if required.
 
@@ -814,17 +814,17 @@ contextual information."
 
 ;;; Quote Block
 
-(defun org-groff-man-quote-block (quote-block contents info)
+(defun org-e-man-quote-block (quote-block contents info)
   "Transcode a QUOTE-BLOCK element from Org to Man.
 CONTENTS holds the contents of the block.  INFO is a plist
 holding contextual information."
-  (org-groff-man--wrap-label
+  (org-e-man--wrap-label
    quote-block
    (format ".RS\n%s\n.RE" contents)))
 
 ;;; Quote Section
 
-(defun org-groff-man-quote-section (quote-section contents info)
+(defun org-e-man-quote-section (quote-section contents info)
   "Transcode a QUOTE-SECTION element from Org to Man.
 CONTENTS is nil.  INFO is a plist holding contextual information."
   (let ((value (org-remove-indentation
@@ -834,7 +834,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 
 ;;; Radio Target
 
-(defun org-groff-man-radio-target (radio-target text info)
+(defun org-e-man-radio-target (radio-target text info)
   "Transcode a RADIO-TARGET object from Org to Man.
 TEXT is the text of the target.  INFO is a plist holding
 contextual information."
@@ -843,7 +843,7 @@ contextual information."
 
 ;;; Section
 
-(defun org-groff-man-section (section contents info)
+(defun org-e-man-section (section contents info)
   "Transcode a SECTION element from Org to Man.
 CONTENTS holds the contents of the section.  INFO is a plist
 holding contextual information."
@@ -852,19 +852,19 @@ holding contextual information."
 
 ;;; Special Block
 
-(defun org-groff-man-special-block (special-block contents info)
+(defun org-e-man-special-block (special-block contents info)
   "Transcode a SPECIAL-BLOCK element from Org to Man.
 CONTENTS holds the contents of the block.  INFO is a plist
 holding contextual information."
   (let ((type (downcase (org-element-property :type special-block))))
-    (org-groff-man--wrap-label
+    (org-e-man--wrap-label
      special-block
      (format "%s\n" contents))))
 
 
 ;;; Src Block
 
-(defun org-groff-man-src-block (src-block contents info)
+(defun org-e-man-src-block (src-block contents info)
   "Transcode a SRC-BLOCK element from Org to Man.
 CONTENTS holds the contents of the item.  INFO is a plist holding
 contextual information."
@@ -875,19 +875,19 @@ contextual information."
          (code (org-element-property :value src-block))
          (custom-env (and lang
                           (cadr (assq (intern lang)
-                                      org-groff-man-custom-lang-environments))))
+                                      org-e-man-custom-lang-environments))))
          (num-start (case (org-element-property :number-lines src-block)
                       (continued (org-export-get-loc src-block info))
                       (new 0)))
          (retain-labels (org-element-property :retain-labels src-block)))
     (cond
      ;; Case 1.  No source fontification.
-     ((not org-groff-man-source-highlight)
-      (let ((caption-str (org-groff-man--caption/label-string caption label info)))
+     ((not org-e-man-source-highlight)
+      (let ((caption-str (org-e-man--caption/label-string caption label info)))
          (concat
           (format ".RS\n.nf\n\\fC%s\\fP\n.fi\n.RE\n\n"
                   (org-export-format-code-default src-block info)))))
-     ( (and org-groff-man-source-highlight)
+     ( (and org-e-man-source-highlight)
        (let* ((tmpdir (if (featurep 'xemacs)
                           temp-directory
                         temporary-file-directory ))
@@ -899,7 +899,7 @@ contextual information."
 
               (org-lang (org-element-property :language src-block))
               (lst-lang (cadr (assq (intern org-lang)
-                                    org-groff-man-source-highlight-langs)))
+                                    org-e-man-source-highlight-langs)))
 
               (cmd (concat "source-highlight"
                            " -s " lst-lang
@@ -921,7 +921,7 @@ contextual information."
 
 ;;; Statistics Cookie
 
-(defun org-groff-man-statistics-cookie (statistics-cookie contents info)
+(defun org-e-man-statistics-cookie (statistics-cookie contents info)
   "Transcode a STATISTICS-COOKIE object from Org to Man.
 CONTENTS is nil.  INFO is a plist holding contextual information."
   (org-element-property :value statistics-cookie))
@@ -929,7 +929,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 
 ;;; Strike-Through
 
-(defun org-groff-man-strike-through (strike-through contents info)
+(defun org-e-man-strike-through (strike-through contents info)
   "Transcode STRIKE-THROUGH from Org to Man.
 CONTENTS is the text with strike-through markup.  INFO is a plist
 holding contextual information."
@@ -937,7 +937,7 @@ holding contextual information."
 
 ;;; Subscript
 
-(defun org-groff-man-subscript (subscript contents info)
+(defun org-e-man-subscript (subscript contents info)
   "Transcode a SUBSCRIPT object from Org to Man.
 CONTENTS is the contents of the object.  INFO is a plist holding
 contextual information."
@@ -945,7 +945,7 @@ contextual information."
 
 ;;; Superscript "^_%s$
 
-(defun org-groff-man-superscript (superscript contents info)
+(defun org-e-man-superscript (superscript contents info)
   "Transcode a SUPERSCRIPT object from Org to Man.
 CONTENTS is the contents of the object.  INFO is a plist holding
 contextual information."
@@ -954,22 +954,22 @@ contextual information."
 
 ;;; Table
 ;;
-;; `org-groff-man-table' is the entry point for table transcoding.  It
+;; `org-e-man-table' is the entry point for table transcoding.  It
 ;; takes care of tables with a "verbatim" attribute.  Otherwise, it
-;; delegates the job to either `org-groff-man-table--table.el-table' or
-;; `org-groff-man-table--org-table' functions, depending of the type of
+;; delegates the job to either `org-e-man-table--table.el-table' or
+;; `org-e-man-table--org-table' functions, depending of the type of
 ;; the table.
 ;;
-;; `org-groff-man-table--align-string' is a subroutine used to build
+;; `org-e-man-table--align-string' is a subroutine used to build
 ;; alignment string for Org tables.
 
-(defun org-groff-man-table (table contents info)
+(defun org-e-man-table (table contents info)
   "Transcode a TABLE element from Org to Man.
 CONTENTS is the contents of the table.  INFO is a plist holding
 contextual information."
   (cond
    ;; Case 1: verbatim table.
-   ((or org-groff-man-tables-verbatim
+   ((or org-e-man-tables-verbatim
         (let ((attr (read (format "(%s)"
                  (mapconcat
                   #'identity
@@ -984,9 +984,9 @@ contextual information."
              (org-element-interpret-data
               `(table nil ,@(org-element-contents table))))))
    ;; Case 2: Standard table.
-   (t (org-groff-man-table--org-table table contents info))))
+   (t (org-e-man-table--org-table table contents info))))
 
-(defun org-groff-man-table--align-string (divider table info)
+(defun org-e-man-table--align-string (divider table info)
   "Return an appropriate Man alignment string.
 TABLE is the considered table.  INFO is a plist used as
 a communication channel."
@@ -1019,7 +1019,7 @@ a communication channel."
        info)
       (apply 'concat (reverse alignment))))
 
-(defun org-groff-man-table--org-table (table contents info)
+(defun org-e-man-table--org-table (table contents info)
   "Return appropriate Man code for an Org table.
 
 TABLE is the table type element to transcode.  CONTENTS is its
@@ -1028,7 +1028,7 @@ channel.
 
 This function assumes TABLE has `org' as its `:type' attribute."
   (let* ((label (org-element-property :name table))
-         (caption (org-groff-man--caption/label-string
+         (caption (org-e-man--caption/label-string
                    (org-element-property :caption table) label info))
          (attr (read
            (format "(%s)"
@@ -1042,7 +1042,7 @@ This function assumes TABLE has `org' as its `:type' attribute."
                     " "))
 
          ;; Determine alignment string.
-         (alignment (org-groff-man-table--align-string divider table info))
+         (alignment (org-e-man-table--align-string divider table info))
          ;; Extract others display options.
 
          (lines (org-split-string contents "\n"))
@@ -1058,7 +1058,7 @@ This function assumes TABLE has `org' as its `:type' attribute."
                         ('center "center")
                         ('left nil)
                         (t
-                         (if org-groff-man-tables-centered
+                         (if org-e-man-tables-centered
                              "center" "")))
 
                       (case (plist-get attr :boxtype)
@@ -1144,16 +1144,16 @@ This function assumes TABLE has `org' as its `:type' attribute."
 
 ;;; Table Cell
 
-(defun org-groff-man-table-cell (table-cell contents info)
+(defun org-e-man-table-cell (table-cell contents info)
   "Transcode a TABLE-CELL element from Org to Man
 CONTENTS is the cell contents.  INFO is a plist used as
 a communication channel."
     (concat (if (and contents
-                     org-groff-man-table-scientific-notation
+                     org-e-man-table-scientific-notation
                      (string-match orgtbl-exp-regexp contents))
                 ;; Use appropriate format string for scientific
                 ;; notation.
-              (format org-groff-man-table-scientific-notation
+              (format org-e-man-table-scientific-notation
                         (match-string 1 contents)
                         (match-string 2 contents))
               contents )
@@ -1162,7 +1162,7 @@ a communication channel."
 
 ;;; Table Row
 
-(defun org-groff-man-table-row (table-row contents info)
+(defun org-e-man-table-row (table-row contents info)
   "Transcode a TABLE-ROW element from Org to Man
 CONTENTS is the contents of the row.  INFO is a plist used as
 a communication channel."
@@ -1191,7 +1191,7 @@ a communication channel."
 
 ;;; Target
 
-(defun org-groff-man-target (target contents info)
+(defun org-e-man-target (target contents info)
   "Transcode a TARGET object from Org to Man.
 CONTENTS is nil.  INFO is a plist holding contextual
 information."
@@ -1201,7 +1201,7 @@ information."
 
 ;;; Timestamp
 
-(defun org-groff-man-timestamp (timestamp contents info)
+(defun org-e-man-timestamp (timestamp contents info)
   "Transcode a TIMESTAMP object from Org to Man.
   CONTENTS is nil.  INFO is a plist holding contextual
   information."
@@ -1210,7 +1210,7 @@ information."
 
 ;;; Underline
 
-(defun org-groff-man-underline (underline contents info)
+(defun org-e-man-underline (underline contents info)
   "Transcode UNDERLINE from Org to Man.
 CONTENTS is the text with underline markup.  INFO is a plist
 holding contextual information."
@@ -1219,7 +1219,7 @@ holding contextual information."
 
 ;;; Verbatim
 
-(defun org-groff-man-verbatim (verbatim contents info)
+(defun org-e-man-verbatim (verbatim contents info)
   "Transcode a VERBATIM object from Org to Man.
 CONTENTS is nil.  INFO is a plist used as a communication
 channel."
@@ -1228,7 +1228,7 @@ channel."
 
 ;;; Verse Block
 
-(defun org-groff-man-verse-block (verse-block contents info)
+(defun org-e-man-verse-block (verse-block contents info)
   "Transcode a VERSE-BLOCK element from Org to Man.
 CONTENTS is verse block contents. INFO is a plist holding
 contextual information."
@@ -1238,7 +1238,7 @@ contextual information."
 
 ;;; Interactive functions
 
-(defun org-groff-man-export-to-man
+(defun org-e-man-export-to-man
   (&optional subtreep visible-only body-only ext-plist pub-dir)
   "Export current buffer to a Man file.
 
@@ -1268,9 +1268,9 @@ Return output file's name."
   (interactive)
   (let ((outfile (org-export-output-file-name ".man"  subtreep pub-dir)))
     (org-export-to-file
-     'groff-man outfile subtreep visible-only body-only ext-plist)))
+     'e-man outfile subtreep visible-only body-only ext-plist)))
 
-(defun org-groff-man-export-to-pdf
+(defun org-e-man-export-to-pdf
   (&optional subtreep visible-only body-only ext-plist pub-dir)
   "Export current buffer to Groff then process through to PDF.
 
@@ -1298,15 +1298,15 @@ directory.
 
 Return PDF file's name."
   (interactive)
-  (org-groff-man-compile
-   (org-groff-man-export-to-man
+  (org-e-man-compile
+   (org-e-man-export-to-man
     subtreep visible-only body-only ext-plist pub-dir)))
 
-(defun org-groff-man-compile (grofffile)
+(defun org-e-man-compile (grofffile)
   "Compile a Groff file.
 
 GROFFFILE is the name of the file being compiled.  Processing is
-done through the command specified in `org-groff-man-pdf-process'.
+done through the command specified in `org-e-man-pdf-process'.
 
 Return PDF file name or an error if it couldn't be produced."
   (let* ((wconfig (current-window-configuration))
@@ -1318,12 +1318,12 @@ Return PDF file name or an error if it couldn't be produced."
         (progn
           (cond
            ;; A function is provided: Apply it.
-           ((functionp org-groff-man-pdf-process)
-            (funcall org-groff-man-pdf-process (shell-quote-argument grofffile)))
+           ((functionp org-e-man-pdf-process)
+            (funcall org-e-man-pdf-process (shell-quote-argument grofffile)))
            ;; A list is provided: Replace %b, %f and %o with appropriate
            ;; values in each command before applying it.  Output is
            ;; redirected to "*Org PDF Groff Output*" buffer.
-           ((consp org-groff-man-pdf-process)
+           ((consp org-e-man-pdf-process)
             (let* ((out-dir (or (file-name-directory grofffile) "./"))
                    (outbuf (get-buffer-create "*Org PDF Groff Output*")))
               (mapc
@@ -1336,9 +1336,9 @@ Return PDF file name or an error if it couldn't be produced."
                     (replace-regexp-in-string
                      "%o" (shell-quote-argument out-dir) command t t) t t) t t)
                   outbuf))
-               org-groff-man-pdf-process)
+               org-e-man-pdf-process)
               ;; Collect standard errors from output buffer.
-              (setq errors (org-groff-man-collect-errors outbuf))))
+              (setq errors (org-e-man-collect-errors outbuf))))
            (t (error "No valid command to process to PDF")))
           (let ((pdffile (concat base ".pdf")))
             ;; Check for process failure.  Provide collected errors if
@@ -1348,8 +1348,8 @@ Return PDF file name or an error if it couldn't be produced."
                                (when errors (concat ": " errors))))
               ;; Else remove log files, when specified, and signal end of
               ;; process to user, along with any error encountered.
-              (when org-groff-man-remove-logfiles
-                (dolist (ext org-groff-man-logfiles-extensions)
+              (when org-e-man-remove-logfiles
+                (dolist (ext org-e-man-logfiles-extensions)
                   (let ((file (concat base "." ext)))
                     (when (file-exists-p file) (delete-file file)))))
               (message (concat "Process completed"
@@ -1359,7 +1359,7 @@ Return PDF file name or an error if it couldn't be produced."
             pdffile))
       (set-window-configuration wconfig))))
 
-(defun org-groff-man-collect-errors (buffer)
+(defun org-e-man-collect-errors (buffer)
   "Collect some kind of errors from \"groff\" output
 BUFFER is the buffer containing output.
 Return collected error types as a string, or nil if there was
@@ -1371,5 +1371,5 @@ none."
       nil )))
 
 
-(provide 'org-groff-man)
-;;; org-groff-man.el ends here
+(provide 'org-e-man)
+;;; org-e-man.el ends here
