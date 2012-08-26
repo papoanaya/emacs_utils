@@ -1330,6 +1330,7 @@ used as a communication channel."
        (format "\n.PS\ncopy \"%s\"\n.PE" path))
       (t (format "\n.DS L F\n.PSPIC %s \"%s\" %s %s\n.DE "
                  placement path width height)))
+
      (unless disable-caption (format "\n.FG \"%s\"" caption)))))
 
 (defun org-e-groff-link (link desc info)

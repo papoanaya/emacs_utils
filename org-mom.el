@@ -217,8 +217,8 @@ order to reproduce the default set-up:
 
 
 (defcustom org-groff-mom-inline-image-rules
-  '(("file" . "\\.\\(pdf\\|ps\\|eps\\|pic\\)\\'")
-    ("fuzzy" . "\\.\\(pdf\\|ps\\|eps\\|pic\\)\\'"))
+  '(("file" . "\\.\\(jpg\\|png\\|pdf\\|ps\\|eps\\|pic\\)\\'")
+    ("fuzzy" . "\\.\\(jpg\\|png\\|pdf\\|ps\\|eps\\|pic\\)\\'"))
   "Rules characterizing image files that can be inlined into Mom.
 
 A rule consists in an association whose key is the type of link
@@ -525,6 +525,14 @@ filled mode is used."
 filled mode is used."
   :group 'org-export-groff-mom
   :type 'string)
+
+
+
+(defcustom org-e-groff-raster-to-ps "a=%s;b=%s;sam2p ${a} ${b} ;grep -v BeginData ${b} > b_${b};mv b_${b} ${b}"
+  "Command used to convert raster to EPS. Nil for no conversion"
+  :group 'org-export-e-groff
+  :type 'string
+)
 
 
 
@@ -1290,10 +1298,20 @@ used as a communication channel."
 
     (concat
      (cond
+      ((and org-e-groff-raster-to-ps
+            (or  (string-match ".\.png$" path) 
+                 (string-match ".\.jpg$" path)))
+       (let ((eps-path (concat path ".eps")))
+         (shell-command (format org-groff-mom-raster-to-ps path eps-path))
+         (format "\n.QUAD LEFT\n.PSPIC %s \"%s\" %s %s\n%s"
+                 placement eps-path width height  org-groff-mom-default-quad)))
       ((string-match ".\.pic$" path)
-       (format "\n.PS\ncopy \"%s\"\n.PE" path ))
+       (format "\n.PS\ncopy \"%s\"\n.PE" path))
       (t (format "\n.QUAD LEFT\n.PSPIC %s \"%s\" %s %s\n%s"
-                 placement path width height org-groff-mom-default-quad)))
+                 placement path width height org-groff-mom-default-quad))
+)
+
+     
      (unless disable-caption 
        (format "\n.CENTER\n%s\n%s" caption org-groff-mom-default-quad)))))
 
