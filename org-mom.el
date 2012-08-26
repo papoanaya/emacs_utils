@@ -528,7 +528,7 @@ filled mode is used."
 
 
 
-(defcustom org-e-groff-raster-to-ps "a=%s;b=%s;sam2p ${a} ${b} ;grep -v BeginData ${b} > b_${b};mv b_${b} ${b}"
+(defcustom org-groff-mom-raster-to-ps "a=%s;b=%s;sam2p ${a} ${b} ;grep -v BeginData ${b} > b_${b};mv b_${b} ${b}"
   "Command used to convert raster to EPS. Nil for no conversion"
   :group 'org-export-e-groff
   :type 'string
@@ -731,7 +731,9 @@ holding export options."
                          (org-element-map
                           (plist-get info :parse-tree) 'headline 
                           #'identity info)))
-         (numberedp (org-export-numbered-headline-p headline-type info)))
+         (numberedp (if headline-type  
+                        (org-export-numbered-headline-p headline-type info)
+                      nil)))
 
     (concat
      (cond
@@ -1298,7 +1300,7 @@ used as a communication channel."
 
     (concat
      (cond
-      ((and org-e-groff-raster-to-ps
+      ((and org-groff-mom-raster-to-ps
             (or  (string-match ".\.png$" path) 
                  (string-match ".\.jpg$" path)))
        (let ((eps-path (concat path ".eps")))
@@ -1308,10 +1310,8 @@ used as a communication channel."
       ((string-match ".\.pic$" path)
        (format "\n.PS\ncopy \"%s\"\n.PE" path))
       (t (format "\n.QUAD LEFT\n.PSPIC %s \"%s\" %s %s\n%s"
-                 placement path width height org-groff-mom-default-quad))
-)
+                 placement path width height org-groff-mom-default-quad)))
 
-     
      (unless disable-caption 
        (format "\n.CENTER\n%s\n%s" caption org-groff-mom-default-quad)))))
 
