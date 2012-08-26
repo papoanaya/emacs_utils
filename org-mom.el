@@ -739,8 +739,9 @@ holding export options."
         document-class-string "\n"
         (concat ".DOCTYPE " type-option "\n")
         (concat ".PAPER " paper-option "\n")
-        (org-groff-mom--mt-head title contents attr info))
-        ".START\n")
+        (org-groff-mom--mt-head title contents attr info)
+        ".START\n"))
+        
       ((string= type-option "LETTER")
        (concat
         (let ((sa-item (plist-get attr :salutation)))
