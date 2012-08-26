@@ -235,8 +235,8 @@ order to reproduce the default set-up:
 ;;; Links
 
 (defcustom org-e-groff-inline-image-rules
-  '(("file" . "\\.\\(pdf\\|ps\\|eps\\|pic\\)\\'")
-    ("fuzzy" . "\\.\\(pdf\\|ps\\|eps\\|pic\\)\\'"))
+  '(("file" . "\\.\\(jpg\\|png\\|pdf\\|ps\\|eps\\|pic\\)\\'")
+    ("fuzzy" . "\\.\\(jpg\\|png\\|pdf\\|ps\\|eps\\|pic\\)\\'"))
   "Rules characterizing image files that can be inlined into Groff.
 
 A rule consists in an association whose key is the type of link
@@ -519,6 +519,13 @@ These are the .aux, .log, .out, and .toc files."
   "Name of the organization used to populate the .AF command."
   :group 'org-export-e-groff
   :type 'string)
+
+
+(defcustom org-e-groff-raster-to-ps "a=%s;b=%s;sam2p ${a} ${b} ;grep -v BeginData ${b} > b_${b};mv b_${b} ${b}"
+  "Command used to convert raster to EPS. Nil for no conversion"
+  :group 'org-export-e-groff
+  :type 'string
+)
 
 
 ;; Adding GROFF as a block parser to make sure that its contents
@@ -1310,9 +1317,15 @@ used as a communication channel."
 
     ;; Now clear ATTR from any special keyword and set a default value
     ;; if nothing is left.  Return proper string.
-
     (concat
      (cond
+      ((and org-e-groff-raster-to-ps
+            (or  (string-match ".\.png$" path) 
+                 (string-match ".\.jpg$" path)))
+       (let ((eps-path (concat path ".eps")))
+         (shell-command (format org-e-groff-raster-to-ps path eps-path))
+         (format "\n.DS L F\n.PSPIC %s \"%s\" %s %s\n.DE "
+                 placement eps-path width height)))
       ((string-match ".\.pic$" path)
        (format "\n.PS\ncopy \"%s\"\n.PE" path))
       (t (format "\n.DS L F\n.PSPIC %s \"%s\" %s %s\n.DE "
