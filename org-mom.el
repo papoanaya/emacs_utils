@@ -142,11 +142,6 @@ structure of the values.")
 
     ("none" "" (:heading 'default :type "custom")))
 
-  ;; none means, no Cover or Memorandum Type and no calls to AU, AT, ND and TL
-  ;; This is to facilitate the creation of custom pages.
-
-  ;; dummy means, no Cover or Memorandum Type but calls to AU, AT, ND and TL
-  ;; are made. This is to facilitate Abstract Insertion.
 
   "This list describes the attributes for the documents being created.
    It allows for the creation of new "
@@ -522,7 +517,16 @@ These are the .aux, .log, .out, and .toc files."
   "Defines default justification to be used after a non
 filled mode is used."
   :group 'org-export-groff-mom
-  :type 'boolean)
+  :type 'string)
+
+
+(defcustom org-groff-mom-default-closing "Sincerely yours,"
+  "Defines default justification to be used after a non
+filled mode is used."
+  :group 'org-export-groff-mom
+  :type 'string)
+
+
 
 ;; Preamble
 
@@ -621,7 +625,6 @@ See `org-groff-mom-text-markup-alist' for details."
 (defun org-groff-mom--mt-head (title contents attr info)
   (concat
 
-
    ;; 2. Title
    (let ((subtitle1 (plist-get attr :subtitle1))
          (subtitle2 (plist-get attr :subtitle2)))
@@ -639,36 +642,7 @@ See `org-groff-mom-text-markup-alist' for details."
        (format ".TITLE \"%s\" \"%s\"\n.SUBTITLE \"%s\"\n"
                title
                (or subtitle1 "")
-               (or subtitle2 "")))))
-   ;; 3. Author.
-   (let ((author (and (plist-get info :with-author)
-                      (let ((auth (plist-get info :author)))
-                        (and auth (org-export-data auth info)))))
-         (email (and (plist-get info :with-email)
-                     (org-export-data (plist-get info :email) info)))
-         (from-data  (org-groff-mom--get-tagged-content "FROM" info))
-
-         (to-data  (org-groff-mom--get-tagged-content "TO" info)))
-
-     (cond
-      ((and author from-data)
-       (let ((au-line
-              (mapconcat
-               (lambda (from-line)
-                 (format " \"%s\" " from-line))
-               (split-string
-                (setq from-data
-                      (replace-regexp-in-string "\\.PP\n" "" from-data)) "\n") "" )))
-
-         (concat
-          (format ".AUTHOR \"%s\" " author) au-line "\n")))
-
-      ((and author email (not (string= "" email)))
-       (format ".AUTHOR \"%s\" \"%s\"\n" author email))
-
-      (author (format ".AUTHOR \"%s\"\n" author))
-
-      (t ".AUTHOR \"\" \n")))))
+               (or subtitle2 "")))))))
 
 
 (defun org-groff-mom--letter-head (title contents attr info)
@@ -681,26 +655,27 @@ See `org-groff-mom-text-markup-alist' for details."
         (at-item (plist-get attr :author-title)  )
         (to-data  (org-groff-mom--get-tagged-content "TO" info)))
 
-
     ;; If FROM then get data from FROM
-    (setq from-data
-          (replace-regexp-in-string "\\.PP\n" "" from-data))
 
-    (setq to-data
-          (replace-regexp-in-string "\\.PP\n" "" to-data))
-
+    (when from-data 
+      (setq from-data
+          (replace-regexp-in-string "\\.PP\n" "" from-data)))
+    
+    (when to-data
+      (setq to-data
+          (replace-regexp-in-string "\\.PP\n" "" to-data)))
 
     (concat
 
      (let ((date (org-export-data (plist-get info :date) info)))
-       (and date (format ".DATE \n%s\n.SP" date)))
+       (and date (format ".DATE \n%s\n.SP\n" date)))
 
      (cond
       (from-data
-       (format ".FROM\n%s\n%s\n.SP" author (or at-item "") from-data))
+       (format ".FROM\n%s\n.SP\n" from-data ))
       ((and author email (not (string= "" email)))
-       (format ".FROM\n%s\n%s\n.SP" author email))
-      (author (format ".FROM\n%s\n.SP" author))
+       (format ".FROM\n%s\n%s\n.SP\n" author email))
+      (author (format ".FROM\n%s\n.SP\n" author))
       (t ""))
 
      ;; If TO then get data from TO
@@ -716,6 +691,11 @@ See `org-groff-mom-text-markup-alist' for details."
 CONTENTS is the transcoded contents string.  INFO is a plist
 holding export options."
   (let* ((title (org-export-data (plist-get info :title) info))
+         (author (and (plist-get info :with-author)
+                      (let ((auth (plist-get info :author)))
+                        (and auth (org-export-data auth info)))))
+         (email (and (plist-get info :with-email)
+                     (org-export-data (plist-get info :email) info)))
          (attr (read
                 (format "(%s)"
                         (mapconcat
@@ -747,27 +727,35 @@ holding export options."
 
     (concat
      (cond
+      ((and author email (not (string= "" email)))
+       (format ".AUTHOR \"%s\" \"%s\"\n" author email))
+      (author (format ".AUTHOR \"%s\"\n" author))
+      (t ".AUTHOR \"\" \n"))
+
+     (cond
       ((string= type-option "CUSTOM") "")
       ((string= type-option "DEFAULT")
        (concat
-        (org-groff-mom--mt-head title contents attr info)
-        document-class-string
+        document-class-string "\n"
         (concat ".DOCTYPE " type-option "\n")
-        (concat ".PAPER " paper-option "\n")))
+        (concat ".PAPER " paper-option "\n")
+        (org-groff-mom--mt-head title contents attr info))
+        ".START\n")
       ((string= type-option "LETTER")
        (concat
-        (org-groff-mom--letter-head title contents attr info)
         (let ((sa-item (plist-get attr :salutation)))
-
           (concat
-
+           document-class-string  "\n"
+           (concat ".DOCTYPE " type-option "\n")
+           (concat ".PAPER " paper-option "\n")
+           ".START\n"
+           (org-groff-mom--letter-head title contents attr info)
            (if (stringp sa-item)
-               (format ".GREETINGS %s\n.SP\n"  sa-item) "\n")
-
-           ".LT " document-class-string  "\n"))))
+             (format ".GREETINGS\n%s\n.SP\n"  sa-item) 
+             (format ".GREETINGS\nTo whom it may concern,\n.SP\n"))
+           "\n" ))))
 
       (t ""))
-     ".START\n"
 
      (when numberedp 
        (concat 
@@ -787,7 +775,7 @@ holding export options."
        (let ((fc-item (plist-get attr :closing)))
          (concat (if (stringp fc-item)
                      (format ".CLOSING\n%s\n.SP\n" fc-item)
-                   "\n"))))
+                   (format  ".CLOSING\n%s\n.SP\n" org-groff-mom-default-closing)))))
       (t "")))))
 
 
