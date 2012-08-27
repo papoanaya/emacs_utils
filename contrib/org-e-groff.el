@@ -521,7 +521,12 @@ These are the .aux, .log, .out, and .toc files."
   :type 'string)
 
 
-(defcustom org-e-groff-raster-to-ps "a=%s;b=%s;sam2p ${a} ${b} ;grep -v BeginData ${b} > b_${b};mv b_${b} ${b}"
+;; Sample with Sam2p
+;; "a=%s;b=%s;sam2p ${a} ${b} ;grep -v BeginData ${b} > b_${b};mv b_${b} ${b}"
+;; Sample with netpnm tools
+;; "a=%s;b=%s;pngtopnm ${a} | pnmtops -noturn > ${b}"
+
+(defcustom org-e-groff-raster-to-ps nil
   "Command used to convert raster to EPS. Nil for no conversion"
   :group 'org-export-e-groff
   :type 'string
