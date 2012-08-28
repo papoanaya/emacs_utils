@@ -1332,7 +1332,7 @@ used as a communication channel."
          (format "\n.DS L F\n.PSPIC %s \"%s\" %s %s\n.DE "
                  placement eps-path width height)))
       ((string-match ".\.pic$" path)
-       (format "\n.PS\ncopy \"%s\"\n.PE" path))
+       (format "\n.PS %s %s\ncopy \"%s\"\n.PE" width height path))
       (t (format "\n.DS L F\n.PSPIC %s \"%s\" %s %s\n.DE "
                  placement path width height)))
 
