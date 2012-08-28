@@ -529,8 +529,11 @@ These are the .aux, .log, .out, and .toc files."
 (defcustom org-e-groff-raster-to-ps nil
   "Command used to convert raster to EPS. Nil for no conversion"
   :group 'org-export-e-groff
-  :type 'string
-)
+  :type '(choice
+         (repeat :tag "Shell Command Sequence" (string :tag "Shell Command"))
+         (const :tag "sam2p" "a=%s;b=%s;sam2p ${a} ${b} ;grep -v BeginData ${b} > b_${b};mv b_${b} ${b}" )
+         (const :tag "NetPNM"  "a=%s;b=%s;pngtopnm ${a} | pnmtops -noturn > ${b}" )
+         (const :tag "None" nil)))
 
 
 ;; Adding GROFF as a block parser to make sure that its contents
