@@ -521,19 +521,11 @@ These are the .aux, .log, .out, and .toc files."
   :type 'string)
 
 
-;; Sample with Sam2p
-;; "a=%s;b=%s;sam2p ${a} ${b} ;grep -v BeginData ${b} > b_${b};mv b_${b} ${b}"
-;; Sample with netpnm tools
-;; "a=%s;b=%s;pngtopnm ${a} | pnmtops -noturn > ${b}"
-
-(defcustom org-e-groff-raster-to-ps nil
+(defcustom org-e-groff-raster-to-ps "a=%s;b=%s;sam2p ${a} ${b} ;grep -v BeginData ${b} > b_${b};mv b_${b} ${b}"
   "Command used to convert raster to EPS. Nil for no conversion"
   :group 'org-export-e-groff
-  :type '(choice
-         (repeat :tag "Shell Command Sequence" (string :tag "Shell Command"))
-         (const :tag "sam2p" "a=%s;b=%s;sam2p ${a} ${b} ;grep -v BeginData ${b} > b_${b};mv b_${b} ${b}" )
-         (const :tag "NetPNM"  "a=%s;b=%s;pngtopnm ${a} | pnmtops -noturn > ${b}" )
-         (const :tag "None" nil)))
+  :type 'string
+)
 
 
 ;; Adding GROFF as a block parser to make sure that its contents
@@ -721,12 +713,16 @@ See `org-e-groff-text-markup-alist' for details."
 
 
     ;; If FROM then get data from FROM
-    (setq from-data
-          (replace-regexp-in-string "\\.P\n" "" from-data))
-
-    (setq to-data
-          (replace-regexp-in-string "\\.P\n" "" to-data))
-
+    (if from-data 
+        (setq from-data
+              (replace-regexp-in-string "\\.P\n" "" from-data))
+      (setq from-data ""))
+    
+    (if to-data 
+        (setq to-data
+              (replace-regexp-in-string "\\.P\n" "" to-data))
+      (setq from-data ""))
+    
     (concat
      (cond
       (from-data
@@ -1335,10 +1331,9 @@ used as a communication channel."
          (format "\n.DS L F\n.PSPIC %s \"%s\" %s %s\n.DE "
                  placement eps-path width height)))
       ((string-match ".\.pic$" path)
-       (format "\n.PS %s %s\ncopy \"%s\"\n.PE" width height path))
+       (format "\n.PS\ncopy \"%s\"\n.PE" path))
       (t (format "\n.DS L F\n.PSPIC %s \"%s\" %s %s\n.DE "
                  placement path width height)))
-
      (unless disable-caption (format "\n.FG \"%s\"" caption)))))
 
 (defun org-e-groff-link (link desc info)
