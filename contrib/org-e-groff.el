@@ -519,13 +519,10 @@ These are the .aux, .log, .out, and .toc files."
   :group 'org-export-e-groff
   :type 'string)
 
-;; Sample with Sam2p
-;; "a=%s;b=%s;sam2p ${a} ${b} ;grep -v BeginData ${b} > b_${b};mv b_${b} ${b}"
-;; Sample with netpnm tools
-;; "a=%s;b=%s;pngtopnm ${a} | pnmtops -noturn > ${b}"
-
 (defcustom org-e-groff-raster-to-ps nil
-  "Command used to convert raster to EPS. Nil for no conversion"
+  "Command used to convert raster to EPS. Nil for no conversion. Make sure that
+   `org-e-groff-inline-image-rules' is adjusted accordingly if not conversion is being
+   done. In this case, remove the entries for jpg and png in the file and fuzzy lists."
   :group 'org-export-e-groff
   :type '(choice
          (repeat :tag "Shell Command Sequence" (string :tag "Shell Command"))
