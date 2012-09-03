@@ -76,7 +76,6 @@
     (groff-fragment . org-e-groff-groff-fragment)
     (line-break . org-e-groff-line-break)
     (link . org-e-groff-link)
-    (macro . org-e-groff-macro)
     (paragraph . org-e-groff-paragraph)
     (plain-list . org-e-groff-plain-list)
     (plain-text . org-e-groff-plain-text)
@@ -520,12 +519,16 @@ These are the .aux, .log, .out, and .toc files."
   :group 'org-export-e-groff
   :type 'string)
 
-
-(defcustom org-e-groff-raster-to-ps "a=%s;b=%s;sam2p ${a} ${b} ;grep -v BeginData ${b} > b_${b};mv b_${b} ${b}"
-  "Command used to convert raster to EPS. Nil for no conversion"
+(defcustom org-e-groff-raster-to-ps nil
+  "Command used to convert raster to EPS. Nil for no conversion. Make sure that
+   `org-e-groff-inline-image-rules' is adjusted accordingly if not conversion is being
+   done. In this case, remove the entries for jpg and png in the file and fuzzy lists."
   :group 'org-export-e-groff
-  :type 'string
-)
+  :type '(choice
+         (repeat :tag "Shell Command Sequence" (string :tag "Shell Command"))
+         (const :tag "sam2p" "a=%s;b=%s;sam2p ${a} ${b} ;grep -v BeginData ${b} > b_${b};mv b_${b} ${b}" )
+         (const :tag "NetPNM"  "a=%s;b=%s;pngtopnm ${a} | pnmtops -noturn > ${b}" )
+         (const :tag "None" nil)))
 
 
 ;; Adding GROFF as a block parser to make sure that its contents
@@ -1417,14 +1420,6 @@ INFO is a plist holding contextual information.  See
      (path (format "\\fI%s\\fP" path))
      ;; No path, only description.  Try to do something useful.
      (t (format org-e-groff-link-with-unknown-path-format desc)))))
-
-;;; Macro
-
-(defun org-e-groff-macro (macro contents info)
-  "Transcode a MACRO element from Org to Groff.
-CONTENTS is nil.  INFO is a plist holding contextual information."
-  ;; Use available tools.
-  (org-export-expand-macro macro info))
 
 ;;; Paragraph
 
