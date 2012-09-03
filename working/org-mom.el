@@ -77,7 +77,6 @@
     (mom-fragment . org-groff-mom-mom-fragment)
     (line-break . org-groff-mom-line-break)
     (link . org-groff-mom-link)
-    (macro . org-groff-mom-macro)
     (paragraph . org-groff-mom-paragraph)
     (plain-list . org-groff-mom-plain-list)
     (plain-text . org-groff-mom-plain-text)
@@ -1398,15 +1397,6 @@ INFO is a plist holding contextual information.  See
      (path (format "\\fI%s\\fP" path))
      ;; No path, only description.  Try to do something useful.
      (t (format org-groff-mom-link-with-unknown-path-format desc)))))
-
-
-;;; Macro
-
-(defun org-groff-mom-macro (macro contents info)
-  "Transcode a MACRO element from Org to Mom.
-CONTENTS is nil.  INFO is a plist holding contextual information."
-  ;; Use available tools.
-  (org-export-expand-macro macro info))
 
 
 ;;; Paragraph

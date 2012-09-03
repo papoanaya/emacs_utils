@@ -84,7 +84,6 @@
     (man-fragment . org-e-platypus-platypus-fragment)
     (line-break . org-e-platypus-line-break)
     (link . org-e-platypus-link)
-    (macro . org-e-platypus-macro)
     (paragraph . org-e-platypus-paragraph)
     (plain-list . org-e-platypus-plain-list)
     (plain-text . org-e-platypus-plain-text)
@@ -793,14 +792,6 @@ INFO is a plist holding contextual information.  See
      (path (format "[url:%s]" path))
      ;; No path, only description. 
      (t (format "[+i]%s[-i]" desc)))))
-
-;;; Macro
-
-(defun org-e-platypus-macro (macro contents info)
-  "Transcode a MACRO element from Org to Man.
-CONTENTS is nil.  INFO is a plist holding contextual information."
-  ;; Use available tools.
-  (org-export-expand-macro macro info))
 
 
 ;;; Paragraph
