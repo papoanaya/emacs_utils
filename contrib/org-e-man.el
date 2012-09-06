@@ -1100,7 +1100,7 @@ This function assumes TABLE has `org' as its `:type' attribute."
                                   (setq final-line (concat final-line "c" divider))))
                               final-line ))
 
-                    (format "%s\n.TE\n"
+                    (format "%s.TE\n"
                             (let ((final-line "")
                                   (long-line "")
                                   (lines (org-split-string contents "\n")))
