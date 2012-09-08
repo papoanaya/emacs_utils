@@ -1,7 +1,0 @@
-# name: display start
-# key: ds
-# --
-#+BEGIN_GROFF
-.DS ${1:L} ${2:F}
-#+END_GROFF
-$0

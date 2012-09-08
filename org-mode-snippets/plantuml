@@ -1,8 +1,0 @@
-# name: plantuml
-# key: plant
-# --
-#+begin_src plantuml :file ${1}.eps
-!include ${2}/branding.iuml
-$0
-#+end_src
-

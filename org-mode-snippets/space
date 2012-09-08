@@ -1,7 +1,0 @@
-# name: space
-# key: sp
-# --
-#+BEGIN_GROFF
-.SP $1
-#+END_GROFF
-$0
