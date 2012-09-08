@@ -1,7 +1,0 @@
-# name: approver
-# key: ap
-# --
-#+BEGIN_GROFF
-.AV "${1:name}"
-#+END_GROFF
-$0
