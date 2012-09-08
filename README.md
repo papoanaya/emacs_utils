@@ -5,6 +5,8 @@ Emacs Lisp Ulitities that I have developed during the course of using
 the editor. These are for my own use but feel free to use them as
 required.
 
+In the contrib directory
+
 - org-e-groff.el : Org Export for groff using groff's Memorandum
   Macros. This one uses the new org-export.el framework that generalizes
   how org items are passed. This one leverages of those tags and
@@ -37,3 +39,18 @@ The org-old directory contains deprecated items in org mode
   the LaTeX export code.  There is still a lot of the latex code
   there that needs to be cleaned up.  Development of this code is halted
   and all efforts are being spent on org-e-groff.el .
+
+The doc directory contains documentation for org mode in org mode
+
+- org-e-groff-documentation.org : Documentation for groff export mode.
+- org-e-man-documentation.org : Documenetaiton for man pages export
+  mode.
+  
+ 
+ The babel directory contains org-babel languages support:
+ 
+ - ob-eukleides.el : Support for Eukleides, a geometry visualization
+   program. 
+ - ob-mathomatic.el : Support for the Mathomatic CAS system. 
+ - ob-tcl.el : Support for the execution of tcl scripts. 
+ 
