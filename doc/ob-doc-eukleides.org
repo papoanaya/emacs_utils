@@ -87,7 +87,8 @@ out some common syntax here as a quick reference. Any of the commands
 typed in =code= font below should be assumed to reside in a babel
 code block (between =#+begin_src eukleides= and =#+end_src=).
 
-** Defining Shapes
+** Basic Use
+*** Defining Shapes
 Eukleides is a programming language that contain a complete set of logic
 constructs, but its main purpose is to generate pictures, commonly
 seen in geometry texts. This is for the most part a two part process:
@@ -114,10 +115,13 @@ There are two shapes being drawn in this example:
 Upon the execution of this block using =C-c C-c= the file name will be
 stated in =#+RESULTS:= containing the resultant picture. 
 
+*** Data Processing
+
 As mentioned, eukleides is a complete programming language, but support
 for results is not available from Org-mode at this time being that its primary
 function is to draw pictures. But the following can be used to write
-text or other items to a file. 
+text or other items to a file as part of the execution of an eukleides
+script.  
 
 #+begin_example
 
@@ -136,9 +140,13 @@ release
 In this example the a file named "myfile.txt" containing "Hello" and
 1,2,3 is written. 
 
+** Named Procedures and Tables
+Named procedures and tables are not supported at this moment. [fn:2]
+
 * Footnotes
-
-[fn:1] Eukleides  manual downloads are located at [[eukleides.org]]
-
+[fn:1] Eukleides manual downloads are located at [[eukleides.org]]
+[fn:2] Eukleides is able to support text results and variable
+processing, but it is not available in this release of the Babel
+plugin. The code will be enhanced in the future. 
 
 
