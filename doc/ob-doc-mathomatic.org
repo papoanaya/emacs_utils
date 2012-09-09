@@ -3,6 +3,11 @@
 #+EMAIL:  papoanaya[at]hotmail[dot]com
 #+LINK_UP:    ../languages.html
 #+LINK_HOME:  http://orgmode.org/worg/
+#+OPTIONS:    H:3 num:nil toc:2 \n:nil @:t ::t |:t ^:{} -:t f:t *:t TeX:t LaTeX:t skip:nil d:(HIDE) tags:not-in-toc
+#+STARTUP:    align fold nodlcheck hidestars oddeven lognotestate hideblocks
+#+SEQ_TODO:   TODO(t) INPROGRESS(i) WAITING(w@) | DONE(d) CANCELED(c@)
+#+TAGS:       Write(w) Update(u) Fix(f) Check(c) noexport(n)
+#+LANGUAGE:   en
 #+STYLE:      <style type="text/css">#outline-container-introduction{ clear:both; }</style>
 
 #+begin_html
@@ -184,8 +189,10 @@ different execution. For example:
 #+end_example
 
 Note that table processing is not supported. This is because Mathomatic
-does not have an aggregated data structure to support it. There are
-plans to provide this in the future through the use of arrays. 
+does not have support for matrixes. However there are 
+plans to provide this in the future through the use of simulated
+arrays.  A simulated array is a syntactic sugar in Mathomatic to enclose
+indexes in square brackets (/[]/). 
 
 * Footnotes
 
@@ -195,11 +202,3 @@ from: [[http://www.mathomatic.org/math/doc/index.html]]
 [fn:2] Mathomatic uses Gnuplot as its plot engine. All plot modes are
 supported in Mathomatic. However, for convenience, only these are
 supported in the =:file= option. 
-
-* Org config							   :noexport:
-#+OPTIONS:    H:3 num:nil toc:2 \n:nil @:t ::t |:t ^:{} -:t f:t *:t TeX:t LaTeX:t skip:nil d:(HIDE) tags:not-in-toc
-#+STARTUP:    align fold nodlcheck hidestars oddeven lognotestate hideblocks
-#+SEQ_TODO:   TODO(t) INPROGRESS(i) WAITING(w@) | DONE(d) CANCELED(c@)
-#+TAGS:       Write(w) Update(u) Fix(f) Check(c) noexport(n)
-#+LANGUAGE:   en
-#+STYLE:      <style type="text/css">#outline-container-introduction{ clear:both; }</style>
