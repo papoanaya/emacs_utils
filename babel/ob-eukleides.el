@@ -147,7 +147,7 @@ This function is called by `org-babel-execute-src-block'."
 The elisp value, VAR, is converted to a string of eukleides source code
 specifying a var of the same value."
   (if (listp var)
-      (concat (mapconcat #'org-babel-eukleides-var-to-eukleides var ","))
+      (concat "cat("(mapconcat #'org-babel-eukleides-var-to-eukleides var ",") ")" )  
     (format "%s" var)))
 
 (defun org-babel-eukleides-evaluate (session body cmd &optional result-type)
