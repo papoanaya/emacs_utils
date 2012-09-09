@@ -61,49 +61,59 @@
   "Execute a block of eukleides code with org-babel.
 This function is called by `org-babel-execute-src-block'."
   (let* ((result-params (split-string (or (cdr (assoc :results params)) "")))
-	 (out-file (or (cdr (assoc :file params))
-		       (error "Eukleides requires a \":file\" header argument")))
+	 (out-file (cdr (assoc :file params)))
 	 (cmdline (cdr (assoc :cmdline params)))
      (session (cdr (assoc :session params)))
      (result-type (cdr (assoc :result-type params)))
      (full-body (org-babel-expand-body:generic
                  body params (org-babel-variable-assignments:eukleides 
                               params)))
-	 (in-file (org-babel-temp-file "eukleides-"))
+	 (in-file  (org-babel-temp-file "eukleides-" ))
      (session (org-babel-eukleides-initiate-session session))
 
 	 (cmd (if (not org-eukleides-path)
 		  (error "`org-eukleides-path' is not set")
-		(concat (expand-file-name org-eukleides-path)
-                " -b --output="
-                (org-babel-process-file-name 
-                 (concat 
-                  (file-name-sans-extension out-file) ".eps"))
-                " "
-                (org-babel-process-file-name in-file)))))
+          (if out-file 
+              (concat (expand-file-name org-eukleides-path)
+                      " -b --output="
+                      (org-babel-process-file-name 
+                       (concat 
+                        (file-name-sans-extension out-file) ".eps"))
+                      " "
+                      (org-babel-process-file-name in-file))
+
+            (concat (expand-file-name org-eukleides-path)
+                      " -b --output=" (concat in-file ".eps") " "
+                      (org-babel-process-file-name in-file))))))
 
 
     (unless (file-exists-p org-eukleides-path)
       (error "Could not find eukleides at %s" org-eukleides-path))
 
-     (org-babel-reassemble-table
-      (org-babel-eukleides-evaluate session full-body cmd result-type)
-      (org-babel-pick-name
-       (cdr (assoc :colname-names params)) (cdr (assoc :colnames params)))
-      (org-babel-pick-name
-       (cdr (assoc :rowname-names params)) (cdr (assoc :rownames params))))
+    (if out-file 
+        (progn 
+          (if (string= (file-name-extension out-file) "png")
+              (if org-eukleides-eps-to-raster
+                  (shell-command (format org-eukleides-eps-to-raster  
+                                         (concat (file-name-sans-extension out-file) ".eps")
+                                         (concat (file-name-sans-extension out-file) ".png")))
+                (error "Conversion to PNG not supported. use a file with an EPS name")))
+          (with-temp-file in-file (insert body))
+          (message "%s" cmd) (org-babel-eval cmd "")
+          nil)
 
-    
-    (if (string= (file-name-extension out-file) "png")
-        (if org-eukleides-eps-to-raster
-            (shell-command (format org-eukleides-eps-to-raster  
-                                    (concat (file-name-sans-extension out-file) ".eps")
-                                    (concat (file-name-sans-extension out-file) ".png")))
-          (error "Conversion to PNG not supported. use a file with an EPS name")))
+      (progn 
+          (with-temp-file in-file (insert body))
+          (message "%s" cmd) 
 
-    (with-temp-file in-file (insert body))
-    (message "%s" cmd) (org-babel-eval cmd "")
-    nil)) ;; signal that output has already been written to file
+          (org-babel-reassemble-table
+           (org-babel-eukleides-evaluate session full-body cmd result-type)
+           (org-babel-pick-name
+            (cdr (assoc :colname-names params)) (cdr (assoc :colnames params)))
+           (org-babel-pick-name
+            (cdr (assoc :rowname-names params)) (cdr (assoc :rownames params))))))))
+
+;; signal that output has already been written to file
 
 (defun org-babel-prep-session:eukleides (session params)
   "Return an error because eukleides does not support sessions."
@@ -134,15 +144,21 @@ specifying a var of the same value."
 If RESULT-TYPE equals 'output then return a list of the outputs
 of the statements in BODY, if RESULT-TYPE equals 'value then
 return the value of the last statement in BODY, as elisp."
-  (when session (error "Sessions are not supported for Tcl."))
+  (when session (error "Sessions are not supported for Eukleides."))
+
+
   (case result-type
-    (output (org-babel-eval cmd body))
-    (value (let ((tmp-file (org-babel-temp-file "eukleides-")))
-             (org-babel-eval
-              cmd
-              (format org-babel-eukleides-wrapper-method body
-                      (org-babel-process-file-name tmp-file 'noquote)))
-             (org-babel-eval-read-file tmp-file)))))
+    (output (org-babel-eval cmd ""))
+    (value (org-babel-eval cmd ""))
+
+    ;; (value (let ((tmp-file (org-babel-temp-file "eukleides-")))
+    ;;          (org-babel-eval
+    ;;           cmd
+    ;;           (format org-babel-eukleides-wrapper-method body
+    ;;                   (org-babel-process-file-name tmp-file 'noquote)))
+    ;;          (org-babel-eval-read-file tmp-file)))
+
+))
 
 (defun org-babel-eukleides-initiate-session (&optional session params)
   "Return nil because sessions are not supported by eukleides."
