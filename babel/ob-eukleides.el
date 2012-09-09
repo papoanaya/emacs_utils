@@ -73,52 +73,56 @@ This function is called by `org-babel-execute-src-block'."
      (session (cdr (assoc :session params)))
      (result-type (cdr (assoc :result-type params)))
      (full-body (org-babel-expand-body:generic
-                 body params (org-babel-variable-assignments:eukleides 
+                 body params (org-babel-variable-assignments:eukleides
                               params)))
 	 (in-file  (org-babel-temp-file "eukleides-" ))
      (session (org-babel-eukleides-initiate-session session))
 
 	 (cmd (if (not org-eukleides-path)
 		  (error "`org-eukleides-path' is not set")
-          (if out-file 
+          (if out-file
               (concat (expand-file-name org-eukleides-path)
                       " -b --output="
-                      (org-babel-process-file-name 
-                       (concat 
+                      (org-babel-process-file-name
+                       (concat
                         (file-name-sans-extension out-file) ".eps"))
                       " "
                       (org-babel-process-file-name in-file))
 
             (concat (expand-file-name org-eukleides-path)
-                      " -b --output=" (concat in-file ".eps") " "
+                      " -b --output="
+                      (org-babel-process-file-name
+                       (concat
+                              (file-name-sans-extension in-file) ".eps"))
+                      " "
                       (org-babel-process-file-name in-file))))))
-
 
     (unless (file-exists-p org-eukleides-path)
       (error "Could not find eukleides at %s" org-eukleides-path))
 
-    (if out-file 
-        (progn 
-          (if (string= (file-name-extension out-file) "png")
-              (if org-eukleides-eps-to-raster
-                  (shell-command (format org-eukleides-eps-to-raster  
-                                         (concat (file-name-sans-extension out-file) ".eps")
-                                         (concat (file-name-sans-extension out-file) ".png")))
-                (error "Conversion to PNG not supported. use a file with an EPS name")))
-          (with-temp-file in-file (insert full-body))
-          (message "%s" cmd) (org-babel-eval cmd "")
-          nil)
+    (cond (out-file
+           (let (generated-file-name)
+             (if (string= (file-name-extension out-file) "png")
+                 (if org-eukleides-eps-to-raster
+                     (shell-command (format org-eukleides-eps-to-raster
+                                            (concat (file-name-sans-extension out-file) ".eps")
+                                            (concat (file-name-sans-extension out-file) ".png")))
+                   (error "Conversion to PNG not supported. use a file with an EPS name")))
+             (with-temp-file in-file (insert full-body))
+             (message "%s" cmd) (org-babel-eval cmd "")
+             nil))
+           (t
+            (progn
+              (with-temp-file in-file (insert full-body))
+              (message "%s" cmd)
 
-      (progn 
-          (with-temp-file in-file (insert full-body))
-          (message "%s" cmd) 
+              (org-babel-reassemble-table
+               (org-babel-eukleides-evaluate session full-body cmd result-type)
+               (org-babel-pick-name
+                (cdr (assoc :colname-names params)) (cdr (assoc :colnames params)))
+               (org-babel-pick-name
+                (cdr (assoc :rowname-names params)) (cdr (assoc :rownames params)))))))))
 
-          (org-babel-reassemble-table
-           (org-babel-eukleides-evaluate session full-body cmd result-type)
-           (org-babel-pick-name
-            (cdr (assoc :colname-names params)) (cdr (assoc :colnames params)))
-           (org-babel-pick-name
-            (cdr (assoc :rowname-names params)) (cdr (assoc :rownames params))))))))
 
 ;; signal that output has already been written to file
 
