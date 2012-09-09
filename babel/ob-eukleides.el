@@ -64,8 +64,14 @@ This function is called by `org-babel-execute-src-block'."
 	 (out-file (or (cdr (assoc :file params))
 		       (error "Eukleides requires a \":file\" header argument")))
 	 (cmdline (cdr (assoc :cmdline params)))
+     (session (cdr (assoc :session params)))
+     (result-type (cdr (assoc :result-type params)))
+     (full-body (org-babel-expand-body:generic
+                 body params (org-babel-variable-assignments:eukleides 
+                              params)))
 	 (in-file (org-babel-temp-file "eukleides-"))
-	 (java (or (cdr (assoc :java params)) ""))
+     (session (org-babel-eukleides-initiate-session session))
+
 	 (cmd (if (not org-eukleides-path)
 		  (error "`org-eukleides-path' is not set")
 		(concat (expand-file-name org-eukleides-path)
@@ -75,8 +81,18 @@ This function is called by `org-babel-execute-src-block'."
                   (file-name-sans-extension out-file) ".eps"))
                 " "
                 (org-babel-process-file-name in-file)))))
+
+
     (unless (file-exists-p org-eukleides-path)
       (error "Could not find eukleides at %s" org-eukleides-path))
+
+     (org-babel-reassemble-table
+      (org-babel-eukleides-evaluate session full-body cmd result-type)
+      (org-babel-pick-name
+       (cdr (assoc :colname-names params)) (cdr (assoc :colnames params)))
+      (org-babel-pick-name
+       (cdr (assoc :rowname-names params)) (cdr (assoc :rownames params))))
+
     
     (if (string= (file-name-extension out-file) "png")
         (if org-eukleides-eps-to-raster
@@ -92,6 +108,46 @@ This function is called by `org-babel-execute-src-block'."
 (defun org-babel-prep-session:eukleides (session params)
   "Return an error because eukleides does not support sessions."
   (error "Eukleides does not support sessions"))
+
+
+(defun org-babel-variable-assignments:eukleides (params)
+  "Return list of eukleides statements assigning the block's variables."
+  (mapcar
+   (lambda (pair)
+     (format "%s = %s"
+	     (car pair)
+	     (org-babel-eukleides-var-to-eukleides (cdr pair))))
+   (mapcar #'cdr (org-babel-get-header params :var))))
+
+;; helper functions
+
+(defun org-babel-eukleides-var-to-eukleides (var)
+  "Convert an elisp value to an eukleides variable.
+The elisp value, VAR, is converted to a string of eukleides source code
+specifying a var of the same value."
+  (if (listp var)
+      (concat (mapconcat #'org-babel-eukleides-var-to-eukleides var ","))
+    (format "%s" var)))
+
+(defun org-babel-eukleides-evaluate (session body cmd &optional result-type)
+  "Pass BODY to the Eukleidesprocess in SESSION.
+If RESULT-TYPE equals 'output then return a list of the outputs
+of the statements in BODY, if RESULT-TYPE equals 'value then
+return the value of the last statement in BODY, as elisp."
+  (when session (error "Sessions are not supported for Tcl."))
+  (case result-type
+    (output (org-babel-eval cmd body))
+    (value (let ((tmp-file (org-babel-temp-file "eukleides-")))
+             (org-babel-eval
+              cmd
+              (format org-babel-eukleides-wrapper-method body
+                      (org-babel-process-file-name tmp-file 'noquote)))
+             (org-babel-eval-read-file tmp-file)))))
+
+(defun org-babel-eukleides-initiate-session (&optional session params)
+  "Return nil because sessions are not supported by eukleides."
+nil)
+
 
 (provide 'ob-eukleides)
 
