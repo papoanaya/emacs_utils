@@ -39,7 +39,7 @@
 (defvar org-babel-default-header-args:tcl nil)
 
 (defcustom org-babel-tcl-command "tclsh"
-"Name of command to use for executing Tcl code.")
+"Name of command to use for executing Tcl code."
   :group 'org-babel
   :type 'string)
 
