@@ -68,7 +68,7 @@ tclsh are:
     filename= option in the header. If the error "Code block produced
     no output" recurs, try outputting to a file. 
 
-* Overview and Use
+* Overview
 Mathomatic is a comprehensive CAS that includes many options and
 features. 
 Describing these are beyond the scope of this
@@ -87,7 +87,7 @@ move the cursor anywhere in the code
 block and press =C-c C-c= (Ctrl+C followed by Ctrl+C) and type "yes"
 in the minibuffer when asked about executing the code.
 
-
+** Basic Use
 An example of a Mathomatic  block in Org-babel is as follows:
 
 #+begin_example
@@ -105,7 +105,8 @@ eliminate x
 
 Using =:results output= describes all the steps executed in the
 code. using =:results value= will write the results in a table. For
-example: 
+example:
+
 #+begin_example
 #+begin_src mathomatic :results value
 x = 0
@@ -123,47 +124,77 @@ ans = x
 #+end_example
 
 
-#+begin_src org
-  ,#+begin_src octave :exports results
-  ,n = [1:10];
-  ,x = 5*n+4;
-  ,ans = x
-  ,#+end_src
-  
-  ,#+results:
-  ,| 9 | 14 | 19 | 24 | 29 | 34 | 39 | 44 | 49 | 54 |
+** Graphical output
+Graphical output is supported in Mathomatic which can be stored using
+the =:file= header option. The following output formats are supported
+within Mathomatic: [fn:2]
+- Encapsulated Postscript =.eps=
+- Portable Network Graphics =.png=
+- Postscript =.ps=
+- Groff PIC =.pic=
+
+#+begin_example
+#+begin_src mathomatic :results graphics :file sine.png
+plot sin(x)
 #+end_src
 
-Notice that the final line is "ans = x". Finishing the block with the
-simple statement "x" will not work. In Org-babel, Matlab and Octave
-return the result of the special variable "ans", which (in Octave at
-least) is automatically updated with "The most recently computed
-result that was not explicitly assigned to a variable". Therefore,
-both "ans =x" and "x + 0" would result in the desired result being
-returned, "x" alone will not.
+#+RESULTS:
+[[file:sine.png]]
+#+end_example 
 
-* Graphical output
-In order to get graphical output without leaving open graph windows
-during evaluation, the following can be used:
+In order to get graphical output during evaluation use the Mathomatic =plot=
+command within Mathomatic. The file suffix will configure Gnuplot to
+write the right file format. 
 
-#+begin_src octave :results file
-figure( 1, "visible", "off" );
-sombrero;
-print -dpng chart.png;
-ans = "chart.png";
+** Named Procedures
+The Babel Mathomatic plugin supports the use of named procedures and calls
+operations. The use of these are detailed in the /Org Manual/.  This
+manual will describe how they are used within the context of a Mathomatic
+script.
+
+A variable can be passed to a Mathomatic script which can be used to call the
+aforementioned program later on in your org document.  The following
+example is a program that evaluates X+2. 
+
+#+begin_example
+#+name: mathotest(x=0)
+#+begin_src mathomatic :results output
+x + 2
+eliminate x
 #+end_src
 
-The =figure= command opens an invisible graph window where the next plot commands should act.
+#+RESULTS: mathotest
+: #1: x = 0
+: #2: x + 2
+: Eliminating variable x using solved equation #1...
+: #2: 2
+#+end_example
 
-Then, the =print= command exports the graph to a file.
+Calling the named script with a different value will result in a
+different execution. For example: 
 
-:results file says to interpret the result as a file path.
+#+begin_example
+#+call: mathotest(x=30)
+
+#+RESULTS: mathotest(x=30)
+: #1: x = 30
+: #2: x + 2
+: Eliminating variable x using solved equation #1...
+: #2: 32
+#+end_example
+
+Note that table processing is not supported. This is because Mathomatic
+does not have an aggregated data structure to support it. There are
+plans to provide this in the future through the use of arrays. 
 
 * Footnotes
 
 [fn:1] Mathomatic manual downloads and further information can be obtained
 from: [[http://www.mathomatic.org/math/doc/index.html]]
 
+[fn:2] Mathomatic uses Gnuplot as its plot engine. All plot modes are
+supported in Mathomatic. However, for convenience, only these are
+supported in the =:file= option. 
 
 * Org config							   :noexport:
 #+OPTIONS:    H:3 num:nil toc:2 \n:nil @:t ::t |:t ^:{} -:t f:t *:t TeX:t LaTeX:t skip:nil d:(HIDE) tags:not-in-toc
