@@ -37,9 +37,16 @@
 (require 'ob)
 (require 'ob-eval)
 
-(defvar org-babel-default-header-args:eukleides
-  '((:results . "file") (:exports . "results"))
-  "Default arguments for evaluating a eukleides source block.")
+;; (defvar org-babel-default-header-args:eukleides
+;;   '((:results . "file") (:exports . "results"))
+;;   "Default arguments for evaluating a eukleides source block.")
+
+
+ (defvar org-babel-default-header-args:eukleides nil
+   "Default arguments for evaluating a eukleides source block.")
+
+(defvar org-babel-tangle-lang-exts)
+(add-to-list 'org-babel-tangle-lang-exts '("eukleides" . "euk"))
 
 (defcustom org-eukleides-path nil
   "Path to the eukleides executable file."
@@ -98,12 +105,12 @@ This function is called by `org-babel-execute-src-block'."
                                          (concat (file-name-sans-extension out-file) ".eps")
                                          (concat (file-name-sans-extension out-file) ".png")))
                 (error "Conversion to PNG not supported. use a file with an EPS name")))
-          (with-temp-file in-file (insert body))
+          (with-temp-file in-file (insert full-body))
           (message "%s" cmd) (org-babel-eval cmd "")
           nil)
 
       (progn 
-          (with-temp-file in-file (insert body))
+          (with-temp-file in-file (insert full-body))
           (message "%s" cmd) 
 
           (org-babel-reassemble-table
