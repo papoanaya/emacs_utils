@@ -101,7 +101,7 @@ This function is called by `org-babel-execute-src-block'."
       (error "Could not find eukleides at %s" org-eukleides-path))
 
     (cond (out-file
-           (let (generated-file-name)
+           (progn
              (if (string= (file-name-extension out-file) "png")
                  (if org-eukleides-eps-to-raster
                      (shell-command (format org-eukleides-eps-to-raster
@@ -115,7 +115,6 @@ This function is called by `org-babel-execute-src-block'."
             (progn
               (with-temp-file in-file (insert full-body))
               (message "%s" cmd)
-
               (org-babel-reassemble-table
                (org-babel-eukleides-evaluate session full-body cmd result-type)
                (org-babel-pick-name
