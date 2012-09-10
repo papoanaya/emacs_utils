@@ -37,14 +37,20 @@
 (require 'ob)
 (require 'ob-eval)
 
-(defvar org-babel-default-header-args:eukleides
-  '((:results . "file") (:exports . "results"))
-  "Default arguments for evaluating a eukleides source block.")
+;; (defvar org-babel-default-header-args:eukleides
+;;   '((:results . "file") (:exports . "results"))
+;;   "Default arguments for evaluating a eukleides source block.")
+
+
+ (defvar org-babel-default-header-args:eukleides nil
+   "Default arguments for evaluating a eukleides source block.")
+
+(defvar org-babel-tangle-lang-exts)
+(add-to-list 'org-babel-tangle-lang-exts '("eukleides" . "euk"))
 
 (defcustom org-eukleides-path nil
-  "Path to the eukleides.jar file."
+  "Path to the eukleides executable file."
   :group 'org-babel
-  :version "24.1"
   :type 'string)
 
 
@@ -62,37 +68,93 @@
   "Execute a block of eukleides code with org-babel.
 This function is called by `org-babel-execute-src-block'."
   (let* ((result-params (split-string (or (cdr (assoc :results params)) "")))
-	 (out-file (or (cdr (assoc :file params))
-		       (error "Eukleides requires a \":file\" header argument")))
+	 (out-file (cdr (assoc :file params)))
 	 (cmdline (cdr (assoc :cmdline params)))
-	 (in-file (org-babel-temp-file "eukleides-"))
-	 (java (or (cdr (assoc :java params)) ""))
-	 (cmd (if (not org-eukleides-path)
-		  (error "`org-eukleides-path' is not set")
-		(concat (expand-file-name org-eukleides-path)
-                " -b --output="
-                (org-babel-process-file-name 
-                 (concat 
-                  (file-name-sans-extension out-file) ".eps"))
-                " "
-                (org-babel-process-file-name in-file)))))
+     (session (cdr (assoc :session params)))
+     (result-type (cdr (assoc :result-type params)))
+     (full-body (org-babel-expand-body:generic
+                 body params (org-babel-variable-assignments:eukleides
+                              params)))
+	 (in-file  (org-babel-temp-file "eukleides-" ))
+     (session (org-babel-eukleides-initiate-session session))
+
+	 (cmd (cond 
+           ((not org-eukleides-path) (error "`org-eukleides-path' is not set") )
+           ((and  (not out-file)  
+                  (member "graphics" result-params))
+            (error ":file option required for graphics output."))
+           ((and out-file (member "output" result-params))
+            (error ":file option must not be present for regular output"))
+            ((not out-file)   
+             (concat (expand-file-name org-eukleides-path)
+                     " -b "
+                     (org-babel-process-file-name in-file)))
+            (t 
+             (concat (expand-file-name org-eukleides-path)
+                    " -b --output="
+                    (org-babel-process-file-name
+                     (concat
+                      (file-name-sans-extension out-file) ".eps"))
+                    " "
+                    (org-babel-process-file-name in-file))))))
+
     (unless (file-exists-p org-eukleides-path)
       (error "Could not find eukleides at %s" org-eukleides-path))
-    
-    (if (string= (file-name-extension out-file) "png")
-        (if org-eukleides-eps-to-raster
-            (shell-command (format org-eukleides-eps-to-raster  
-                                    (concat (file-name-sans-extension out-file) ".eps")
-                                    (concat (file-name-sans-extension out-file) ".png")))
-          (error "Conversion to PNG not supported. use a file with an EPS name")))
 
-    (with-temp-file in-file (insert body))
-    (message "%s" cmd) (org-babel-eval cmd "")
-    nil)) ;; signal that output has already been written to file
+    (cond ((member "output" result-params)
+           (progn
+              (with-temp-file in-file (insert full-body))
+              (message "%s" cmd)
+              (org-babel-reassemble-table
+               (org-babel-eval cmd "")
+               (org-babel-pick-name
+                (cdr (assoc :colname-names params)) (cdr (assoc :colnames params)))
+               (org-babel-pick-name
+                (cdr (assoc :rowname-names params)) (cdr (assoc :rownames params))))))
+           (t
+            (progn
+             (if (string= (file-name-extension out-file) "png")
+                 (if org-eukleides-eps-to-raster
+                     (shell-command (format org-eukleides-eps-to-raster
+                                            (concat (file-name-sans-extension out-file) ".eps")
+                                            (concat (file-name-sans-extension out-file) ".png")))
+                   (error "Conversion to PNG not supported. use a file with an EPS name")))
+             (with-temp-file in-file (insert full-body))
+             (message "%s" cmd) (org-babel-eval cmd "")
+             nil)))))
+
+
+;; signal that output has already been written to file
 
 (defun org-babel-prep-session:eukleides (session params)
   "Return an error because eukleides does not support sessions."
   (error "Eukleides does not support sessions"))
+
+
+(defun org-babel-variable-assignments:eukleides (params)
+  "Return list of eukleides statements assigning the block's variables."
+  (mapcar
+   (lambda (pair)
+     (format "%s = %s"
+	     (car pair)
+	     (org-babel-eukleides-var-to-eukleides (cdr pair))))
+   (mapcar #'cdr (org-babel-get-header params :var))))
+
+;; helper functions
+
+(defun org-babel-eukleides-var-to-eukleides (var)
+  "Convert an elisp value to an eukleides variable.
+The elisp value, VAR, is converted to a string of eukleides source code
+specifying a var of the same value."
+  (if (listp var)
+      (concat (mapconcat #'org-babel-eukleides-var-to-eukleides var "."))  
+    (format "%s" var)))
+
+
+(defun org-babel-eukleides-initiate-session (&optional session params)
+  "Return nil because sessions are not supported by eukleides."
+nil)
+
 
 (provide 'ob-eukleides)
 
