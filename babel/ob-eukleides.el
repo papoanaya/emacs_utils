@@ -155,20 +155,10 @@ If RESULT-TYPE equals 'output then return a list of the outputs
 of the statements in BODY, if RESULT-TYPE equals 'value then
 return the value of the last statement in BODY, as elisp."
   (when session (error "Sessions are not supported for Eukleides."))
-
+  (when value (error "Call by values are not supported for Eukleides. "))
 
   (case result-type
-    (output (org-babel-eval cmd ""))
-    (value (org-babel-eval cmd ""))
-
-    ;; (value (let ((tmp-file (org-babel-temp-file "eukleides-")))
-    ;;          (org-babel-eval
-    ;;           cmd
-    ;;           (format org-babel-eukleides-wrapper-method body
-    ;;                   (org-babel-process-file-name tmp-file 'noquote)))
-    ;;          (org-babel-eval-read-file tmp-file)))
-
-))
+    (output (org-babel-eval cmd ""))))
 
 (defun org-babel-eukleides-initiate-session (&optional session params)
   "Return nil because sessions are not supported by eukleides."
