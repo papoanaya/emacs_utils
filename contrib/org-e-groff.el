@@ -69,8 +69,10 @@
     (italic . org-e-groff-italic)
     (item . org-e-groff-item)
     (keyword . org-e-groff-keyword)
-    (groff-environment . org-e-groff-groff-environment)
-    (groff-fragment . org-e-groff-groff-fragment)
+
+    (latex-environment . org-e-groff-latex-environment)
+    (latex-fragment . org-e-groff-latex-fragment)
+
     (line-break . org-e-groff-line-break)
     (link . org-e-groff-link)
     (paragraph . org-e-groff-paragraph)
@@ -1244,29 +1246,123 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 
 ;;; LaTeX Environment
 
-(defun org-e-groff-latex-environment (latex-environment contents info)
-  "Transcode a LATEX-ENVIRONMENT element from Org to Groff.
-CONTENTS is nil.  INFO is a plist holding contextual information."
-  (let ((label (org-element-property :name latex-environment))
-        (value (org-remove-indentation
-                (org-element-property :value latex-environment))))
-    (if (not (org-string-nw-p label)) value
-      ;; Environment is labelled: label must be within the environment
-      ;; (otherwise, a reference pointing to that element will count
-      ;; the section instead).
-      (with-temp-buffer
-        (insert value)
-        (goto-char (point-min))
-        (forward-line)
-        (insert (format "%s\n" label))
-        (buffer-string)))))
-
-;;; LaTeX Fragment
+(defun org-e-groff-format-latex (latex-frag processing-type)
+  (let* ((cache-relpath
+	  (concat "ltxeps/" (file-name-sans-extension
+			     (file-name-nondirectory (buffer-file-name)))))
+	 (cache-dir (file-name-directory (buffer-file-name )))
+	 (display-msg "Creating LaTeX Image..."))
+     (with-temp-buffer
+      (insert latex-frag)
+      (org-format-latex cache-relpath cache-dir nil display-msg
+			nil nil processing-type)
+      (buffer-string))))
 
 (defun org-e-groff-latex-fragment (latex-fragment contents info)
   "Transcode a LATEX-FRAGMENT object from Org to Groff.
 CONTENTS is nil.  INFO is a plist holding contextual information."
   (org-element-property :value latex-fragment))
+
+(defun org-e-html-latex-environment (latex-environment contents info)
+  "Transcode a LATEX-ENVIRONMENT element from Org to HTML.
+CONTENTS is nil.  INFO is a plist holding contextual information."
+  (let ((processing-type (plist-get info :LaTeX-fragments))
+	(latex-frag (org-remove-indentation
+		     (org-element-property :value latex-environment)))
+	(caption (org-export-data
+		  (org-export-get-caption latex-environment) info))
+ 	(label (org-element-property :name latex-environment)))
+    (cond
+     
+     ((eq processing-type 'dvipng)
+      (let* ((formula-link (org-e-groff-format-latex
+			    latex-frag processing-type)))
+ 	(when (and formula-link
+		   (string-match "file:\\([^]]*\\)" formula-link))
+ 	  (org-e-groff-format-inline-image
+ 	   (match-string 1 formula-link) caption label attr t))))
+      (t latex-frag))))
+
+
+;; (defun org-e-groff-latex-environment (latex-environment contents info)
+;;   "Transcode a LATEX-ENVIRONMENT element from Org to Groff.
+;; CONTENTS is nil.  INFO is a plist holding contextual information."
+;;   (let ((label (org-element-property :name latex-environment))
+;;         (value (org-remove-indentation
+;;                 (org-element-property :value latex-environment))))
+;;     (if (not (org-string-nw-p label)) value
+;;       ;; Environment is labelled: label must be within the environment
+;;       ;; (otherwise, a reference pointing to that element will count
+;;       ;; the section instead).
+;;       (with-temp-buffer
+;;         (insert value)
+;;         (goto-char (point-min))
+;;         (forward-line)
+;;         (insert (format "%s\n" label))
+;;         (buffer-string)))))
+
+;;; LaTeX Fragment
+
+
+
+;;;; Latex Environment HTML
+
+;; (defun org-e-html-format-latex (latex-frag processing-type)
+;;   (let* ((cache-relpath
+;; 	  (concat "ltxpng/" (file-name-sans-extension
+;; 			     (file-name-nondirectory (buffer-file-name)))))
+;; 	 (cache-dir (file-name-directory (buffer-file-name )))
+;; 	 (display-msg "Creating LaTeX Image..."))
+
+;;     (with-temp-buffer
+;;       (insert latex-frag)
+;;       (org-format-latex cache-relpath cache-dir nil display-msg
+;; 			nil nil processing-type)
+;;       (buffer-string))))
+
+;; (defun org-e-html-latex-environment (latex-environment contents info)
+;;   "Transcode a LATEX-ENVIRONMENT element from Org to HTML.
+;; CONTENTS is nil.  INFO is a plist holding contextual information."
+;;   (let ((processing-type (plist-get info :LaTeX-fragments))
+;; 	(latex-frag (org-remove-indentation
+;; 		     (org-element-property :value latex-environment)))
+;; 	(caption (org-export-data
+;; 		  (org-export-get-caption latex-environment) info))
+;; 	(attr nil)			; FIXME
+;; 	(label (org-element-property :name latex-environment)))
+;;     (cond
+;;      ((memq processing-type '(t mathjax))
+;;       (org-e-html-format-latex latex-frag 'mathjax))
+;;      ((eq processing-type 'dvipng)
+;;       (let* ((formula-link (org-e-html-format-latex
+;; 			    latex-frag processing-type)))
+;; 	(when (and formula-link
+;; 		   (string-match "file:\\([^]]*\\)" formula-link))
+;; 	  (org-e-html-format-inline-image
+;; 	   (match-string 1 formula-link) caption label attr t))))
+;;      (t latex-frag))))
+
+
+;; ;;;; Latex Fragment
+
+;; (defun org-e-html-latex-fragment (latex-fragment contents info)
+;;   "Transcode a LATEX-FRAGMENT object from Org to HTML.
+;; CONTENTS is nil.  INFO is a plist holding contextual information."
+;;   (let ((latex-frag (org-element-property :value latex-fragment))
+;; 	(processing-type (plist-get info :LaTeX-fragments)))
+;;     (case processing-type
+;;       ((t mathjax)
+;;        (org-e-html-format-latex latex-frag 'mathjax))
+;;       (dvipng
+;;        (let* ((formula-link (org-e-html-format-latex
+;; 			     latex-frag processing-type)))
+;; 	 (when (and formula-link
+;; 		    (string-match "file:\\([^]]*\\)" formula-link))
+;; 	   (org-e-html-format-inline-image
+;; 	    (match-string 1 formula-link)))))
+;;       (t latex-frag))))
+
+
 
 ;;; Line Break
 
