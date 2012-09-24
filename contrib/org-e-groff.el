@@ -110,6 +110,7 @@
   ((:date "DATE" nil org-e-groff-date-format t)
    (:groff-class "GROFF_CLASS" nil org-e-groff-default-class t)
    (:groff-class-options "GROFF_CLASS_OPTIONS" nil nil t)
+   (:LaTeX-fragments nil "LaTeX" org-export-with-LaTeX-fragments)
    (:groff-header-extra "GROFF_HEADER" nil nil newline)))
 
 
@@ -1248,7 +1249,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 
 (defun org-e-groff-format-latex (latex-frag processing-type)
   (let* ((cache-relpath
-	  (concat "ltxeps/" (file-name-sans-extension
+	  (concat (file-name-sans-extension
 			     (file-name-nondirectory (buffer-file-name)))))
 	 (cache-dir (file-name-directory (buffer-file-name )))
 	 (display-msg "Creating LaTeX Image..."))
@@ -1263,8 +1264,8 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 CONTENTS is nil.  INFO is a plist holding contextual information."
   (org-element-property :value latex-fragment))
 
-(defun org-e-html-latex-environment (latex-environment contents info)
-  "Transcode a LATEX-ENVIRONMENT element from Org to HTML.
+(defun org-e-groff-latex-environment (latex-environment contents info)
+  "Transcode a LATEX-ENVIRONMENT element from Org to GROFF
 CONTENTS is nil.  INFO is a plist holding contextual information."
   (let ((processing-type (plist-get info :LaTeX-fragments))
 	(latex-frag (org-remove-indentation
@@ -1272,15 +1273,26 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 	(caption (org-export-data
 		  (org-export-get-caption latex-environment) info))
  	(label (org-element-property :name latex-environment)))
+
     (cond
-     
      ((eq processing-type 'dvipng)
       (let* ((formula-link (org-e-groff-format-latex
 			    latex-frag processing-type)))
- 	(when (and formula-link
-		   (string-match "file:\\([^]]*\\)" formula-link))
- 	  (org-e-groff-format-inline-image
- 	   (match-string 1 formula-link) caption label attr t))))
+        (message "RASTER2PS :: %s" org-e-groff-raster-to-ps)
+        (when (and formula-link
+                   (string-match "file:\\([^]]*\\)" formula-link))
+
+          (if org-e-groff-raster-to-ps
+              (let ((eps-path (concat (match-string 1 formula-link) ".eps")))
+                (shell-command 
+                 (format org-e-groff-raster-to-ps (match-string 1 formula-link) eps-path))
+                (format "\n.DS L F\n.PSPIC \"%s\" \n.DE " eps-path))
+            latex-frag)
+
+ 	  ;; (org-e-groff-format-inline-image
+ 	  ;;  (match-string 1 formula-link) caption label attr t)
+
+      )))
       (t latex-frag))))
 
 
