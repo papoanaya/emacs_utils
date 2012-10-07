@@ -40,65 +40,60 @@
 (eval-when-compile (require 'cl))
 (require 'org-export)
 
+(defvar orgtbl-exp-regexp)
 
 
 ;;; Define Back-End
 
 (org-export-define-backend e-groff
-  ((babel-call . org-e-groff-babel-call)
-    (bold . org-e-groff-bold)
-    (center-block . org-e-groff-center-block)
-    (clock . org-e-groff-clock)
-    (code . org-e-groff-code)
-    (comment . org-e-groff-comment)
-    (comment-block . org-e-groff-comment-block)
-    (drawer . org-e-groff-drawer)
-    (dynamic-block . org-e-groff-dynamic-block)
-    (entity . org-e-groff-entity)
-    (example-block . org-e-groff-example-block)
-    (export-block . org-e-groff-export-block)
-    (export-snippet . org-e-groff-export-snippet)
-    (fixed-width . org-e-groff-fixed-width)
-    (footnote-definition . org-e-groff-footnote-definition)
-    (footnote-reference . org-e-groff-footnote-reference)
-    (headline . org-e-groff-headline)
-    (horizontal-rule . org-e-groff-horizontal-rule)
-    (inline-babel-call . org-e-groff-inline-babel-call)
-    (inline-src-block . org-e-groff-inline-src-block)
-    (inlinetask . org-e-groff-inlinetask)
-    (italic . org-e-groff-italic)
-    (item . org-e-groff-item)
-    (keyword . org-e-groff-keyword)
-
-    (latex-environment . org-e-groff-latex-environment)
-    (latex-fragment . org-e-groff-latex-fragment)
-
-    (line-break . org-e-groff-line-break)
-    (link . org-e-groff-link)
-    (paragraph . org-e-groff-paragraph)
-    (plain-list . org-e-groff-plain-list)
-    (plain-text . org-e-groff-plain-text)
-    (planning . org-e-groff-planning)
-    (property-drawer . org-e-groff-property-drawer)
-    (quote-block . org-e-groff-quote-block)
-    (quote-section . org-e-groff-quote-section)
-    (radio-target . org-e-groff-radio-target)
-    (section . org-e-groff-section)
-    (special-block . org-e-groff-special-block)
-    (src-block . org-e-groff-src-block)
-    (statistics-cookie . org-e-groff-statistics-cookie)
-    (strike-through . org-e-groff-strike-through)
-    (subscript . org-e-groff-subscript)
-    (superscript . org-e-groff-superscript)
-    (table . org-e-groff-table)
-    (table-cell . org-e-groff-table-cell)
-    (table-row . org-e-groff-table-row)
-    (target . org-e-groff-target)
-    (template . org-e-groff-template)
-    (timestamp . org-e-groff-timestamp)
-    (underline . org-e-groff-underline)
-    (verbatim . org-e-groff-verbatim)
-    (verse-block . org-e-groff-verse-block))
+  ((bold . org-e-groff-bold)
+   (center-block . org-e-groff-center-block)
+   (clock . org-e-groff-clock)
+   (code . org-e-groff-code)
+   (drawer . org-e-groff-drawer)
+   (dynamic-block . org-e-groff-dynamic-block)
+   (entity . org-e-groff-entity)
+   (example-block . org-e-groff-example-block)
+   (export-block . org-e-groff-export-block)
+   (export-snippet . org-e-groff-export-snippet)
+   (fixed-width . org-e-groff-fixed-width)
+   (footnote-definition . org-e-groff-footnote-definition)
+   (footnote-reference . org-e-groff-footnote-reference)
+   (headline . org-e-groff-headline)
+   (horizontal-rule . org-e-groff-horizontal-rule)
+   (inline-src-block . org-e-groff-inline-src-block)
+   (inlinetask . org-e-groff-inlinetask)
+   (italic . org-e-groff-italic)
+   (item . org-e-groff-item)
+   (keyword . org-e-groff-keyword)
+   ;; (latex-environment . org-e-groff-latex-environment)
+   ;; (latex-fragment . org-e-groff-latex-fragment)
+   (line-break . org-e-groff-line-break)
+   (link . org-e-groff-link)
+   (paragraph . org-e-groff-paragraph)
+   (plain-list . org-e-groff-plain-list)
+   (plain-text . org-e-groff-plain-text)
+   (planning . org-e-groff-planning)
+   (property-drawer . org-e-groff-property-drawer)
+   (quote-block . org-e-groff-quote-block)
+   (quote-section . org-e-groff-quote-section)
+   (radio-target . org-e-groff-radio-target)
+   (section . org-e-groff-section)
+   (special-block . org-e-groff-special-block)
+   (src-block . org-e-groff-src-block)
+   (statistics-cookie . org-e-groff-statistics-cookie)
+   (strike-through . org-e-groff-strike-through)
+   (subscript . org-e-groff-subscript)
+   (superscript . org-e-groff-superscript)
+   (table . org-e-groff-table)
+   (table-cell . org-e-groff-table-cell)
+   (table-row . org-e-groff-table-row)
+   (target . org-e-groff-target)
+   (template . org-e-groff-template)
+   (timestamp . org-e-groff-timestamp)
+   (underline . org-e-groff-underline)
+   (verbatim . org-e-groff-verbatim)
+   (verse-block . org-e-groff-verse-block))
   :export-block "GROFF"
   :menu-entry
   (?g "Export to GROFF"
@@ -110,7 +105,6 @@
   ((:date "DATE" nil org-e-groff-date-format t)
    (:groff-class "GROFF_CLASS" nil org-e-groff-default-class t)
    (:groff-class-options "GROFF_CLASS_OPTIONS" nil nil t)
-   (:LaTeX-fragments nil "LaTeX" org-export-with-LaTeX-fragments)
    (:groff-header-extra "GROFF_HEADER" nil nil newline)))
 
 
@@ -1247,134 +1241,29 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 
 ;;; LaTeX Environment
 
-(defun org-e-groff-format-latex (latex-frag processing-type)
-  (let* ((cache-relpath
-	  (concat (file-name-sans-extension
-			     (file-name-nondirectory (buffer-file-name)))))
-	 (cache-dir (file-name-directory (buffer-file-name )))
-	 (display-msg "Creating LaTeX Image..."))
-     (with-temp-buffer
-      (insert latex-frag)
-      (org-format-latex cache-relpath cache-dir nil display-msg
-			nil nil processing-type)
-      (buffer-string))))
+(defun org-e-groff-latex-environment (latex-environment contents info)
+  "Transcode a LATEX-ENVIRONMENT element from Org to Groff.
+CONTENTS is nil.  INFO is a plist holding contextual information."
+  (let ((label (org-element-property :name latex-environment))
+        (value (org-remove-indentation
+                (org-element-property :value latex-environment))))
+    (if (not (org-string-nw-p label)) value
+      ;; Environment is labelled: label must be within the environment
+      ;; (otherwise, a reference pointing to that element will count
+      ;; the section instead).
+      (with-temp-buffer
+        (insert value)
+        (goto-char (point-min))
+        (forward-line)
+        (insert (format "%s\n" label))
+        (buffer-string)))))
+
+;;; LaTeX Fragment
 
 (defun org-e-groff-latex-fragment (latex-fragment contents info)
   "Transcode a LATEX-FRAGMENT object from Org to Groff.
 CONTENTS is nil.  INFO is a plist holding contextual information."
   (org-element-property :value latex-fragment))
-
-(defun org-e-groff-latex-environment (latex-environment contents info)
-  "Transcode a LATEX-ENVIRONMENT element from Org to GROFF
-CONTENTS is nil.  INFO is a plist holding contextual information."
-  (let ((processing-type (plist-get info :LaTeX-fragments))
-	(latex-frag (org-remove-indentation
-		     (org-element-property :value latex-environment)))
-	(caption (org-export-data
-		  (org-export-get-caption latex-environment) info))
- 	(label (org-element-property :name latex-environment)))
-
-    (cond
-     ((eq processing-type 'dvipng)
-      (let* ((formula-link (org-e-groff-format-latex
-			    latex-frag processing-type)))
-        (message "RASTER2PS :: %s" org-e-groff-raster-to-ps)
-        (when (and formula-link
-                   (string-match "file:\\([^]]*\\)" formula-link))
-
-          (if org-e-groff-raster-to-ps
-              (let ((eps-path (concat (match-string 1 formula-link) ".eps")))
-                (shell-command 
-                 (format org-e-groff-raster-to-ps (match-string 1 formula-link) eps-path))
-                (format "\n.DS L F\n.PSPIC \"%s\" \n.DE " eps-path))
-            latex-frag)
-
- 	  ;; (org-e-groff-format-inline-image
- 	  ;;  (match-string 1 formula-link) caption label attr t)
-
-      )))
-      (t latex-frag))))
-
-
-;; (defun org-e-groff-latex-environment (latex-environment contents info)
-;;   "Transcode a LATEX-ENVIRONMENT element from Org to Groff.
-;; CONTENTS is nil.  INFO is a plist holding contextual information."
-;;   (let ((label (org-element-property :name latex-environment))
-;;         (value (org-remove-indentation
-;;                 (org-element-property :value latex-environment))))
-;;     (if (not (org-string-nw-p label)) value
-;;       ;; Environment is labelled: label must be within the environment
-;;       ;; (otherwise, a reference pointing to that element will count
-;;       ;; the section instead).
-;;       (with-temp-buffer
-;;         (insert value)
-;;         (goto-char (point-min))
-;;         (forward-line)
-;;         (insert (format "%s\n" label))
-;;         (buffer-string)))))
-
-;;; LaTeX Fragment
-
-
-
-;;;; Latex Environment HTML
-
-;; (defun org-e-html-format-latex (latex-frag processing-type)
-;;   (let* ((cache-relpath
-;; 	  (concat "ltxpng/" (file-name-sans-extension
-;; 			     (file-name-nondirectory (buffer-file-name)))))
-;; 	 (cache-dir (file-name-directory (buffer-file-name )))
-;; 	 (display-msg "Creating LaTeX Image..."))
-
-;;     (with-temp-buffer
-;;       (insert latex-frag)
-;;       (org-format-latex cache-relpath cache-dir nil display-msg
-;; 			nil nil processing-type)
-;;       (buffer-string))))
-
-;; (defun org-e-html-latex-environment (latex-environment contents info)
-;;   "Transcode a LATEX-ENVIRONMENT element from Org to HTML.
-;; CONTENTS is nil.  INFO is a plist holding contextual information."
-;;   (let ((processing-type (plist-get info :LaTeX-fragments))
-;; 	(latex-frag (org-remove-indentation
-;; 		     (org-element-property :value latex-environment)))
-;; 	(caption (org-export-data
-;; 		  (org-export-get-caption latex-environment) info))
-;; 	(attr nil)			; FIXME
-;; 	(label (org-element-property :name latex-environment)))
-;;     (cond
-;;      ((memq processing-type '(t mathjax))
-;;       (org-e-html-format-latex latex-frag 'mathjax))
-;;      ((eq processing-type 'dvipng)
-;;       (let* ((formula-link (org-e-html-format-latex
-;; 			    latex-frag processing-type)))
-;; 	(when (and formula-link
-;; 		   (string-match "file:\\([^]]*\\)" formula-link))
-;; 	  (org-e-html-format-inline-image
-;; 	   (match-string 1 formula-link) caption label attr t))))
-;;      (t latex-frag))))
-
-
-;; ;;;; Latex Fragment
-
-;; (defun org-e-html-latex-fragment (latex-fragment contents info)
-;;   "Transcode a LATEX-FRAGMENT object from Org to HTML.
-;; CONTENTS is nil.  INFO is a plist holding contextual information."
-;;   (let ((latex-frag (org-element-property :value latex-fragment))
-;; 	(processing-type (plist-get info :LaTeX-fragments)))
-;;     (case processing-type
-;;       ((t mathjax)
-;;        (org-e-html-format-latex latex-frag 'mathjax))
-;;       (dvipng
-;;        (let* ((formula-link (org-e-html-format-latex
-;; 			     latex-frag processing-type)))
-;; 	 (when (and formula-link
-;; 		    (string-match "file:\\([^]]*\\)" formula-link))
-;; 	   (org-e-html-format-inline-image
-;; 	    (match-string 1 formula-link)))))
-;;       (t latex-frag))))
-
-
 
 ;;; Line Break
 
