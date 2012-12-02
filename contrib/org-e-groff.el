@@ -102,8 +102,7 @@
        (?o "As PDF file and open"
 	   (lambda (s v b) (org-open-file (org-e-groff-export-to-pdf s v b))))))
   :options-alist
-  ((:date "DATE" nil org-e-groff-date-format t)
-   (:groff-class "GROFF_CLASS" nil org-e-groff-default-class t)
+  ((:groff-class "GROFF_CLASS" nil org-e-groff-default-class t)
    (:groff-class-options "GROFF_CLASS_OPTIONS" nil nil t)
    (:groff-header-extra "GROFF_HEADER" nil nil newline)))
 
@@ -170,13 +169,6 @@
                         (choice
                          (list :tag "Heading")
                          (function :tag "Hook computing sectioning"))))))
-
-
-(defcustom org-e-groff-date-format
-  (format-time-string "%Y-%m-%d")
-  "Format string for .ND "
-  :group 'org-export-e-groff
-  :type 'boolean)
 
 ;;; Headline
 
@@ -430,38 +422,6 @@ language.")
 
 ;;; Plain text
 
-(defcustom org-e-groff-quotes
-  '(("fr"
-     ("\\(\\s-\\|[[(]\\|^\\)\"" . "«~")
-     ("\\(\\S-\\)\"" . "~»")
-     ("\\(\\s-\\|(\\|^\\)'" . "'"))
-    ("en"
-     ("\\(\\s-\\|[[(]\\|^\\)\"" . "``")
-     ("\\(\\S-\\)\"" . "''")
-     ("\\(\\s-\\|(\\|^\\)'" . "`")))
-  "Alist for quotes to use when converting english double-quotes.
-
-The CAR of each item in this alist is the language code.
-The CDR of each item in this alist is a list of three CONS:
-- the first CONS defines the opening quote;
-- the second CONS defines the closing quote;
-- the last CONS defines single quotes.
-
-For each item in a CONS, the first string is a regexp
-for allowed characters before/after the quote, the second
-string defines the replacement string for this quote."
-  :group 'org-export-e-groff
-  :type '(list
-          (cons :tag "Opening quote"
-                (string :tag "Regexp for char before")
-                (string :tag "Replacement quote     "))
-          (cons :tag "Closing quote"
-                (string :tag "Regexp for char after ")
-                (string :tag "Replacement quote     "))
-          (cons :tag "Single quote"
-                (string :tag "Regexp for char before")
-                (string :tag "Replacement quote     "))))
-
 (defcustom org-e-groff-special-char
   '(("(c)" . "\\\\(co")
     ("(tm)" . "\\\\(tm")
@@ -552,20 +512,6 @@ For non-floats, see `org-e-groff--wrap-label'."
 			 (org-export-data main info)))
 	  ;; Standard caption format.
 	  (t (format "\\fR%s\\fP" (org-export-data main info))))))
-
-(defun org-e-groff--quotation-marks (text info)
-  "Export quotation marks depending on language conventions.
-TEXT is a string containing quotation marks to be replaced.  INFO
-is a plist used as a communication channel."
-  (mapc (lambda(l)
-          (let ((start 0))
-            (while (setq start (string-match (car l) text start))
-              (let ((new-quote (concat (match-string 1 text) (cdr l))))
-                (setq text (replace-match new-quote  t t text))))))
-        (cdr (or (assoc (plist-get info :language) org-e-groff-quotes)
-                 ;; Falls back on English.
-                 (assoc "en" org-e-groff-quotes))))
-  text)
 
 (defun org-e-groff--wrap-label (element output)
   "Wrap label associated to ELEMENT around OUTPUT, if appropriate.
@@ -673,8 +619,9 @@ See `org-e-groff-text-markup-alist' for details."
        ""))
 
    ;; 5. Date.
-   (let ((date (org-export-data (plist-get info :date) info)))
-     (and date (format ".ND \"%s\"\n" date)))
+   (when (plist-get info :with-date)
+     (let ((date (org-export-data (plist-get info :date) info)))
+       (and date (format ".ND \"%s\"\n" date))))
 
    ;;
    ;; If Abstract, then Populate Abstract
@@ -876,8 +823,10 @@ information."
   (concat
    (format "\\fB%s\\fP " org-clock-string)
    (format org-e-groff-inactive-timestamp-format
-           (concat (org-translate-time (org-element-property :value clock))
-                   (let ((time (org-element-property :time clock)))
+           (concat (org-translate-time
+		    (org-element-property :raw-value
+					  (org-element-property :value clock)))
+                   (let ((time (org-element-property :duration clock)))
                      (and time (format " (%s)" time)))))))
 
 ;;; Code
@@ -919,7 +868,7 @@ holding contextual information.  See `org-export-data'."
   "Transcode an ENTITY object from Org to Groff.
 CONTENTS are the definition itself.  INFO is a plist holding
 contextual information."
-  (let ((ent (org-element-property :utf8 entity))) ent))
+  (org-element-property :utf-8 entity))
 
 ;;; Example Block
 
@@ -1447,24 +1396,27 @@ contextual information."
   "Transcode a TEXT string from Org to Groff.
 TEXT is the string to transcode.  INFO is a plist holding
 contextual information."
-  ;; Protect
-  (setq text (replace-regexp-in-string
-              "\\(?:[^\\]\\|^\\)\\(\\\\\\)\\(?:[^%$#&{}~^_\\]\\|$\\)"
-              "$\\" text nil t 1))
-  ;; Handle quotation marks
-  (setq text (org-e-groff--quotation-marks text info))
+(let ((output text))
+  ;; Protect various characters.
+  (setq output (replace-regexp-in-string
+		"\\(?:[^\\]\\|^\\)\\(\\\\\\)\\(?:[^%$#&{}~^_\\]\\|$\\)"
+		"$\\" output nil t 1))
+  ;; Activate smart quotes.  Be sure to provide original TEXT string
+  ;; since OUTPUT may have been modified.
+  (when (plist-get info :with-smart-quotes)
+    (setq output (org-export-activate-smart-quotes output :utf-8 info text)))
   ;; Handle Special Characters
   (if org-e-groff-special-char
       (dolist (special-char-list org-e-groff-special-char)
-        (setq text
-              (replace-regexp-in-string (car special-char-list)
-                                        (cdr special-char-list) text))))
+	(setq output
+	      (replace-regexp-in-string (car special-char-list)
+					(cdr special-char-list) output))))
   ;; Handle break preservation if required.
   (when (plist-get info :preserve-breaks)
-    (setq text (replace-regexp-in-string
-		"\\(\\\\\\\\\\)?[ \t]*\n" " \\\\\\\\\n" text)))
+    (setq output (replace-regexp-in-string
+		  "\\(\\\\\\\\\\)?[ \t]*\n" ".br\n" output)))
   ;; Return value.
-  text)
+  output))
 
 ;;; Planning
 
@@ -1482,19 +1434,22 @@ information."
                (concat
                 (format "\\fR %s \\fP" org-closed-string)
                 (format org-e-groff-inactive-timestamp-format
-                        (org-translate-time closed)))))
+                        (org-translate-time
+			 (org-element-property :raw-value closed))))))
            (let ((deadline (org-element-property :deadline planning)))
              (when deadline
                (concat
                 (format "\\fB %s \\fP" org-deadline-string)
                 (format org-e-groff-active-timestamp-format
-                        (org-translate-time deadline)))))
+                        (org-translate-time
+			 (org-element-property :raw-value deadline))))))
            (let ((scheduled (org-element-property :scheduled planning)))
              (when scheduled
                (concat
                 (format "\\fR %s \\fP" org-scheduled-string)
                 (format org-e-groff-active-timestamp-format
-                        (org-translate-time scheduled)))))))
+                        (org-translate-time
+			 (org-element-property :raw-value scheduled))))))))
     "")
    ""))
 
@@ -1894,13 +1849,14 @@ information."
   "Transcode a TIMESTAMP object from Org to Groff.
 CONTENTS is nil.  INFO is a plist holding contextual
 information."
-  (let ((value (org-translate-time (org-element-property :value timestamp)))
-        (type (org-element-property :type timestamp)))
-    (cond ((memq type '(active active-range))
-           (format org-e-groff-active-timestamp-format value))
-          ((memq type '(inactive inactive-range))
-           (format org-e-groff-inactive-timestamp-format value))
-          (t (format org-e-groff-diary-timestamp-format value)))))
+  (let ((value (org-e-groff-plain-text
+		(org-export-translate-timestamp timestamp) info)))
+    (case (org-element-property :type timestamp)
+      ((active active-range)
+       (format org-e-groff-active-timestamp-format value))
+      ((inactive inactive-range)
+       (format org-e-groff-inactive-timestamp-format value))
+      (t (format org-e-groff-diary-timestamp-format value)))))
 
 ;;; Underline
 
@@ -1930,7 +1886,7 @@ contextual information."
 ;;; Interactive functions
 
 (defun org-e-groff-export-to-groff
-  (&optional subtreep visible-only body-only ext-plist pub-dir)
+  (&optional subtreep visible-only body-only ext-plist)
   "Export current buffer to a Groff file.
 
 If narrowing is active in the current buffer, only export its
@@ -1949,19 +1905,16 @@ EXT-PLIST, when provided, is a property list with external
 parameters overriding Org default settings, but still inferior to
 file-local settings.
 
-When optional argument PUB-DIR is set, use it as the publishing
-directory.
-
 Return output file's name."
   (interactive)
   (setq org-e-groff-registered-references nil)
   (setq org-e-groff-special-content nil)
-  (let ((outfile (org-export-output-file-name ".groff" subtreep pub-dir)))
+  (let ((outfile (org-export-output-file-name ".groff" subtreep)))
     (org-export-to-file
      'e-groff outfile subtreep visible-only body-only ext-plist)))
 
 (defun org-e-groff-export-to-pdf
-  (&optional subtreep visible-only body-only ext-plist pub-dir)
+  (&optional subtreep visible-only body-only ext-plist)
   "Export current buffer to Groff then process through to PDF.
 
 If narrowing is active in the current buffer, only export its
@@ -1980,72 +1933,68 @@ EXT-PLIST, when provided, is a property list with external
 parameters overriding Org default settings, but still inferior to
 file-local settings.
 
-When optional argument PUB-DIR is set, use it as the publishing
-directory.
-
 Return PDF file's name."
   (interactive)
   (org-e-groff-compile
-   (org-e-groff-export-to-groff
-    subtreep visible-only body-only ext-plist pub-dir)))
+   (org-e-groff-export-to-groff subtreep visible-only body-only ext-plist)))
 
-(defun org-e-groff-compile (grofffile)
+(defun org-e-groff-compile (file)
   "Compile a Groff file.
 
-GROFFFILE is the name of the file being compiled.  Processing is
-done through the command specified in `org-e-groff-pdf-process'.
+FILE is the name of the file being compiled.  Processing is done
+through the command specified in `org-e-groff-pdf-process'.
 
 Return PDF file name or an error if it couldn't be produced."
-  (let* ((wconfig (current-window-configuration))
-         (grofffile (file-truename grofffile))
-         (base (file-name-sans-extension grofffile))
+  (let* ((base-name (file-name-sans-extension (file-name-nondirectory file)))
+	 (full-name (file-truename file))
+	 (out-dir (file-name-directory file))
+	 ;; Make sure `default-directory' is set to FILE directory,
+	 ;; not to whatever value the current buffer may have.
+	 (default-directory (file-name-directory full-name))
          errors)
-    (message (format "Processing Groff file %s ..." grofffile))
-    (unwind-protect
-        (progn
-          (cond
-           ;; A function is provided: Apply it.
-           ((functionp org-e-groff-pdf-process)
-            (funcall org-e-groff-pdf-process (shell-quote-argument grofffile)))
-           ;; A list is provided: Replace %b, %f and %o with appropriate
-           ;; values in each command before applying it.  Output is
-           ;; redirected to "*Org PDF Groff Output*" buffer.
-           ((consp org-e-groff-pdf-process)
-            (let* ((out-dir (or (file-name-directory grofffile) "./"))
-                   (outbuf (get-buffer-create "*Org PDF Groff Output*")))
-              (mapc
-               (lambda (command)
-                 (shell-command
-                  (replace-regexp-in-string
-                   "%b" (shell-quote-argument base)
-                   (replace-regexp-in-string
-                    "%f" (shell-quote-argument grofffile)
-                    (replace-regexp-in-string
-                     "%o" (shell-quote-argument out-dir) command t t)
-		    t t) t t)
-                  outbuf))
-               org-e-groff-pdf-process)
-              ;; Collect standard errors from output buffer.
-              (setq errors (org-e-groff-collect-errors outbuf))))
-           (t (error "No valid command to process to PDF")))
-          (let ((pdffile (concat base ".pdf")))
-            ;; Check for process failure.  Provide collected errors if
-            ;; possible.
-            (if (not (file-exists-p pdffile))
-                (error (concat (format "PDF file %s wasn't produced" pdffile)
-                               (when errors (concat ": " errors))))
-              ;; Else remove log files, when specified, and signal end of
-              ;; process to user, along with any error encountered.
-              (when org-e-groff-remove-logfiles
-                (dolist (ext org-e-groff-logfiles-extensions)
-                  (let ((file (concat base "." ext)))
-                    (when (file-exists-p file) (delete-file file)))))
-              (message (concat "Process completed"
-                               (if (not errors) "."
-                                 (concat " with errors: " errors)))))
-            ;; Return output file name.
-            pdffile))
-      (set-window-configuration wconfig))))
+    (message (format "Processing Groff file %s ..." file))
+    (save-window-excursion
+      (cond
+       ;; A function is provided: Apply it.
+       ((functionp org-e-groff-pdf-process)
+	(funcall org-e-groff-pdf-process (shell-quote-argument file)))
+       ;; A list is provided: Replace %b, %f and %o with appropriate
+       ;; values in each command before applying it.  Output is
+       ;; redirected to "*Org PDF Groff Output*" buffer.
+       ((consp org-e-groff-pdf-process)
+	(let ((outbuf (get-buffer-create "*Org PDF Groff Output*")))
+	  (mapc
+	   (lambda (command)
+	     (shell-command
+	      (replace-regexp-in-string
+	       "%b" (shell-quote-argument base-name)
+	       (replace-regexp-in-string
+		"%f" (shell-quote-argument full-name)
+		(replace-regexp-in-string
+		 "%o" (shell-quote-argument out-dir) command t t)
+		t t) t t)
+	      outbuf))
+	   org-e-groff-pdf-process)
+	  ;; Collect standard errors from output buffer.
+	  (setq errors (org-e-groff-collect-errors outbuf))))
+       (t (error "No valid command to process to PDF")))
+      (let ((pdffile (concat out-dir base-name ".pdf")))
+	;; Check for process failure.  Provide collected errors if
+	;; possible.
+	(if (not (file-exists-p pdffile))
+	    (error (concat (format "PDF file %s wasn't produced" pdffile)
+			   (when errors (concat ": " errors))))
+	  ;; Else remove log files, when specified, and signal end of
+	  ;; process to user, along with any error encountered.
+	  (when org-e-groff-remove-logfiles
+	    (dolist (ext org-e-groff-logfiles-extensions)
+	      (let ((file (concat out-dir base-name "." ext)))
+		(when (file-exists-p file) (delete-file file)))))
+	  (message (concat "Process completed"
+			   (if (not errors) "."
+			     (concat " with errors: " errors)))))
+	;; Return output file name.
+	pdffile))))
 
 (defun org-e-groff-collect-errors (buffer)
   "Collect some kind of errors from \"groff\" output
